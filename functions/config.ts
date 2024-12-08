@@ -1,11 +1,10 @@
 import { Context } from 'hono';
 import { D1Database } from '@cloudflare/workers-types';
 
-export interface Bindings {
+export type Bindings = {
   JWT_SECRET: string;
   CORS_ORIGINS: string;
   DB: D1Database;
-  [key: string]: string | D1Database;
 }
 
 export const getConfig = (c: Context<{ Bindings: Bindings }>) => ({

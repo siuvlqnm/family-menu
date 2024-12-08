@@ -3,8 +3,9 @@ import { zValidator } from '@hono/zod-validator';
 import { loginSchema, registerSchema } from '../types/auth';
 import { AuthService } from '../services/auth';
 import { createDb } from '../db';
+import { Bindings } from '../config';
 
-const auth = new Hono();
+const auth = new Hono<{ Bindings: Bindings }>();
 
 // 用户注册
 auth.post(

@@ -1,6 +1,19 @@
 import { sql } from 'drizzle-orm';
 import { sqliteTable, text, integer } from 'drizzle-orm/sqlite-core';
 
+// 定义食材接口
+export interface Ingredient {
+  id?: string;
+  name: string;
+  quantity: number;
+  unit: string;
+}
+
+export interface Step {
+  order: number;
+  description: string;
+}
+
 // 用户表
 export const users = sqliteTable('users', {
   id: text('id').primaryKey(),
@@ -9,10 +22,10 @@ export const users = sqliteTable('users', {
   password: text('password').notNull(),
   createdAt: integer('created_at', { mode: 'timestamp' })
     .notNull()
-    .default(sql\`CURRENT_TIMESTAMP\`),
+    .default(sql`CURRENT_TIMESTAMP`),
   updatedAt: integer('updated_at', { mode: 'timestamp' })
     .notNull()
-    .default(sql\`CURRENT_TIMESTAMP\`),
+    .default(sql`CURRENT_TIMESTAMP`),
 });
 
 // 家庭组表
@@ -22,10 +35,10 @@ export const familyGroups = sqliteTable('family_groups', {
   inviteCode: text('invite_code').notNull().unique(),
   createdAt: integer('created_at', { mode: 'timestamp' })
     .notNull()
-    .default(sql\`CURRENT_TIMESTAMP\`),
+    .default(sql`CURRENT_TIMESTAMP`),
   updatedAt: integer('updated_at', { mode: 'timestamp' })
     .notNull()
-    .default(sql\`CURRENT_TIMESTAMP\`),
+    .default(sql`CURRENT_TIMESTAMP`),
 });
 
 // 家庭组成员表
@@ -40,7 +53,7 @@ export const familyMembers = sqliteTable('family_members', {
   role: text('role', { enum: ['admin', 'member'] }).notNull(),
   joinedAt: integer('joined_at', { mode: 'timestamp' })
     .notNull()
-    .default(sql\`CURRENT_TIMESTAMP\`),
+    .default(sql`CURRENT_TIMESTAMP`),
 });
 
 // 食谱表
@@ -67,10 +80,10 @@ export const recipes = sqliteTable('recipes', {
   steps: text('steps', { mode: 'json' }).notNull().$type<Step[]>(),
   createdAt: integer('created_at', { mode: 'timestamp' })
     .notNull()
-    .default(sql\`CURRENT_TIMESTAMP\`),
+    .default(sql`CURRENT_TIMESTAMP`),
   updatedAt: integer('updated_at', { mode: 'timestamp' })
     .notNull()
-    .default(sql\`CURRENT_TIMESTAMP\`),
+    .default(sql`CURRENT_TIMESTAMP`),
 });
 
 // 食谱共享表
@@ -90,7 +103,7 @@ export const recipeShares = sqliteTable('recipe_shares', {
     .references(() => users.id),
   sharedAt: integer('shared_at', { mode: 'timestamp' })
     .notNull()
-    .default(sql\`CURRENT_TIMESTAMP\`),
+    .default(sql`CURRENT_TIMESTAMP`),
 });
 
 // 菜单表
@@ -112,10 +125,10 @@ export const menus = sqliteTable('menus', {
     .references(() => users.id),
   createdAt: integer('created_at', { mode: 'timestamp' })
     .notNull()
-    .default(sql\`CURRENT_TIMESTAMP\`),
+    .default(sql`CURRENT_TIMESTAMP`),
   updatedAt: integer('updated_at', { mode: 'timestamp' })
     .notNull()
-    .default(sql\`CURRENT_TIMESTAMP\`),
+    .default(sql`CURRENT_TIMESTAMP`),
 });
 
 // 菜单项表
@@ -134,8 +147,8 @@ export const menuItems = sqliteTable('menu_items', {
   note: text('note'),
   createdAt: integer('created_at', { mode: 'timestamp' })
     .notNull()
-    .default(sql\`CURRENT_TIMESTAMP\`),
+    .default(sql`CURRENT_TIMESTAMP`),
   updatedAt: integer('updated_at', { mode: 'timestamp' })
     .notNull()
-    .default(sql\`CURRENT_TIMESTAMP\`),
+    .default(sql`CURRENT_TIMESTAMP`),
 });

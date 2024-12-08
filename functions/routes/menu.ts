@@ -9,9 +9,10 @@ import {
 } from '../types/menu';
 import { MenuService } from '../services/menu';
 import { createDb } from '../db';
-import { getCurrentUser } from '../utils/auth';
+import { getCurrentUser } from '../middleware/auth';
+import { Bindings } from '../config';
 
-const menu = new Hono();
+const menu = new Hono<{ Bindings: Bindings }>();
 
 // 创建菜单
 menu.post(

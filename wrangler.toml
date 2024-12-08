@@ -1,25 +1,18 @@
-[env.development]
-name = "family-menu-dev"
-compatibility_date = "2024-01-01"
-
-[env.development.vars]
-ENVIRONMENT = "development"
-JWT_SECRET = "your-development-secret-key"
-
-[[env.development.d1_databases]]
-binding = "DB"
-database_name = "family-menu-dev"
-database_id = "f0e71d09-6374-4856-858f-bd52a130bd2d"
-
-[env.production]
 name = "family-menu"
-compatibility_date = "2024-01-01"
+pages_build_output_dir = "out"
+compatibility_date = "2024-10-30"
 
-[env.production.vars]
-ENVIRONMENT = "production"
-JWT_SECRET = "your-production-secret-key"
+[placement]
+mode = "smart"
 
-[[env.production.d1_databases]]
-binding = "DB"
-database_name = "family-menu"
-database_id = "72015ae1-bde3-47d2-b29b-83ecba66b701"
+[vars]
+ADMIN_SALT = "d8e8fca2dc0f896fd7cb4cb0031ba249"
+ADMIN_TOKEN_EXPIRES_HOURS = "1"
+CLIENT_TOKEN_EXPIRES_HOURS = "0.5"
+JWT_SECRET = "2b7e151628aed2a6abf7158809cf4f3c"
+
+[[d1_databases]]
+binding = "FAMILY_MENU_DB"
+database_name = "family_menu_db"
+database_id = "58eb1450-31a2-43c4-a342-36abd4ba1f47"
+preview_database_id = "58eb1450-31a2-43c4-a342-36abd4ba1f47"

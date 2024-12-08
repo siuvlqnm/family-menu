@@ -3,9 +3,10 @@ import { zValidator } from '@hono/zod-validator';
 import { shareRecipeSchema, shareManyRecipesSchema } from '../types/recipe-share';
 import { RecipeShareService } from '../services/recipe-share';
 import { createDb } from '../db';
-import { getCurrentUser } from '../utils/auth';
+import { getCurrentUser } from '../middleware/auth';
+import { Bindings } from '../config';
 
-const recipeShare = new Hono();
+const recipeShare = new Hono<{ Bindings: Bindings }>();
 
 // 共享食谱到家庭组
 recipeShare.post(

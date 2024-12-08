@@ -1,4 +1,4 @@
-import { and, eq } from 'drizzle-orm';
+import { and, eq, sql } from 'drizzle-orm';
 import { HTTPException } from 'hono/http-exception';
 import { Database, familyGroups, familyMembers, users } from '../db';
 import {
@@ -191,7 +191,7 @@ export class FamilyService {
     // 更新成员角色
     const [updatedMember] = await this.db.update(familyMembers)
       .set({
-        role: input.role,
+        role: input.role as typeof MemberRole[keyof typeof MemberRole],
       })
       .where(eq(familyMembers.id, memberId))
       .returning();
@@ -224,7 +224,7 @@ export class FamilyService {
     // 如果是最后一个管理员，不能退出
     if (member.role === MemberRole.ADMIN) {
       const adminCount = await this.db
-        .select({ count: sql\`count(*)\` })
+        .select({ count: sql`count(*)`})
         .from(familyMembers)
         .where(
           and(

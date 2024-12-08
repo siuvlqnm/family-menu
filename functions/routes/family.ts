@@ -8,9 +8,10 @@ import {
 } from '../types/family';
 import { FamilyService } from '../services/family';
 import { createDb } from '../db';
-import { getCurrentUser } from '../utils/auth';
+import { getCurrentUser } from '../middleware/auth';
+import { Bindings } from '../config';
 
-const family = new Hono();
+const family = new Hono<{ Bindings: Bindings }>();
 
 // 创建家庭组
 family.post(
