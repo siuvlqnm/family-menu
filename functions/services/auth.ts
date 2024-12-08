@@ -33,7 +33,7 @@ export class AuthService {
       id: nanoid(),
       name: input.name,
       email: input.email,
-      password: hashPassword(input.password, this.c.env.JWT_SECRET),
+      password: await hashPassword(input.password, this.c.env.JWT_SECRET),
     }).returning();
 
     // 生成 token
@@ -52,7 +52,7 @@ export class AuthService {
       where: eq(users.email, input.email),
     });
 
-    if (!user || !verifyPassword(input.password, user.password, this.c.env.JWT_SECRET)) {
+    if (!user || !(await verifyPassword(input.password, user.password, this.c.env.JWT_SECRET))) {
       throw new HTTPException(401, { message: 'Invalid email or password' });
     }
 

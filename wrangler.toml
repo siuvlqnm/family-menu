@@ -12,7 +12,7 @@ CLIENT_TOKEN_EXPIRES_HOURS = "0.5"
 JWT_SECRET = "2b7e151628aed2a6abf7158809cf4f3c"
 
 [[d1_databases]]
-binding = "FAMILY_MENU_DB"
+binding = "DB"
 database_name = "family_menu_db"
 database_id = "58eb1450-31a2-43c4-a342-36abd4ba1f47"
 preview_database_id = "58eb1450-31a2-43c4-a342-36abd4ba1f47"
