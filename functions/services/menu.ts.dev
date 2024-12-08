@@ -1,4 +1,4 @@
-import { and, between, eq } from 'drizzle-orm';
+import { and, between, eq, sql } from 'drizzle-orm';
 import { HTTPException } from 'hono/http-exception';
 import { Database, familyMembers, menuItems, menus, recipes } from '../db';
 import {
@@ -149,7 +149,7 @@ export class MenuService {
         offset,
         orderBy: (menus, { desc }) => [desc(menus.createdAt)],
       }),
-      this.db.select({ count: sql\`count(*)\` })
+      this.db.select({ count: sql`count(*)` })
         .from(menus)
         .where(and(...conditions)),
     ]);

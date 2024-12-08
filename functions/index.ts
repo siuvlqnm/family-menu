@@ -3,9 +3,9 @@ import { cors } from 'hono/cors';
 import { HTTPException } from 'hono/http-exception';
 import { authRouter } from './routes/auth';
 import { familyRouter } from './routes/family';
-import { menuRouter } from './routes/menu';
+// import { menuRouter } from './routes/menu.ts.dev';
 // import { recipeRouter } from './routes/recipe';
-import { recipeShareRouter } from './routes/recipe-share';
+// import { recipeShareRouter } from './routes/recipe-share.ts.dev';
 import { authMiddleware } from './middleware/auth';
 import { errorHandler } from './middleware/error';
 
@@ -25,9 +25,9 @@ app.route('/api/auth', authRouter);
 // 需要认证的路由
 const protectedRoutes = app.use('*', authMiddleware);
 protectedRoutes.route('/api/family', familyRouter);
-protectedRoutes.route('/api/menu', menuRouter);
+// protectedRoutes.route('/api/menu', menuRouter);
 // protectedRoutes.route('/api/recipe', recipeRouter);
-protectedRoutes.route('/api/recipe-share', recipeShareRouter);
+// protectedRoutes.route('/api/recipe-share', recipeShareRouter);
 
 // 404 处理
 app.notFound((c) => {

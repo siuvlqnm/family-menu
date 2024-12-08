@@ -1,7 +1,7 @@
 import { Hono } from 'hono';
 import { zValidator } from '@hono/zod-validator';
 import { shareRecipeSchema, shareManyRecipesSchema } from '../types/recipe-share';
-import { RecipeShareService } from '../services/recipe-share';
+import { RecipeShareService } from '../services/recipe-share.ts.dev';
 import { createDb } from '../db';
 import { getCurrentUser } from '../middleware/auth';
 import { Bindings } from '../config';

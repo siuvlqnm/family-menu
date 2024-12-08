@@ -175,7 +175,7 @@ export class FamilyService {
     input: UpdateMemberRoleInput,
     user: AuthUser
   ): Promise<FamilyMember> {
-    // 检查管理员权限
+    // 检查是否是管理员
     const adminMember = await this.db.query.familyMembers.findFirst({
       where: and(
         eq(familyMembers.familyGroupId, groupId),
@@ -200,7 +200,24 @@ export class FamilyService {
       throw new HTTPException(404, { message: 'Member not found' });
     }
 
-    return updatedMember;
+    // 获取用户详细信息
+    const memberUser = await this.db.query.users.findFirst({
+      where: eq(users.id, updatedMember.userId),
+    });
+
+    if (!memberUser) {
+      throw new HTTPException(404, { message: 'User not found' });
+    }
+
+    // 返回完整的 FamilyMember 对象
+    return {
+      ...updatedMember,
+      user: {
+        id: memberUser.id,
+        name: memberUser.name,
+        email: memberUser.email
+      }
+    };
   }
 
   // 移除成员
