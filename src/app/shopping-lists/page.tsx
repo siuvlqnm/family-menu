@@ -3,6 +3,18 @@
 import { useAuth } from '@/contexts/auth-context';
 import { useRouter } from 'next/navigation';
 import { useEffect } from 'react';
+import { PageHeader } from '@/components/ui/page-header';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
+import { Progress } from '@/components/ui/progress';
+import { MoreVertical, Check, Plus } from 'lucide-react';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
 
 export default function ShoppingListsPage() {
   const { isAuthenticated } = useAuth();
@@ -15,121 +27,95 @@ export default function ShoppingListsPage() {
   }, [isAuthenticated, router]);
 
   return (
-    <div className="space-y-6">
-      <div className="md:flex md:items-center md:justify-between">
-        <div className="min-w-0 flex-1">
-          <h2 className="text-2xl font-bold leading-7 text-gray-900 sm:truncate sm:text-3xl sm:tracking-tight">
-            购物清单
-          </h2>
-        </div>
-        <div className="mt-4 flex md:ml-4 md:mt-0">
-          <button
-            type="button"
-            className="ml-3 inline-flex items-center rounded-md bg-indigo-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-indigo-700 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
-          >
-            新建清单
-          </button>
-        </div>
-      </div>
+    <div className="container space-y-6 py-6">
+      <PageHeader
+        title="购物清单"
+        actions={[
+          {
+            label: '新建清单',
+            icon: Plus,
+            onClick: () => {/* TODO */},
+          },
+        ]}
+      />
 
-      {/* 购物清单列表 */}
-      <div className="bg-white shadow sm:rounded-lg">
-        <div className="px-4 py-5 sm:p-6">
-          <div className="grid grid-cols-1 gap-4">
-            {/* 示例购物清单 */}
-            <div className="relative rounded-lg border border-gray-300 bg-white px-6 py-5 shadow-sm hover:border-gray-400">
-              <div className="flex justify-between items-start">
-                <div>
-                  <h3 className="text-lg font-medium text-gray-900">周末采购清单</h3>
-                  <div className="mt-1 flex items-center">
-                    <span className="inline-flex items-center rounded-full bg-yellow-100 px-2.5 py-0.5 text-xs font-medium text-yellow-800 mr-2">
-                      进行中
-                    </span>
-                    <span className="text-sm text-gray-500">2023-12-25</span>
-                  </div>
-                </div>
-                <div className="flex items-center">
-                  <span className="text-sm text-gray-500 mr-4">已完成 8/12 项</span>
-                  <button
-                    type="button"
-                    className="rounded-full p-1 text-gray-400 hover:text-gray-500"
-                  >
-                    <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth={2}
-                        d="M12 5v.01M12 12v.01M12 19v.01M12 6a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2z"
-                      />
-                    </svg>
-                  </button>
+      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+        <Card>
+          <CardHeader className="pb-3">
+            <div className="flex items-start justify-between">
+              <div className="space-y-1">
+                <CardTitle>周末采购清单</CardTitle>
+                <div className="flex items-center gap-2">
+                  <Badge variant="warning">进行中</Badge>
+                  <span className="text-sm text-muted-foreground">2023-12-25</span>
                 </div>
               </div>
-              <div className="mt-4">
-                <div className="relative pt-1">
-                  <div className="overflow-hidden h-2 mb-4 text-xs flex rounded bg-gray-200">
-                    <div
-                      style={{ width: '66.67%' }}
-                      className="shadow-none flex flex-col text-center whitespace-nowrap text-white justify-center bg-indigo-500"
-                    ></div>
-                  </div>
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button variant="ghost" size="icon">
+                    <MoreVertical className="h-4 w-4" />
+                    <span className="sr-only">打开菜单</span>
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end">
+                  <DropdownMenuItem>编辑</DropdownMenuItem>
+                  <DropdownMenuItem>删除</DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
+            </div>
+          </CardHeader>
+          <CardContent className="pb-3">
+            <div className="space-y-4">
+              <div className="space-y-2">
+                <div className="flex items-center justify-between text-sm">
+                  <span>完成进度</span>
+                  <span className="text-muted-foreground">8/12 项</span>
                 </div>
-                <div className="grid grid-cols-2 gap-4">
-                  <div>
-                    <h4 className="text-sm font-medium text-gray-900">待购买</h4>
-                    <ul className="mt-2 space-y-2">
-                      <li className="flex items-center text-sm text-gray-500">
-                        <svg className="mr-1.5 h-4 w-4 flex-shrink-0 text-gray-400" viewBox="0 0 20 20" fill="currentColor">
-                          <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
-                        </svg>
-                        五花肉 500g
-                      </li>
-                      <li className="flex items-center text-sm text-gray-500">
-                        <svg className="mr-1.5 h-4 w-4 flex-shrink-0 text-gray-400" viewBox="0 0 20 20" fill="currentColor">
-                          <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
-                        </svg>
-                        青菜 2斤
-                      </li>
-                    </ul>
-                  </div>
-                  <div>
-                    <h4 className="text-sm font-medium text-gray-900">已购买</h4>
-                    <ul className="mt-2 space-y-2">
-                      <li className="flex items-center text-sm text-gray-500 line-through">
-                        <svg className="mr-1.5 h-4 w-4 flex-shrink-0 text-green-500" viewBox="0 0 20 20" fill="currentColor">
-                          <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
-                        </svg>
-                        土豆 1kg
-                      </li>
-                      <li className="flex items-center text-sm text-gray-500 line-through">
-                        <svg className="mr-1.5 h-4 w-4 flex-shrink-0 text-green-500" viewBox="0 0 20 20" fill="currentColor">
-                          <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
-                        </svg>
-                        胡萝卜 500g
-                      </li>
-                    </ul>
-                  </div>
-                </div>
+                <Progress value={66.67} />
               </div>
-              <div className="mt-4 flex space-x-3">
-                <button
-                  type="button"
-                  className="inline-flex items-center rounded-md bg-white px-2.5 py-1.5 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50"
-                >
-                  查看详情
-                </button>
-                <button
-                  type="button"
-                  className="inline-flex items-center rounded-md bg-white px-2.5 py-1.5 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50"
-                >
-                  分享
-                </button>
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <h4 className="text-sm font-medium">待购买</h4>
+                  <ul className="space-y-2">
+                    <li className="flex items-center text-sm text-muted-foreground">
+                      <Check className="mr-1.5 h-4 w-4 text-muted-foreground" />
+                      五花肉 500g
+                    </li>
+                    <li className="flex items-center text-sm text-muted-foreground">
+                      <Check className="mr-1.5 h-4 w-4 text-muted-foreground" />
+                      青菜 2斤
+                    </li>
+                    <li className="flex items-center text-sm text-muted-foreground line-through">
+                      <Check className="mr-1.5 h-4 w-4 text-green-500" />
+                      胡萝卜 500g
+                    </li>
+                    <li className="flex items-center text-sm text-muted-foreground line-through">
+                      <Check className="mr-1.5 h-4 w-4 text-green-500" />
+                      土豆 1kg
+                    </li>
+                  </ul>
+                </div>
+                <div className="space-y-2">
+                  <h4 className="text-sm font-medium">已购买</h4>
+                  <ul className="space-y-2">
+                    <li className="flex items-center text-sm text-muted-foreground line-through">
+                      <Check className="mr-1.5 h-4 w-4 text-green-500" />
+                      胡萝卜 500g
+                    </li>
+                    <li className="flex items-center text-sm text-muted-foreground line-through">
+                      <Check className="mr-1.5 h-4 w-4 text-green-500" />
+                      土豆 1kg
+                    </li>
+                  </ul>
+                </div>
               </div>
             </div>
-
-            {/* 更多购物清单 */}
-          </div>
-        </div>
+          </CardContent>
+          <CardFooter className="flex gap-2">
+            <Button variant="outline" size="sm">查看详情</Button>
+            <Button variant="outline" size="sm">分享</Button>
+          </CardFooter>
+        </Card>
       </div>
     </div>
   );

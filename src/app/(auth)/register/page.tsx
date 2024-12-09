@@ -3,7 +3,47 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { useForm } from 'react-hook-form';
+import * as z from 'zod';
 import { useAuth } from '@/contexts/auth-context';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+  FormDescription,
+} from '@/components/ui/form';
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from '@/components/ui/card';
+import { Icons } from '@/components/ui/icons';
+import { Alert, AlertDescription } from '@/components/ui/alert';
+import { Checkbox } from '@/components/ui/checkbox';
+
+const formSchema = z
+  .object({
+    name: z.string().min(2, '姓名至少2个字符'),
+    email: z.string().email('请输入有效的邮箱地址'),
+    password: z.string().min(6, '密码至少6个字符'),
+    confirmPassword: z.string(),
+    acceptTerms: z.boolean().refine((val) => val === true, {
+      message: '请阅读并同意服务条款',
+    }),
+  })
+  .refine((data) => data.password === data.confirmPassword, {
+    message: '两次输入的密码不一致',
+    path: ['confirmPassword'],
+  });
 
 export default function RegisterPage() {
   const router = useRouter();
@@ -11,103 +51,204 @@ export default function RegisterPage() {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
 
-  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-    setError('');
+  const form = useForm<z.infer<typeof formSchema>>({
+    resolver: zodResolver(formSchema),
+    defaultValues: {
+      name: '',
+      email: '',
+      password: '',
+      confirmPassword: '',
+      acceptTerms: false,
+    },
+  });
+
+  async function onSubmit(values: z.infer<typeof formSchema>) {
     setIsLoading(true);
-
-    const formData = new FormData(e.currentTarget);
-    const email = formData.get('email') as string;
-    const password = formData.get('password') as string;
-    const name = formData.get('name') as string;
-
+    setError('');
+    
     try {
-      await register({ email, password, name });
+      await register({
+        name: values.name,
+        email: values.email,
+        password: values.password,
+      });
       router.push('/dashboard');
     } catch (err) {
-      setError('Failed to create account. Please try again.');
+      setError('注册失败，请重试');
     } finally {
       setIsLoading(false);
     }
-  };
+  }
 
   return (
-    <div className="min-h-screen flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
-      <div className="max-w-md w-full space-y-8">
-        <div>
-          <h2 className="mt-6 text-center text-3xl font-extrabold text-gray-900">
-            Create your account
-          </h2>
-          <p className="mt-2 text-center text-sm text-gray-600">
-            Or{' '}
-            <Link
-              href="/login"
-              className="font-medium text-indigo-600 hover:text-indigo-500"
-            >
-              sign in to your account
-            </Link>
-          </p>
+    <div className="container relative min-h-screen grid flex-col items-center justify-center lg:max-w-none lg:grid-cols-2 lg:px-0">
+      <div className="relative hidden h-full flex-col bg-muted p-6 text-white lg:flex dark:border-r">
+        <div className="absolute inset-0 bg-gradient-to-b from-orange-600 to-orange-800" />
+        <div className="relative z-20 flex items-center text-lg font-medium">
+          <Icons.logo className="mr-2 h-6 w-6 text-white" />
+          <span>家庭菜单</span>
         </div>
-        <form className="mt-8 space-y-6" onSubmit={handleSubmit}>
-          {error && (
-            <div className="rounded-md bg-red-50 p-4">
-              <div className="text-sm text-red-700">{error}</div>
-            </div>
-          )}
-          <div className="rounded-md shadow-sm -space-y-px">
-            <div>
-              <label htmlFor="name" className="sr-only">
-                Full name
-              </label>
-              <input
-                id="name"
-                name="name"
-                type="text"
-                required
-                className="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-t-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm"
-                placeholder="Full name"
-              />
-            </div>
-            <div>
-              <label htmlFor="email" className="sr-only">
-                Email address
-              </label>
-              <input
-                id="email"
-                name="email"
-                type="email"
-                autoComplete="email"
-                required
-                className="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm"
-                placeholder="Email address"
-              />
-            </div>
-            <div>
-              <label htmlFor="password" className="sr-only">
-                Password
-              </label>
-              <input
-                id="password"
-                name="password"
-                type="password"
-                autoComplete="new-password"
-                required
-                className="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-b-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm"
-                placeholder="Password"
-              />
-            </div>
-          </div>
-
-          <div>
-            <button
-              type="submit"
-              disabled={isLoading}
-              className="group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 disabled:opacity-50"
-            >
-              {isLoading ? 'Creating account...' : 'Create account'}
-            </button>
-          </div>
-        </form>
+        <div className="relative z-20 mt-6">
+          <blockquote className="space-y-2">
+            <p className="text-base font-medium">分享美食，共创生活</p>
+            <ul className="mt-4 space-y-2 text-sm">
+              <li className="flex items-center">
+                <Icons.check className="mr-2 h-4 w-4" />
+                记录家庭美食记忆
+              </li>
+              <li className="flex items-center">
+                <Icons.check className="mr-2 h-4 w-4" />
+                发现更多烹饪灵感
+              </li>
+              <li className="flex items-center">
+                <Icons.check className="mr-2 h-4 w-4" />
+                打造专属菜谱库
+              </li>
+            </ul>
+            <footer className="mt-4 text-xs text-orange-100">
+              温馨提示：加入我们，开启美食之旅
+            </footer>
+          </blockquote>
+        </div>
+      </div>
+      <div className="lg:p-8">
+        <div className="mx-auto flex w-full flex-col justify-center space-y-6 sm:w-[350px]">
+          <Card>
+            <CardHeader className="space-y-1">
+              <CardTitle className="text-2xl text-center">创建账号</CardTitle>
+              <CardDescription className="text-center">
+                填写以下信息创建您的账号
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              {error && (
+                <Alert variant="destructive">
+                  <AlertDescription>{error}</AlertDescription>
+                </Alert>
+              )}
+              <Form {...form}>
+                <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+                  <FormField
+                    control={form.control}
+                    name="name"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>姓名</FormLabel>
+                        <FormControl>
+                          <Input
+                            placeholder="请输入姓名"
+                            {...field}
+                            disabled={isLoading}
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  <FormField
+                    control={form.control}
+                    name="email"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>邮箱</FormLabel>
+                        <FormControl>
+                          <Input
+                            type="email"
+                            placeholder="请输入邮箱"
+                            {...field}
+                            disabled={isLoading}
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  <FormField
+                    control={form.control}
+                    name="password"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>密码</FormLabel>
+                        <FormControl>
+                          <Input
+                            type="password"
+                            placeholder="请输入密码"
+                            {...field}
+                            disabled={isLoading}
+                          />
+                        </FormControl>
+                        <FormDescription>
+                          密码至少包含6个字符
+                        </FormDescription>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  <FormField
+                    control={form.control}
+                    name="confirmPassword"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>确认密码</FormLabel>
+                        <FormControl>
+                          <Input
+                            type="password"
+                            placeholder="请再次输入密码"
+                            {...field}
+                            disabled={isLoading}
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  <FormField
+                    control={form.control}
+                    name="acceptTerms"
+                    render={({ field }) => (
+                      <FormItem className="flex flex-row items-start space-x-3 space-y-0">
+                        <FormControl>
+                          <Checkbox
+                            checked={field.value}
+                            onCheckedChange={field.onChange}
+                            disabled={isLoading}
+                          />
+                        </FormControl>
+                        <div className="space-y-1 leading-none">
+                          <FormLabel>
+                            我已阅读并同意
+                            <Button variant="link" className="px-1 font-normal" asChild>
+                              <Link href="/terms">服务条款</Link>
+                            </Button>
+                            和
+                            <Button variant="link" className="px-1 font-normal" asChild>
+                              <Link href="/privacy">隐私政策</Link>
+                            </Button>
+                          </FormLabel>
+                          <FormMessage />
+                        </div>
+                      </FormItem>
+                    )}
+                  />
+                  <Button type="submit" className="w-full" disabled={isLoading}>
+                    {isLoading && (
+                      <Icons.spinner className="mr-2 h-4 w-4 animate-spin" />
+                    )}
+                    注册
+                  </Button>
+                </form>
+              </Form>
+            </CardContent>
+            <CardFooter className="flex flex-wrap items-center justify-between gap-2">
+              <div className="text-sm text-muted-foreground">
+                已有账号？
+              </div>
+              <Button variant="outline" asChild>
+                <Link href="/login">登录</Link>
+              </Button>
+            </CardFooter>
+          </Card>
+        </div>
       </div>
     </div>
   );

@@ -118,6 +118,55 @@
    - 数据加密
    - 访问控制
 
+## 项目架构
+
+### 技术栈
+- **框架**: Next.js 15
+- **语言**: TypeScript
+- **样式**: TailwindCSS
+- **状态管理**: Zustand
+<!-- - **数据获取**: TanStack Query (React Query) -->
+- **UI组件**: Shadcn/UI (基于Radix UI的预设组件库)
+- **API层**: Hono
+- **数据库**: SQLite (使用 Drizzle ORM)
+- **部署**: Cloudflare Pages
+
+### 项目结构
+```
+family-menu/
+├── src/                      # 源代码目录
+│   ├── app/                  # Next.js 应用页面
+│   ├── components/           # React组件
+│   ├── contexts/             # React上下文
+│   ├── lib/                  # 工具函数和配置
+│   ├── services/             # 服务层
+│   ├── stores/              # Zustand状态管理
+│   └── types/               # TypeScript类型定义
+├── functions/               # Cloudflare Functions
+├── migrations/              # 数据库迁移文件
+├── docs/                    # 项目文档
+└── public/                  # 静态资源
+```
+
+### 主要依赖
+- `@hono/zod-validator`: API请求验证
+<!-- - `@libsql/client`: SQLite客户端 -->
+- `@radix-ui/react-*`: Shadcn/UI的底层组件
+<!-- - `@tanstack/react-query`: 数据获取和缓存 -->
+- `drizzle-orm`: 数据库ORM
+- `zustand`: 状态管理
+
+### 部署
+项目使用Cloudflare Pages进行部署，支持以下命令：
+- `npm run dev`: 本地开发
+- `npm run pages:dev`: 使用Cloudflare Workers本地开发
+- `npm run pages:deploy`: 部署到Cloudflare Pages
+
+### 数据库
+使用SQLite数据库，通过Drizzle ORM进行管理：
+- 数据库schema位于 `functions/db/schema.ts`
+- 迁移文件存放在 `migrations/` 目录
+
 ## 开发优先级
 
 ### 第一阶段（周1-2）[进行中 ]
