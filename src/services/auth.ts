@@ -1,8 +1,6 @@
 import { LoginCredentials, RegisterData, User } from '@/types/auth';
 import { apiClient } from '@/lib/api-client';
 
-const API_BASE_URL = '/api/auth';
-
 export const authService = {
   async login(credentials: LoginCredentials): Promise<{ token: string }> {
     return apiClient.post('/auth/login', credentials);

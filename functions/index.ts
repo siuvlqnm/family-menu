@@ -13,7 +13,13 @@ import { errorHandler } from './middleware/error';
 const app = new Hono();
 
 // 全局中间件
-app.use('*', cors());
+app.use('*', cors({
+  origin: ['http://localhost:3000'],
+  credentials: true,
+  allowMethods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  allowHeaders: ['Content-Type', 'Authorization'],
+  exposeHeaders: ['Content-Length', 'X-Kuma-Revision'],
+}));
 app.use('*', errorHandler());
 
 // 健康检查

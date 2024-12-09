@@ -76,6 +76,8 @@ export class ApiClient {
 
 // 创建API客户端实例
 export const apiClient = new ApiClient({
-  baseURL: '/api',
+  baseURL: process.env.NODE_ENV === 'development' 
+    ? 'http://localhost:8787/api'
+    : '/api',
   getToken: () => localStorage.getItem('token'),
 });
