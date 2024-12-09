@@ -29,7 +29,7 @@ import { Icons } from '@/components/ui/icons';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 
 const formSchema = z.object({
-  email: z.string().email('请输入有效的邮箱地址'),
+  username: z.string().min(3, '用户名至少3个字符').max(20, '用户名最多20个字符'),
   password: z.string().min(6, '密码至少6个字符'),
 });
 
@@ -42,7 +42,7 @@ export default function LoginPage() {
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      email: '',
+      username: '',
       password: '',
     },
   });
@@ -53,12 +53,12 @@ export default function LoginPage() {
     
     try {
       await login({
-        email: values.email,
+        username: values.username,
         password: values.password
       });
       router.push('/dashboard');
     } catch (err) {
-      setError('邮箱或密码错误');
+      setError('用户名或密码错误');
     } finally {
       setIsLoading(false);
     }
@@ -99,12 +99,12 @@ export default function LoginPage() {
         <div className="mx-auto flex w-full flex-col justify-center space-y-6 sm:w-[350px]">
           <Card>
             <CardHeader className="space-y-1">
-              <CardTitle className="text-2xl text-center">欢迎回来</CardTitle>
-              <CardDescription className="text-center">
-                登录您的账号继续使用
+              <CardTitle className="text-2xl">登录</CardTitle>
+              <CardDescription>
+                输入您的账户信息以登录
               </CardDescription>
             </CardHeader>
-            <CardContent className="space-y-4">
+            <CardContent className="grid gap-4">
               {error && (
                 <Alert variant="destructive">
                   <AlertDescription>{error}</AlertDescription>
@@ -114,16 +114,15 @@ export default function LoginPage() {
                 <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
                   <FormField
                     control={form.control}
-                    name="email"
+                    name="username"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>邮箱</FormLabel>
+                        <FormLabel>用户名</FormLabel>
                         <FormControl>
                           <Input
-                            type="email"
-                            placeholder="请输入邮箱"
                             {...field}
                             disabled={isLoading}
+                            placeholder="请输入用户名"
                           />
                         </FormControl>
                         <FormMessage />
@@ -162,13 +161,13 @@ export default function LoginPage() {
                 </Button>
               </div>
             </CardContent>
-            <CardFooter className="flex flex-wrap items-center justify-between gap-2">
+            <CardFooter>
               <div className="text-sm text-muted-foreground">
-                还没有账号？
+                还没有账号？{' '}
+                <Link href="/register" className="text-primary hover:underline">
+                  立即注册
+                </Link>
               </div>
-              <Button variant="outline" asChild>
-                <Link href="/register">注册账号</Link>
-              </Button>
             </CardFooter>
           </Card>
         </div>

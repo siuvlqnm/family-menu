@@ -2,14 +2,14 @@ import { z } from 'zod';
 
 // 注册验证 schema
 export const registerSchema = z.object({
+  username: z.string().min(3).max(20),
   name: z.string().min(2).max(50),
-  email: z.string().email(),
   password: z.string().min(6),
 });
 
 // 登录验证 schema
 export const loginSchema = z.object({
-  email: z.string().email(),
+  username: z.string(),
   password: z.string(),
 });
 
@@ -19,5 +19,6 @@ export type LoginInput = z.infer<typeof loginSchema>;
 
 export interface AuthUser {
   id: string;
-  email: string;
+  username: string;
+  name: string;
 }

@@ -2,7 +2,7 @@
 
 import { createContext, useContext, useReducer, useEffect } from 'react';
 import { User, AuthState, LoginCredentials, RegisterData } from '@/types/auth';
-import { mockAuth } from '@/lib/mock/auth';
+import { authService } from '@/services/auth';
 
 interface AuthContextType extends AuthState {
   login: (credentials: LoginCredentials) => Promise<void>;
@@ -51,9 +51,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     // Check for stored auth token and validate it
     const checkAuth = async () => {
       try {
-        const storedUser = localStorage.getItem('user');
-        if (storedUser) {
-          dispatch({ type: 'SET_USER', payload: JSON.parse(storedUser) });
+        const storedToken = localStorage.getItem('token');
+        if (storedToken) {
+          const user = authService.parseUserFromToken(storedToken);
+          dispatch({ type: 'SET_USER', payload: user });
         }
       } catch (error) {
         console.error('Error checking auth:', error);
@@ -70,7 +71,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const login = async (credentials: LoginCredentials) => {
     dispatch({ type: 'SET_LOADING' });
     try {
-      const user = await mockAuth.login(credentials);
+      const { token } = await authService.login(credentials);
+      const user = authService.parseUserFromToken(token);
+      localStorage.setItem('token', token);
       localStorage.setItem('user', JSON.stringify(user));
       dispatch({ type: 'SET_USER', payload: user });
     } catch (error) {
@@ -82,7 +85,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const register = async (data: RegisterData) => {
     dispatch({ type: 'SET_LOADING' });
     try {
-      const user = await mockAuth.register(data);
+      const { token } = await authService.register(data);
+      const user = authService.parseUserFromToken(token);
+      localStorage.setItem('token', token);
       localStorage.setItem('user', JSON.stringify(user));
       dispatch({ type: 'SET_USER', payload: user });
     } catch (error) {
@@ -94,12 +99,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const logout = async () => {
     dispatch({ type: 'SET_LOADING' });
     try {
-      await mockAuth.logout();
+      localStorage.removeItem('token');
       localStorage.removeItem('user');
       dispatch({ type: 'CLEAR_USER' });
     } catch (error) {
       console.error('Error logging out:', error);
-      dispatch({ type: 'CLEAR_USER' });
+      throw error;
     }
   };
 

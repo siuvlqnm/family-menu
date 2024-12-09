@@ -13,33 +13,34 @@ export class AuthService {
     private readonly c: Context
   ) {}
 
-  private async generateToken(payload: { id: string; email: string }): Promise<string> {
+  private async generateToken(payload: { id: string; username: string; name: string }): Promise<string> {
     return await sign(payload, this.c.env.JWT_SECRET || 'secret');
   }
 
   // 用户注册
   async register(input: RegisterInput): Promise<{ token: string }> {
-    // 检查邮箱是否已存在
+    // 检查用户名是否已存在
     const existingUser = await this.db.query.users.findFirst({
-      where: eq(users.email, input.email),
+      where: eq(users.username, input.username),
     });
 
     if (existingUser) {
-      throw new HTTPException(400, { message: 'Email already exists' });
+      throw new HTTPException(400, { message: 'Username already exists' });
     }
 
     // 创建用户
     const [user] = await this.db.insert(users).values({
       id: nanoid(),
+      username: input.username,
       name: input.name,
-      email: input.email,
       password: await hashPassword(input.password, this.c.env.JWT_SECRET),
     }).returning();
 
     // 生成 token
     const token = await this.generateToken({
       id: user.id,
-      email: user.email,
+      username: user.username,
+      name: user.name,
     });
 
     return { token };
@@ -49,17 +50,18 @@ export class AuthService {
   async login(input: LoginInput): Promise<{ token: string }> {
     // 查找用户
     const user = await this.db.query.users.findFirst({
-      where: eq(users.email, input.email),
+      where: eq(users.username, input.username),
     });
 
     if (!user || !(await verifyPassword(input.password, user.password, this.c.env.JWT_SECRET))) {
-      throw new HTTPException(401, { message: 'Invalid email or password' });
+      throw new HTTPException(401, { message: 'Invalid username or password' });
     }
 
     // 生成 token
     const token = await this.generateToken({
       id: user.id,
-      email: user.email,
+      username: user.username,
+      name: user.name,
     });
 
     return { token };

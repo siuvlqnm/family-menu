@@ -32,13 +32,10 @@ import { Checkbox } from '@/components/ui/checkbox';
 
 const formSchema = z
   .object({
-    name: z.string().min(2, '姓名至少2个字符'),
-    email: z.string().email('请输入有效的邮箱地址'),
+    username: z.string().min(3, '用户名至少3个字符').max(20, '用户名最多20个字符'),
+    name: z.string().min(2, '姓名至少2个字符').max(50, '姓名最多50个字符'),
     password: z.string().min(6, '密码至少6个字符'),
     confirmPassword: z.string(),
-    acceptTerms: z.boolean().refine((val) => val === true, {
-      message: '请阅读并同意服务条款',
-    }),
   })
   .refine((data) => data.password === data.confirmPassword, {
     message: '两次输入的密码不一致',
@@ -54,11 +51,10 @@ export default function RegisterPage() {
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
+      username: '',
       name: '',
-      email: '',
       password: '',
       confirmPassword: '',
-      acceptTerms: false,
     },
   });
 
@@ -68,13 +64,13 @@ export default function RegisterPage() {
     
     try {
       await register({
+        username: values.username,
         name: values.name,
-        email: values.email,
         password: values.password,
       });
       router.push('/dashboard');
-    } catch (err) {
-      setError('注册失败，请重试');
+    } catch (err: any) {
+      setError(err.message || '注册失败，请重试');
     } finally {
       setIsLoading(false);
     }
@@ -115,30 +111,25 @@ export default function RegisterPage() {
         <div className="mx-auto flex w-full flex-col justify-center space-y-6 sm:w-[350px]">
           <Card>
             <CardHeader className="space-y-1">
-              <CardTitle className="text-2xl text-center">创建账号</CardTitle>
-              <CardDescription className="text-center">
-                填写以下信息创建您的账号
+              <CardTitle className="text-2xl">注册账号</CardTitle>
+              <CardDescription>
+                创建您的账号开始使用
               </CardDescription>
             </CardHeader>
-            <CardContent className="space-y-4">
-              {error && (
-                <Alert variant="destructive">
-                  <AlertDescription>{error}</AlertDescription>
-                </Alert>
-              )}
+            <CardContent className="grid gap-4">
               <Form {...form}>
                 <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
                   <FormField
                     control={form.control}
-                    name="name"
+                    name="username"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>姓名</FormLabel>
+                        <FormLabel>用户名</FormLabel>
                         <FormControl>
                           <Input
-                            placeholder="请输入姓名"
                             {...field}
                             disabled={isLoading}
+                            placeholder="请输入用户名"
                           />
                         </FormControl>
                         <FormMessage />
@@ -147,16 +138,15 @@ export default function RegisterPage() {
                   />
                   <FormField
                     control={form.control}
-                    name="email"
+                    name="name"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>邮箱</FormLabel>
+                        <FormLabel>姓名</FormLabel>
                         <FormControl>
                           <Input
-                            type="email"
-                            placeholder="请输入邮箱"
                             {...field}
                             disabled={isLoading}
+                            placeholder="请输入姓名"
                           />
                         </FormControl>
                         <FormMessage />
@@ -172,9 +162,9 @@ export default function RegisterPage() {
                         <FormControl>
                           <Input
                             type="password"
-                            placeholder="请输入密码"
                             {...field}
                             disabled={isLoading}
+                            placeholder="请输入密码"
                           />
                         </FormControl>
                         <FormDescription>
@@ -193,9 +183,9 @@ export default function RegisterPage() {
                         <FormControl>
                           <Input
                             type="password"
-                            placeholder="请再次输入密码"
                             {...field}
                             disabled={isLoading}
+                            placeholder="请再次输入密码"
                           />
                         </FormControl>
                         <FormMessage />
@@ -238,14 +228,19 @@ export default function RegisterPage() {
                   </Button>
                 </form>
               </Form>
+              {error && (
+                <Alert variant="destructive">
+                  <AlertDescription>{error}</AlertDescription>
+                </Alert>
+              )}
             </CardContent>
-            <CardFooter className="flex flex-wrap items-center justify-between gap-2">
+            <CardFooter>
               <div className="text-sm text-muted-foreground">
-                已有账号？
+                已有账号？{' '}
+                <Link href="/login" className="text-primary hover:underline">
+                  立即登录
+                </Link>
               </div>
-              <Button variant="outline" asChild>
-                <Link href="/login">登录</Link>
-              </Button>
             </CardFooter>
           </Card>
         </div>
