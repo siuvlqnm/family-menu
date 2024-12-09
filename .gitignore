@@ -39,3 +39,5 @@ next-env.d.ts
 # Cloudflare
 .wrangler/
 .dev.vars
+
+deploy.zip
