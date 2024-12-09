@@ -17,7 +17,7 @@ export interface Step {
 // 用户表
 export const users = sqliteTable('users', {
   id: text('id').primaryKey(),
-  username: text('username').notNull().unique(),
+  userName: text('user_name').notNull().unique(),
   name: text('name').notNull(),
   password: text('password').notNull(),
   createdAt: integer('created_at', { mode: 'timestamp' })

@@ -1,6 +1,6 @@
 export interface User {
   id: string;
-  username: string;
+  userName: string;
   name: string;
   avatar?: string;
   familyGroups: FamilyGroup[];
@@ -20,7 +20,7 @@ export interface AuthState {
 }
 
 export interface LoginCredentials {
-  username: string;
+  userName: string;
   password: string;
 }
 

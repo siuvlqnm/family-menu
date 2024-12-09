@@ -13,7 +13,7 @@ export class AuthService {
     private readonly c: Context
   ) {}
 
-  private async generateToken(payload: { id: string; username: string; name: string }): Promise<string> {
+  private async generateToken(payload: { id: string; userName: string; name: string }): Promise<string> {
     return await sign(payload, this.c.env.JWT_SECRET || 'secret');
   }
 
@@ -21,17 +21,17 @@ export class AuthService {
   async register(input: RegisterInput): Promise<{ token: string }> {
     // 检查用户名是否已存在
     const existingUser = await this.db.query.users.findFirst({
-      where: eq(users.username, input.username),
+      where: eq(users.userName, input.userName),
     });
 
     if (existingUser) {
-      throw new HTTPException(400, { message: 'Username already exists' });
+      throw new HTTPException(400, { message: '用户名已存在' });
     }
 
     // 创建用户
     const [user] = await this.db.insert(users).values({
       id: nanoid(),
-      username: input.username,
+      userName: input.userName,
       name: input.name,
       password: await hashPassword(input.password, this.c.env.JWT_SECRET),
     }).returning();
@@ -39,7 +39,7 @@ export class AuthService {
     // 生成 token
     const token = await this.generateToken({
       id: user.id,
-      username: user.username,
+      userName: user.userName,
       name: user.name,
     });
 
@@ -50,17 +50,17 @@ export class AuthService {
   async login(input: LoginInput): Promise<{ token: string }> {
     // 查找用户
     const user = await this.db.query.users.findFirst({
-      where: eq(users.username, input.username),
+      where: eq(users.userName, input.userName),
     });
 
     if (!user || !(await verifyPassword(input.password, user.password, this.c.env.JWT_SECRET))) {
-      throw new HTTPException(401, { message: 'Invalid username or password' });
+      throw new HTTPException(401, { message: '用户名或密码错误' });
     }
 
     // 生成 token
     const token = await this.generateToken({
       id: user.id,
-      username: user.username,
+      userName: user.userName,
       name: user.name,
     });
 

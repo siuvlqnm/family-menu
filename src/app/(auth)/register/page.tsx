@@ -32,7 +32,7 @@ import { Checkbox } from '@/components/ui/checkbox';
 
 const formSchema = z
   .object({
-    username: z.string().min(3, '用户名至少3个字符').max(20, '用户名最多20个字符'),
+    userName: z.string().min(3, '用户名至少3个字符').max(20, '用户名最多20个字符'),
     name: z.string().min(2, '姓名至少2个字符').max(50, '姓名最多50个字符'),
     password: z.string().min(6, '密码至少6个字符'),
     confirmPassword: z.string(),
@@ -51,7 +51,7 @@ export default function RegisterPage() {
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      username: '',
+      userName: '',
       name: '',
       password: '',
       confirmPassword: '',
@@ -64,7 +64,7 @@ export default function RegisterPage() {
     
     try {
       await register({
-        username: values.username,
+        userName: values.userName,
         name: values.name,
         password: values.password,
       });
@@ -121,7 +121,7 @@ export default function RegisterPage() {
                 <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
                   <FormField
                     control={form.control}
-                    name="username"
+                    name="userName"
                     render={({ field }) => (
                       <FormItem>
                         <FormLabel>用户名</FormLabel>

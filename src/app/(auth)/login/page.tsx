@@ -29,7 +29,7 @@ import { Icons } from '@/components/ui/icons';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 
 const formSchema = z.object({
-  username: z.string().min(3, '用户名至少3个字符').max(20, '用户名最多20个字符'),
+  userName: z.string().min(3, '用户名至少3个字符').max(20, '用户名最多20个字符'),
   password: z.string().min(6, '密码至少6个字符'),
 });
 
@@ -42,7 +42,7 @@ export default function LoginPage() {
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      username: '',
+      userName: '',
       password: '',
     },
   });
@@ -53,7 +53,7 @@ export default function LoginPage() {
     
     try {
       await login({
-        username: values.username,
+        userName: values.userName,
         password: values.password
       });
       router.push('/dashboard');
@@ -114,7 +114,7 @@ export default function LoginPage() {
                 <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
                   <FormField
                     control={form.control}
-                    name="username"
+                    name="userName"
                     render={({ field }) => (
                       <FormItem>
                         <FormLabel>用户名</FormLabel>
