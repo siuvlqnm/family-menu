@@ -124,7 +124,7 @@ export function Navbar() {
                       <div>
                         <p className="font-medium">{user?.name}</p>
                         <p className="text-sm text-muted-foreground">
-                          {user?.email}
+                          {user?.userName}
                         </p>
                       </div>
                     </div>

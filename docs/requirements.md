@@ -130,6 +130,7 @@
 - **API层**: Hono
 - **数据库**: SQLite (使用 Drizzle ORM)
 - **部署**: Cloudflare Pages
+- 字段命名方式 驼峰式
 
 ### 项目结构
 ```
