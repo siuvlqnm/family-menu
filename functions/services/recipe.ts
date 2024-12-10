@@ -79,7 +79,7 @@ export class RecipeService {
     };
 
     // 移除未定义的字段
-    Object.keys(updateData).forEach(key => {
+    (Object.keys(updateData) as Array<keyof typeof updateData>).forEach(key => {
       if (updateData[key] === undefined) {
         delete updateData[key];
       }
@@ -96,14 +96,14 @@ export class RecipeService {
 
   // 获取单个食谱
   async getRecipe(id: string, userID: string): Promise<Recipe | null> {
-    const familyGroupIds = await this.getUserFamilyGroupIds(userID);
+    // const familyGroupIds = await this.getUserFamilyGroupIds(userID);
     
     const recipe = await this.db.query.recipes.findFirst({
       where: and(
         eq(recipes.id, id),
         or(
           eq(recipes.createdBy, userID),
-          eq(recipes.familyGroupId, familyGroupIds)
+          // eq(recipes.familyGroupId, familyGroupIds)
         )
       ),
     });
@@ -116,13 +116,13 @@ export class RecipeService {
     const { category, difficulty, search, familyGroupId, page, limit } = query;
     const offset = (page - 1) * limit;
 
-    const familyGroupIds = await this.getUserFamilyGroupIds(userID);
+    // const familyGroupIds = await this.getUserFamilyGroupIds(userID);
     let conditions = [];
 
     conditions.push(
       or(
         eq(recipes.createdBy, userID),
-        eq(recipes.familyGroupId, familyGroupIds)
+        // eq(recipes.familyGroupId, familyGroupIds)
       )
     );
 
@@ -167,14 +167,14 @@ export class RecipeService {
   }
 
   // 获取用户所属的家庭组ID列表
-  private async getUserFamilyGroupIds(userID: string): Promise<string[]> {
-    const members = await this.db
-      .select({ familyGroupId: familyMembers.familyGroupId })
-      .from(familyMembers)
-      .where(eq(familyMembers.userID, userID));
+  // private async getUserFamilyGroupIds(userID: string): Promise<string[]> {
+  //   const members = await this.db
+  //     .select({ familyGroupId: familyMembers.familyGroupId })
+  //     .from(familyMembers)
+  //     .where(eq(familyMembers.userID, userID));
 
-    return members.map((m) => m.familyGroupId);
-  }
+  //   return members.map((m) => m.familyGroupId);
+  // }
 
   // 将数据库记录映射为 Recipe 类型
   private mapToRecipe(data: DbRecipe): Recipe {

@@ -1,12 +1,14 @@
 import { sql } from 'drizzle-orm';
 import { sqliteTable, text, integer } from 'drizzle-orm/sqlite-core';
+import { MeasurementUnit } from '../types/recipe';
 
 // 定义食材接口
 export interface Ingredient {
-  id?: string;
   name: string;
+  amount: number;
   quantity: number;
-  unit: string;
+  unit: keyof typeof MeasurementUnit;
+  orderIndex: number;
 }
 
 export interface Step {

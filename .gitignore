@@ -41,3 +41,5 @@ next-env.d.ts
 .dev.vars
 
 deploy.zip
+
+functions/node_modules

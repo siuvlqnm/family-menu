@@ -12,7 +12,12 @@ const recipe = new Hono<{ Bindings: Bindings }>();
 // 获取食谱列表
 recipe.get('/', authMiddleware, async (c) => {
   const query = c.req.query();
-  const validatedQuery = recipeQuerySchema.parse(query);
+  const parsedQuery = {
+    ...query,
+    page: query.page ? parseInt(query.page) : undefined,
+    limit: query.limit ? parseInt(query.limit) : undefined
+  };
+  const validatedQuery = recipeQuerySchema.parse(parsedQuery);
   const user = await getCurrentUser(c);
   const recipeService = RecipeService.getInstance(createDb(c.env.DB));
   

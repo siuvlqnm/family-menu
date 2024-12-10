@@ -63,8 +63,8 @@ export const updateRecipeSchema = createRecipeSchema.partial();
 
 // 食谱查询参数验证 schema
 export const recipeQuerySchema = z.object({
-  category: z.nativeEnum(RecipeCategory).optional(),
-  difficulty: z.nativeEnum(DifficultyLevel).optional(),
+  category: z.enum(Object.keys(RecipeCategory) as [keyof typeof RecipeCategory]).optional(),
+  difficulty: z.enum(Object.keys(DifficultyLevel) as [keyof typeof DifficultyLevel]).optional(),
   search: z.string().optional(),
   familyGroupId: z.string().optional(),
   page: z.number().int().min(1).default(1),
