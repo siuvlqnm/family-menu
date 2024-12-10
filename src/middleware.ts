@@ -1,19 +1,32 @@
 import { NextResponse } from 'next/server'
 import type { NextRequest } from 'next/server'
 
+// 需要保护的路由
+const protectedRoutes = ['/dashboard', '/recipes', '/menu', '/shopping'];
+// 认证路由（已登录时不能访问）
+const authRoutes = ['/login', '/register'];
+
 export function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl
-  const isAuthenticated = request.cookies.has('user')
+  const token = request.cookies.get('token')?.value
+  const isAuthenticated = !!token
 
-  // Protected routes
-  if (pathname.startsWith('/dashboard')) {
+  // 检查是否是受保护的路由
+  const isProtectedRoute = protectedRoutes.some(route => pathname.startsWith(route))
+  // 检查是否是认证路由
+  const isAuthRoute = authRoutes.some(route => pathname.startsWith(route))
+
+  // 处理受保护的路由
+  if (isProtectedRoute) {
     if (!isAuthenticated) {
-      return NextResponse.redirect(new URL('/login', request.url))
+      const url = new URL('/login', request.url)
+      url.searchParams.set('from', pathname)
+      return NextResponse.redirect(url)
     }
   }
 
-  // Auth routes (when already authenticated)
-  if ((pathname.startsWith('/login') || pathname.startsWith('/register')) && isAuthenticated) {
+  // 处理认证路由（已登录时重定向到首页）
+  if (isAuthRoute && isAuthenticated) {
     return NextResponse.redirect(new URL('/dashboard', request.url))
   }
 
@@ -21,5 +34,20 @@ export function middleware(request: NextRequest) {
 }
 
 export const config = {
-  matcher: ['/dashboard/:path*', '/login', '/register'],
+  matcher: [
+    /*
+     * 匹配所有需要保护的路由
+     * /dashboard, /recipes, /menu, /shopping 等
+     */
+    '/dashboard/:path*',
+    '/recipes/:path*',
+    '/menu/:path*',
+    '/shopping/:path*',
+    /*
+     * 匹配认证相关路由
+     * /login, /register
+     */
+    '/login',
+    '/register',
+  ],
 }

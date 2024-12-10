@@ -1,12 +1,11 @@
 'use client';
 
-import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useForm } from 'react-hook-form';
 import * as z from 'zod';
-import { useAuth } from '@/contexts/auth-context';
+import { useAuthStore } from '@/stores/auth-store';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import {
@@ -35,9 +34,7 @@ const formSchema = z.object({
 
 export default function LoginPage() {
   const router = useRouter();
-  const { login } = useAuth();
-  const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState('');
+  const { login, loading, error } = useAuthStore();
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -48,19 +45,12 @@ export default function LoginPage() {
   });
 
   async function onSubmit(values: z.infer<typeof formSchema>) {
-    setIsLoading(true);
-    setError('');
-    
     try {
-      await login({
-        userName: values.userName,
-        password: values.password
-      });
+      await login(values.userName, values.password);
       router.push('/dashboard');
-    } catch (err) {
-      setError('用户名或密码错误');
-    } finally {
-      setIsLoading(false);
+    } catch (error) {
+      // 错误已经在store中处理
+      console.error('Login failed:', error);
     }
   }
 
@@ -121,7 +111,7 @@ export default function LoginPage() {
                         <FormControl>
                           <Input
                             {...field}
-                            disabled={isLoading}
+                            disabled={loading}
                             placeholder="请输入用户名"
                           />
                         </FormControl>
@@ -140,15 +130,15 @@ export default function LoginPage() {
                             type="password"
                             placeholder="请输入密码"
                             {...field}
-                            disabled={isLoading}
+                            disabled={loading}
                           />
                         </FormControl>
                         <FormMessage />
                       </FormItem>
                     )}
                   />
-                  <Button type="submit" className="w-full" disabled={isLoading}>
-                    {isLoading && (
+                  <Button type="submit" className="w-full" disabled={loading}>
+                    {loading && (
                       <Icons.spinner className="mr-2 h-4 w-4 animate-spin" />
                     )}
                     登录

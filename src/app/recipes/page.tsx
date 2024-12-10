@@ -1,6 +1,6 @@
 'use client'
 
-import { useAuth } from '@/contexts/auth-context'
+import { useAuthStore } from '@/stores/auth-store'
 import { useRouter } from 'next/navigation'
 import { useEffect } from 'react'
 import { useRecipeStore } from '@/stores/recipe-store'
@@ -16,7 +16,7 @@ import { Button } from "@/components/ui/button"
 import Link from "next/link"
 
 export default function RecipesPage() {
-  const { isAuthenticated } = useAuth()
+  const { isAuthenticated } = useAuthStore()
   const router = useRouter()
   const { recipes, loading, error, filters, setFilters, fetchRecipes } = useRecipeStore()
 
@@ -142,6 +142,10 @@ export default function RecipesPage() {
         />
       </div>
     )
+  }
+
+  if (!isAuthenticated) {
+    return null;
   }
 
   return (

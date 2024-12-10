@@ -8,12 +8,9 @@ import { hashPassword, verifyPassword } from '../utils/auth';
 import { nanoid } from '../utils/id';
 
 export class AuthService {
-  constructor(
-    private readonly db: Database,
-    private readonly c: Context
-  ) {}
+  constructor(private readonly db: Database, private readonly c: Context) {}
 
-  private async generateToken(payload: { id: string; userName: string; name: string }): Promise<string> {
+  private async generateToken(payload: { id: string; userName: string }): Promise<string> {
     return await sign(payload, this.c.env.JWT_SECRET || 'secret');
   }
 
@@ -40,7 +37,6 @@ export class AuthService {
     const token = await this.generateToken({
       id: user.id,
       userName: user.userName,
-      name: user.name,
     });
 
     return { token };
@@ -61,7 +57,6 @@ export class AuthService {
     const token = await this.generateToken({
       id: user.id,
       userName: user.userName,
-      name: user.name,
     });
 
     return { token };

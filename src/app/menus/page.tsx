@@ -1,6 +1,6 @@
 'use client'
 
-import { useAuth } from '@/contexts/auth-context'
+import { useAuthStore } from '@/stores/auth-store'
 import { useRouter } from 'next/navigation'
 import { useEffect } from 'react'
 import { useMenuStore } from '@/stores/menu-store'
@@ -12,7 +12,7 @@ import { DataTableError } from '@/components/ui/data-table/error'
 import { Plus, UtensilsCrossed } from 'lucide-react'
 
 export default function MenusPage() {
-  const { isAuthenticated } = useAuth()
+  const { isAuthenticated } = useAuthStore()
   const router = useRouter()
   const { menus, loading, error, fetchMenus } = useMenuStore()
 

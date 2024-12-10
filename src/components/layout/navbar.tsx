@@ -1,161 +1,120 @@
-'use client';
-
 import Link from 'next/link';
-import { usePathname } from 'next/navigation';
-import { useAuth } from '@/contexts/auth-context';
+import { useRouter } from 'next/navigation';
+import { useAuthStore } from '@/stores/auth-store';
+import { Button } from '@/components/ui/button';
 import {
   NavigationMenu,
   NavigationMenuItem,
-  NavigationMenuList,
   NavigationMenuLink,
+  NavigationMenuList,
   navigationMenuTriggerStyle,
-} from "@/components/ui/navigation-menu";
+} from '@/components/ui/navigation-menu';
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
   DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
-import { Button } from "@/components/ui/button";
-import { Avatar, AvatarFallback } from "@/components/ui/avatar";
-import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
-import { Menu } from "lucide-react";
-import { cn } from "@/lib/utils";
-
-const navigation = [
-  { name: '首页', href: '/dashboard' },
-  { name: '菜单管理', href: '/menus' },
-  { name: '食谱库', href: '/recipes' },
-  { name: '购物清单', href: '/shopping-lists' },
-  { name: '家庭组', href: '/family-groups' },
-];
+} from '@/components/ui/dropdown-menu';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { Icons } from '@/components/ui/icons';
 
 export function Navbar() {
-  const pathname = usePathname();
-  const { user, logout } = useAuth();
+  const router = useRouter();
+  const { user, logout } = useAuthStore();
+
+  const handleLogout = () => {
+    logout();
+    router.push('/login');
+  };
 
   return (
-    <nav className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
+    <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
       <div className="container flex h-14 items-center">
-        <div className="mr-4 flex">
-          <Link href="/dashboard" className="mr-6 flex items-center space-x-2">
-            <span className="font-bold text-xl">Family Menu</span>
+        <div className="mr-4 hidden md:flex">
+          <Link href="/" className="mr-6 flex items-center space-x-2">
+            <Icons.logo className="h-6 w-6" />
+            <span className="hidden font-bold sm:inline-block">
+              家庭菜单
+            </span>
           </Link>
-          <NavigationMenu className="hidden md:flex">
+          <NavigationMenu>
             <NavigationMenuList>
-              {navigation.map((item) => (
-                <NavigationMenuItem key={item.name}>
-                  <Link href={item.href} legacyBehavior passHref>
-                    <NavigationMenuLink
-                      className={cn(
-                        navigationMenuTriggerStyle(),
-                        pathname === item.href && "bg-accent text-accent-foreground"
-                      )}
-                    >
-                      {item.name}
-                    </NavigationMenuLink>
-                  </Link>
-                </NavigationMenuItem>
-              ))}
+              <NavigationMenuItem>
+                <Link href="/dashboard" legacyBehavior passHref>
+                  <NavigationMenuLink className={navigationMenuTriggerStyle()}>
+                    仪表盘
+                  </NavigationMenuLink>
+                </Link>
+              </NavigationMenuItem>
+              <NavigationMenuItem>
+                <Link href="/recipes" legacyBehavior passHref>
+                  <NavigationMenuLink className={navigationMenuTriggerStyle()}>
+                    菜谱
+                  </NavigationMenuLink>
+                </Link>
+              </NavigationMenuItem>
+              <NavigationMenuItem>
+                <Link href="/menus" legacyBehavior passHref>
+                  <NavigationMenuLink className={navigationMenuTriggerStyle()}>
+                    菜单
+                  </NavigationMenuLink>
+                </Link>
+              </NavigationMenuItem>
+              <NavigationMenuItem>
+                <Link href="/shopping-lists" legacyBehavior passHref>
+                  <NavigationMenuLink className={navigationMenuTriggerStyle()}>
+                    购物清单
+                  </NavigationMenuLink>
+                </Link>
+              </NavigationMenuItem>
             </NavigationMenuList>
           </NavigationMenu>
         </div>
-
         <div className="flex flex-1 items-center justify-between space-x-2 md:justify-end">
           <div className="w-full flex-1 md:w-auto md:flex-none">
             {/* 这里可以添加搜索框 */}
           </div>
           <nav className="flex items-center space-x-2">
-            {/* Desktop Menu */}
-            <div className="hidden md:flex">
+            {user ? (
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
-                  <Button variant="ghost" className="relative h-8 w-8">
+                  <Button variant="ghost" className="relative h-8 w-8 rounded-full">
                     <Avatar className="h-8 w-8">
-                      <AvatarFallback>
-                        {user?.name?.[0]?.toUpperCase() || 'U'}
-                      </AvatarFallback>
+                      <AvatarImage src="/avatars/01.png" alt={user.name} />
+                      <AvatarFallback>{user.name[0]}</AvatarFallback>
                     </Avatar>
                   </Button>
                 </DropdownMenuTrigger>
-                <DropdownMenuContent align="end">
-                  <DropdownMenuItem asChild>
-                    <Link href="/profile">个人资料</Link>
-                  </DropdownMenuItem>
-                  <DropdownMenuItem asChild>
-                    <Link href="/settings">设置</Link>
-                  </DropdownMenuItem>
-                  <DropdownMenuItem onClick={logout}>
+                <DropdownMenuContent className="w-56" align="end" forceMount>
+                  <DropdownMenuLabel className="font-normal">
+                    <div className="flex flex-col space-y-1">
+                      <p className="text-sm font-medium leading-none">{user.name}</p>
+                      <p className="text-xs leading-none text-muted-foreground">
+                        {user.userName}
+                      </p>
+                    </div>
+                  </DropdownMenuLabel>
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem onClick={handleLogout}>
                     退出登录
                   </DropdownMenuItem>
                 </DropdownMenuContent>
               </DropdownMenu>
-            </div>
-
-            {/* Mobile Menu */}
-            <Sheet>
-              <SheetTrigger asChild className="md:hidden">
-                <Button variant="ghost" size="icon" className="md:hidden">
-                  <Menu className="h-5 w-5" />
-                  <span className="sr-only">Toggle menu</span>
+            ) : (
+              <>
+                <Button variant="ghost" asChild>
+                  <Link href="/login">登录</Link>
                 </Button>
-              </SheetTrigger>
-              <SheetContent side="right" className="w-[280px] sm:w-[360px]">
-                <nav className="flex flex-col space-y-4">
-                  {navigation.map((item) => (
-                    <Link
-                      key={item.name}
-                      href={item.href}
-                      className={cn(
-                        "text-sm font-medium transition-colors hover:text-primary",
-                        pathname === item.href ? "text-primary" : "text-muted-foreground"
-                      )}
-                    >
-                      {item.name}
-                    </Link>
-                  ))}
-                  <div className="border-t pt-4">
-                    <div className="flex items-center mb-4">
-                      <Avatar className="h-10 w-10 mr-3">
-                        <AvatarFallback>
-                          {user?.name?.[0]?.toUpperCase() || 'U'}
-                        </AvatarFallback>
-                      </Avatar>
-                      <div>
-                        <p className="font-medium">{user?.name}</p>
-                        <p className="text-sm text-muted-foreground">
-                          {user?.userName}
-                        </p>
-                      </div>
-                    </div>
-                    <div className="space-y-1">
-                      <Link
-                        href="/profile"
-                        className="block py-2 text-sm text-muted-foreground hover:text-primary"
-                      >
-                        个人资料
-                      </Link>
-                      <Link
-                        href="/settings"
-                        className="block py-2 text-sm text-muted-foreground hover:text-primary"
-                      >
-                        设置
-                      </Link>
-                      <Button
-                        variant="ghost"
-                        className="w-full justify-start px-2"
-                        onClick={logout}
-                      >
-                        退出登录
-                      </Button>
-                    </div>
-                  </div>
-                </nav>
-              </SheetContent>
-            </Sheet>
+                <Button asChild>
+                  <Link href="/register">注册</Link>
+                </Button>
+              </>
+            )}
           </nav>
         </div>
       </div>
-    </nav>
+    </header>
   );
 }

@@ -1,6 +1,6 @@
 'use client';
 
-import { useAuth } from '@/contexts/auth-context';
+import { useAuthStore } from '@/stores/auth-store';
 import { useRouter } from 'next/navigation';
 import { useEffect } from 'react';
 import { PageHeader } from '@/components/ui/page-header';
@@ -17,7 +17,7 @@ import {
 } from '@/components/ui/dropdown-menu';
 
 export default function ShoppingListsPage() {
-  const { isAuthenticated } = useAuth();
+  const { isAuthenticated } = useAuthStore();
   const router = useRouter();
 
   useEffect(() => {
@@ -25,6 +25,10 @@ export default function ShoppingListsPage() {
       router.push('/login');
     }
   }, [isAuthenticated, router]);
+
+  if (!isAuthenticated) {
+    return null;
+  }
 
   return (
     <div className="container space-y-6 py-6">

@@ -44,6 +44,15 @@ export class ApiClient {
 
     const response = await fetch(url, config);
 
+    // 处理401错误，可能是token过期
+    if (response.status === 401) {
+      // 清除本地token
+      localStorage.removeItem('token');
+      // 重定向到登录页
+      window.location.href = '/login';
+      throw new Error('认证已过期，请重新登录');
+    }
+
     if (!response.ok) {
       const error = await response.json().catch(() => ({ message: 'An error occurred' }));
       throw new Error(error.message || `HTTP error! status: ${response.status}`);

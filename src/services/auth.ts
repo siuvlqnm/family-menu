@@ -17,9 +17,8 @@ export const authService = {
       const payload = JSON.parse(atob(token.split('.')[1]));
       return {
         id: payload.id,
-        username: payload.username,
-        name: payload.name,
-        familyGroups: [],
+        userName: payload.userName, // 修改为userName
+        familyGroups: payload.familyGroups || [],
       };
     } catch (error) {
       console.error('Error parsing token:', error);

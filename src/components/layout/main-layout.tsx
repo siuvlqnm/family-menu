@@ -1,17 +1,15 @@
 'use client';
 
-import { useAuth } from '@/contexts/auth-context';
+import { useAuthStore } from '@/stores/auth-store';
 import { Navbar } from './navbar';
 
 export function MainLayout({ children }: { children: React.ReactNode }) {
-  const { isAuthenticated } = useAuth();
+  const { isAuthenticated } = useAuthStore();
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="relative flex min-h-screen flex-col">
       {isAuthenticated && <Navbar />}
-      <main className="max-w-7xl mx-auto py-6 sm:px-6 lg:px-8">
-        {children}
-      </main>
+      <main className="flex-1">{children}</main>
     </div>
   );
 }
