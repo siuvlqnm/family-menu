@@ -3,10 +3,12 @@
 import { RecipeForm } from "@/components/recipes/recipe-form"
 import { useToast } from "@/components/ui/use-toast"
 import { useRouter } from "next/navigation"
+import { useRecipeStore } from "@/stores/recipe-store"
 
 export default function NewRecipePage() {
   const { toast } = useToast()
   const router = useRouter()
+  const { createRecipe, error } = useRecipeStore()
 
   return (
     <div className="container py-10">
@@ -18,8 +20,7 @@ export default function NewRecipePage() {
         <RecipeForm
           onSubmit={async (data) => {
             try {
-              // TODO: 实现创建食谱的API调用
-              console.log(data)
+              await createRecipe(data)
               
               toast({
                 title: "创建成功",
@@ -30,7 +31,7 @@ export default function NewRecipePage() {
             } catch (error) {
               toast({
                 title: "创建失败",
-                description: "创建食谱时发生错误，请重试",
+                description: error instanceof Error ? error.message : "创建食谱时发生错误，请重试",
                 variant: "destructive",
               })
             }

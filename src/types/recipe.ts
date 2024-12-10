@@ -1,52 +1,85 @@
 import { User } from './auth';
 
+// 食谱分类
+export const RecipeCategory = {
+  MEAT: '荤菜',
+  VEGETABLE: '素菜',
+  SOUP: '汤类',
+  STAPLE: '主食',
+  SNACK: '小吃',
+} as const;
+
+// 难度等级
+export const DifficultyLevel = {
+  EASY: 'easy',
+  MEDIUM: 'medium',
+  HARD: 'hard',
+} as const;
+
+// 计量单位
+export const MeasurementUnit = {
+  GRAM: 'g',
+  MILLILITER: 'ml',
+  PIECE: '个',
+  WHOLE: '只',
+  ROOT: '根',
+  SLICE: '片',
+  SPOON: '勺',
+  AS_NEEDED: '适量',
+} as const;
+
 export interface Ingredient {
-  id: string;
   name: string;
   amount: number;
-  unit: string;
-  notes?: string;
+  quantity: number;
+  unit: keyof typeof MeasurementUnit;
+  orderIndex: number;
 }
 
-export interface RecipeStep {
-  id: string;
-  order: number;
+export interface Step {
   description: string;
   duration?: number;
-  image?: string;
-}
-
-export interface NutritionInfo {
-  calories: number;
-  protein: number;
-  carbs: number;
-  fat: number;
-  servingSize: string;
+  orderIndex: number;
 }
 
 export interface Recipe {
   id: string;
-  name: string;
-  description: string;
-  category: string;
-  servings: number;
-  prepTime: number;
-  cookTime: number;
-  difficulty: 'easy' | 'medium' | 'hard';
+  title: string;
+  description?: string;
+  category: keyof typeof RecipeCategory;
+  difficulty: keyof typeof DifficultyLevel;
+  prepTime?: number;
+  cookTime?: number;
+  servings?: number;
+  createdBy: string;
+  familyGroupId?: string;
   ingredients: Ingredient[];
-  steps: RecipeStep[];
-  images: string[];
-  createdBy: User;
-  tags: string[];
-  favorites: number;
-  rating: number;
-  nutrition?: NutritionInfo;
+  steps: Step[];
+  createdAt: string;
+  updatedAt: string;
 }
 
+export interface CreateRecipeInput {
+  title: string;
+  description?: string;
+  category: keyof typeof RecipeCategory;
+  difficulty: keyof typeof DifficultyLevel;
+  prepTime?: number;
+  cookTime?: number;
+  servings?: number;
+  familyGroupId?: string;
+  ingredients: Ingredient[];
+  steps: Step[];
+}
+
+export interface UpdateRecipeInput extends Partial<CreateRecipeInput> {}
+
 export interface RecipeFilters {
-  category?: string;
-  difficulty?: Recipe['difficulty'];
+  category?: keyof typeof RecipeCategory;
+  difficulty?: keyof typeof DifficultyLevel;
   search?: string;
   tags?: string[];
   sort?: 'latest' | 'popular' | 'rating';
+  page?: number;
+  limit?: number;
 }

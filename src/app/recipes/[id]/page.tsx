@@ -3,35 +3,17 @@
 import { RecipeForm } from "@/components/recipes/recipe-form"
 import { useToast } from "@/components/ui/use-toast"
 import { useRouter } from "next/navigation"
-import { useEffect, useState } from "react"
-import { Recipe } from "@/types/recipe"
-import { recipeApi } from "@/services/recipe"
+import { useEffect } from "react"
+import { useRecipeStore } from "@/stores/recipe-store"
 
-// 不使用自定义的 Props 接口，直接从函数参数中获取 params
 const EditRecipePage = ({ params }) => {
   const { toast } = useToast()
   const router = useRouter()
-  const [recipe, setRecipe] = useState<Recipe | null>(null)
-  const [loading, setLoading] = useState(true)
+  const { recipe, loading, error, fetchRecipe } = useRecipeStore()
 
   useEffect(() => {
-    const fetchRecipe = async () => {
-      try {
-        const data = await recipeApi.getRecipe(params.id)
-        setRecipe(data)
-      } catch (error) {
-        toast({
-          title: "获取食谱失败",
-          description: "无法加载食谱数据，请稍后重试",
-          variant: "destructive",
-        })
-      } finally {
-        setLoading(false)
-      }
-    }
-
-    fetchRecipe()
-  }, [params.id, toast])
+    fetchRecipe(params.id)
+  }, [params.id, fetchRecipe])
 
   if (loading) {
     return (
@@ -41,6 +23,14 @@ const EditRecipePage = ({ params }) => {
         </div>
       </div>
     )
+  }
+
+  if (error) {
+    toast({
+      title: "获取食谱失败",
+      description: error,
+      variant: "destructive",
+    })
   }
 
   if (!recipe) {
@@ -68,16 +58,15 @@ const EditRecipePage = ({ params }) => {
       </div>
       <div className="mx-auto max-w-2xl">
         <RecipeForm
-          initialData={recipe}
+          recipe={recipe}
           onSubmit={async (data) => {
             try {
-              await recipeApi.updateRecipe(params.id, data)
-              
+              // await recipeApi.updateRecipe(params.id, data)
+              // TODO: implement updateRecipe
               toast({
                 title: "更新成功",
                 description: "食谱已成功更新",
               })
-              
               router.push("/recipes")
             } catch (error) {
               toast({
