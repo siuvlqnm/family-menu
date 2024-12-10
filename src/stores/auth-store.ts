@@ -11,9 +11,10 @@ interface AuthState {
   isAuthenticated: boolean;
 
   login: (userName: string, password: string) => Promise<void>;
-  register: (data: { userName: string; password: string; name: string }) => Promise<void>;
+  register: (data: { userName: string; password: string }) => Promise<void>;
   logout: () => void;
   checkAuth: () => boolean;
+  fetchUser: () => Promise<void>;
 }
 
 export const useAuthStore = create<AuthState>()(
@@ -29,17 +30,14 @@ export const useAuthStore = create<AuthState>()(
         set({ loading: true, error: null });
         try {
           const { token } = await authService.login({ userName, password });
-          const user = authService.parseUserFromToken(token);
           
           // 保存token到localStorage
           localStorage.setItem('token', token);
           
-          set({ 
-            token, 
-            user, 
-            isAuthenticated: true, 
-            loading: false 
-          });
+          set({ token, loading: false });
+          
+          // 获取用户信息
+          await get().fetchUser();
         } catch (error) {
           set({ 
             error: error instanceof Error ? error.message : '登录失败', 
@@ -54,17 +52,14 @@ export const useAuthStore = create<AuthState>()(
         set({ loading: true, error: null });
         try {
           const { token } = await authService.register(data);
-          const user = authService.parseUserFromToken(token);
           
           // 保存token到localStorage
           localStorage.setItem('token', token);
           
-          set({ 
-            token, 
-            user, 
-            isAuthenticated: true, 
-            loading: false 
-          });
+          set({ token, loading: false });
+          
+          // 获取用户信息
+          await get().fetchUser();
         } catch (error) {
           set({ 
             error: error instanceof Error ? error.message : '注册失败', 
@@ -77,32 +72,47 @@ export const useAuthStore = create<AuthState>()(
 
       logout: () => {
         localStorage.removeItem('token');
-        set({ 
-          token: null, 
-          user: null, 
-          isAuthenticated: false 
+        set({
+          token: null,
+          user: null,
+          isAuthenticated: false,
+          error: null
         });
       },
 
       checkAuth: () => {
         const token = localStorage.getItem('token');
+        const { user } = get();
+        
         if (!token) {
           set({ isAuthenticated: false });
           return false;
         }
 
-        try {
-          const user = authService.parseUserFromToken(token);
-          set({ token, user, isAuthenticated: true });
-          return true;
-        } catch (error) {
-          localStorage.removeItem('token');
-          set({ 
-            token: null, 
-            user: null, 
-            isAuthenticated: false 
+        if (!user) {
+          // 如果有token但没有用户信息，尝试获取用户信息
+          get().fetchUser().catch(() => {
+            set({ isAuthenticated: false });
           });
-          return false;
+        }
+
+        return true;
+      },
+
+      fetchUser: async () => {
+        try {
+          const user = await authService.getCurrentUser();
+          set({ 
+            user, 
+            isAuthenticated: true 
+          });
+        } catch (error) {
+          set({ 
+            user: null, 
+            isAuthenticated: false,
+            error: error instanceof Error ? error.message : '获取用户信息失败'
+          });
+          throw error;
         }
       },
     }),

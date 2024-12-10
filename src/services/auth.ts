@@ -10,19 +10,7 @@ export const authService = {
     return apiClient.post('/auth/register', data);
   },
 
-  // 从token中解析用户信息
-  parseUserFromToken(token: string): User {
-    try {
-      // Base64解码JWT payload部分
-      const payload = JSON.parse(atob(token.split('.')[1]));
-      return {
-        id: payload.id,
-        userName: payload.userName, // 修改为userName
-        familyGroups: payload.familyGroups || [],
-      };
-    } catch (error) {
-      console.error('Error parsing token:', error);
-      throw new Error('Invalid token format');
-    }
+  async getCurrentUser(): Promise<User> {
+    return apiClient.get('/auth/me');
   },
 };

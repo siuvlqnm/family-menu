@@ -4,6 +4,7 @@ import { loginSchema, registerSchema } from '../types/auth';
 import { AuthService } from '../services/auth';
 import { createDb } from '../db';
 import { Bindings } from '../config';
+import { authMiddleware } from '../middleware/auth';
 
 const auth = new Hono<{ Bindings: Bindings }>();
 
@@ -32,6 +33,20 @@ auth.post(
     
     const result = await authService.login(input);
     return c.json(result);
+  }
+);
+
+// 获取当前用户信息
+auth.get(
+  '/me',
+  authMiddleware,
+  async (c) => {
+    const db = createDb(c.env.DB);
+    const authService = new AuthService(db, c);
+    const token = c.req.header('Authorization')?.split(' ')[1] as string;
+    
+    const user = await authService.getCurrentUser(token);
+    return c.json(user);
   }
 );
 
