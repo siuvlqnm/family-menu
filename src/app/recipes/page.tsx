@@ -16,20 +16,24 @@ import { Button } from "@/components/ui/button"
 import Link from "next/link"
 
 export default function RecipesPage() {
-  const { isAuthenticated } = useAuthStore()
+  console.log('RecipesPage')
+  const { isAuthenticated, checkAuth } = useAuthStore()
   const router = useRouter()
   const { recipes, loading, error, filters, setFilters, fetchRecipes } = useRecipeStore()
 
   useEffect(() => {
-    if (!isAuthenticated) {
-      router.push('/login')
+    // 检查认证状态
+    console.log('检查认证状态')
+    const isAuthed = checkAuth()
+    if (!isAuthed) {
+      console.log('未认证')
+      router.replace('/login?from=/recipes')
       return
     }
-  }, [isAuthenticated, router])
-
-  useEffect(() => {
+    console.log('获取食谱列表')
+    // 获取食谱列表
     fetchRecipes()
-  }, [fetchRecipes])
+  }, [checkAuth, router, fetchRecipes])
 
   const handleFiltersChange = (newFilters: RecipeFiltersType) => {
     setFilters(newFilters)

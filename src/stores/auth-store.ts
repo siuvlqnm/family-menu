@@ -31,10 +31,9 @@ export const useAuthStore = create<AuthState>()(
         try {
           const { token } = await authService.login({ userName, password });
           
-          // 保存token到localStorage
+          // 保存token到localStorage和state
           localStorage.setItem('token', token);
-          
-          set({ token, loading: false });
+          set({ token, isAuthenticated: true, loading: false });
           
           // 获取用户信息
           await get().fetchUser();
@@ -42,7 +41,9 @@ export const useAuthStore = create<AuthState>()(
           set({ 
             error: error instanceof Error ? error.message : '登录失败', 
             loading: false,
-            isAuthenticated: false
+            isAuthenticated: false,
+            token: null,
+            user: null
           });
           throw error;
         }
@@ -55,8 +56,7 @@ export const useAuthStore = create<AuthState>()(
           
           // 保存token到localStorage
           localStorage.setItem('token', token);
-          
-          set({ token, loading: false });
+          set({ token, isAuthenticated: true, loading: false });
           
           // 获取用户信息
           await get().fetchUser();
@@ -64,7 +64,9 @@ export const useAuthStore = create<AuthState>()(
           set({ 
             error: error instanceof Error ? error.message : '注册失败', 
             loading: false,
-            isAuthenticated: false
+            isAuthenticated: false,
+            token: null,
+            user: null
           });
           throw error;
         }
@@ -76,27 +78,26 @@ export const useAuthStore = create<AuthState>()(
           token: null,
           user: null,
           isAuthenticated: false,
-          error: null
+          error: null,
         });
       },
 
       checkAuth: () => {
         const token = localStorage.getItem('token');
-        const { user } = get();
+        const { isAuthenticated } = get();
         
-        if (!token) {
-          set({ isAuthenticated: false });
-          return false;
+        // 如果已经认证，直接返回true
+        if (isAuthenticated && token) {
+          return true;
         }
-
-        if (!user) {
-          // 如果有token但没有用户信息，尝试获取用户信息
-          get().fetchUser().catch(() => {
-            set({ isAuthenticated: false });
-          });
+        
+        // 如果有token但未认证，设置认证状态
+        if (token && !isAuthenticated) {
+          set({ token, isAuthenticated: true });
+          return true;
         }
-
-        return true;
+        
+        return false;
       },
 
       fetchUser: async () => {
@@ -110,8 +111,10 @@ export const useAuthStore = create<AuthState>()(
           set({ 
             user: null, 
             isAuthenticated: false,
+            token: null,
             error: error instanceof Error ? error.message : '获取用户信息失败'
           });
+          localStorage.removeItem('token');
           throw error;
         }
       },

@@ -82,18 +82,15 @@ export function Navbar() {
                 <DropdownMenuTrigger asChild>
                   <Button variant="ghost" className="relative h-8 w-8 rounded-full">
                     <Avatar className="h-8 w-8">
-                      <AvatarImage src="/avatars/01.png" alt={user.name} />
-                      <AvatarFallback>{user.name[0]}</AvatarFallback>
+                      <AvatarImage src="/avatars/01.png" alt={user.userName} />
+                      <AvatarFallback>{user.userName[0]}</AvatarFallback>
                     </Avatar>
                   </Button>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent className="w-56" align="end" forceMount>
                   <DropdownMenuLabel className="font-normal">
                     <div className="flex flex-col space-y-1">
-                      <p className="text-sm font-medium leading-none">{user.name}</p>
-                      <p className="text-xs leading-none text-muted-foreground">
-                        {user.userName}
-                      </p>
+                      <p className="text-sm font-medium leading-none">{user.userName}</p>
                     </div>
                   </DropdownMenuLabel>
                   <DropdownMenuSeparator />

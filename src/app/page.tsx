@@ -164,7 +164,7 @@ export default function Home() {
             </Card>
           </Link>
 
-          <Link href="/shopping" className="group">
+          <Link href="/shopping-lists" className="group">
             <Card className="transition-all duration-200 hover:shadow-lg hover:border-orange-200 h-full bg-gradient-to-br from-green-50 to-white relative overflow-hidden">
               <div className="absolute inset-0 bg-[radial-gradient(circle_at_30%_20%,theme(colors.green.100/30)_1px,transparent_1px)] bg-[length:20px_20px]" />
               <CardHeader className="relative">
