@@ -32,7 +32,8 @@ export const MeasurementUnit = {
 export const ingredientSchema = z.object({
   name: z.string().min(1),
   amount: z.number().min(0),
-  unit: z.nativeEnum(MeasurementUnit),
+  quantity: z.number().min(0),
+  unit: z.enum(Object.keys(MeasurementUnit) as [keyof typeof MeasurementUnit]),
   orderIndex: z.number().int().min(0),
 });
 
@@ -47,8 +48,8 @@ export const stepSchema = z.object({
 export const createRecipeSchema = z.object({
   title: z.string().min(1),
   description: z.string().optional(),
-  category: z.nativeEnum(RecipeCategory),
-  difficulty: z.nativeEnum(DifficultyLevel),
+  category: z.enum(Object.keys(RecipeCategory) as [keyof typeof RecipeCategory]),
+  difficulty: z.enum(Object.keys(DifficultyLevel) as [keyof typeof DifficultyLevel]),
   prepTime: z.number().int().min(0).optional(),
   cookTime: z.number().int().min(0).optional(),
   servings: z.number().int().min(1).optional(),
@@ -81,8 +82,8 @@ export interface Recipe {
   id: string;
   title: string;
   description?: string;
-  category: typeof RecipeCategory[keyof typeof RecipeCategory];
-  difficulty: typeof DifficultyLevel[keyof typeof DifficultyLevel];
+  category: keyof typeof RecipeCategory;
+  difficulty: keyof typeof DifficultyLevel;
   prepTime?: number;
   cookTime?: number;
   servings?: number;

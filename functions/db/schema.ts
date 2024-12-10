@@ -10,7 +10,7 @@ export interface Ingredient {
 }
 
 export interface Step {
-  order: number;
+  orderIndex: number;
   description: string;
 }
 
@@ -62,10 +62,10 @@ export const recipes = sqliteTable('recipes', {
   title: text('title').notNull(),
   description: text('description'),
   category: text('category', {
-    enum: ['荤菜', '素菜', '汤类', '主食', '小吃'],
+    enum: ['MEAT', 'VEGETABLE', 'SOUP', 'STAPLE', 'SNACK'],
   }).notNull(),
   difficulty: text('difficulty', {
-    enum: ['easy', 'medium', 'hard'],
+    enum: ['EASY', 'MEDIUM', 'HARD'],
   }).notNull(),
   prepTime: integer('prep_time'),
   cookTime: integer('cook_time'),

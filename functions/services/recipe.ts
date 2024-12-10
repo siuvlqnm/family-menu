@@ -7,7 +7,7 @@ import type {
   Recipe,
   RecipeQuery,
 } from '../types/recipe';
-import { RecipeCategory, DifficultyLevel } from '../types/recipe';
+// import { RecipeCategory, DifficultyLevel } from '../types/recipe';
 
 // 数据库记录类型
 type DbRecipe = typeof recipes.$inferSelect;
@@ -28,7 +28,7 @@ export class RecipeService {
   }
 
   // 创建食谱
-  async createRecipe(userId: string, data: CreateRecipeInput): Promise<Recipe> {
+  async createRecipe(userID: string, data: CreateRecipeInput): Promise<Recipe> {
     const recipeId = nanoid();
     const now = new Date();
 
@@ -36,14 +36,14 @@ export class RecipeService {
       id: recipeId,
       title: data.title,
       description: data.description ?? null,
-      category: data.category as keyof typeof RecipeCategory,
-      difficulty: data.difficulty as keyof typeof DifficultyLevel,
+      category: data.category,
+      difficulty: data.difficulty,
       prepTime: data.prepTime ?? null,
       cookTime: data.cookTime ?? null,
       servings: data.servings ?? null,
       ingredients: data.ingredients,
       steps: data.steps,
-      createdBy: userId,
+      createdBy: userID,
       familyGroupId: data.familyGroupId ?? null,
       createdAt: now,
       updatedAt: now,
@@ -56,10 +56,10 @@ export class RecipeService {
   // 更新食谱
   async updateRecipe(
     id: string,
-    userId: string,
+    userID: string,
     data: UpdateRecipeInput
   ): Promise<Recipe | null> {
-    const existingRecipe = await this.getRecipe(id, userId);
+    const existingRecipe = await this.getRecipe(id, userID);
     if (!existingRecipe) {
       return null;
     }
@@ -67,8 +67,8 @@ export class RecipeService {
     const updateData: Partial<NewDbRecipe> = {
       title: data.title,
       description: data.description ?? null,
-      category: data.category as keyof typeof RecipeCategory,
-      difficulty: data.difficulty as keyof typeof DifficultyLevel,
+      category: data.category,
+      difficulty: data.difficulty,
       prepTime: data.prepTime ?? null,
       cookTime: data.cookTime ?? null,
       servings: data.servings ?? null,
@@ -95,14 +95,14 @@ export class RecipeService {
   }
 
   // 获取单个食谱
-  async getRecipe(id: string, userId: string): Promise<Recipe | null> {
-    const familyGroupIds = await this.getUserFamilyGroupIds(userId);
+  async getRecipe(id: string, userID: string): Promise<Recipe | null> {
+    const familyGroupIds = await this.getUserFamilyGroupIds(userID);
     
     const recipe = await this.db.query.recipes.findFirst({
       where: and(
         eq(recipes.id, id),
         or(
-          eq(recipes.createdBy, userId),
+          eq(recipes.createdBy, userID),
           eq(recipes.familyGroupId, familyGroupIds)
         )
       ),
@@ -112,16 +112,16 @@ export class RecipeService {
   }
 
   // 获取食谱列表
-  async listRecipes(userId: string, query: RecipeQuery): Promise<Recipe[]> {
+  async listRecipes(userID: string, query: RecipeQuery): Promise<Recipe[]> {
     const { category, difficulty, search, familyGroupId, page, limit } = query;
     const offset = (page - 1) * limit;
 
-    const familyGroupIds = await this.getUserFamilyGroupIds(userId);
+    const familyGroupIds = await this.getUserFamilyGroupIds(userID);
     let conditions = [];
 
     conditions.push(
       or(
-        eq(recipes.createdBy, userId),
+        eq(recipes.createdBy, userID),
         eq(recipes.familyGroupId, familyGroupIds)
       )
     );
@@ -156,8 +156,8 @@ export class RecipeService {
   }
 
   // 删除食谱
-  async deleteRecipe(id: string, userId: string): Promise<boolean> {
-    const existingRecipe = await this.getRecipe(id, userId);
+  async deleteRecipe(id: string, userID: string): Promise<boolean> {
+    const existingRecipe = await this.getRecipe(id, userID);
     if (!existingRecipe) {
       return false;
     }
@@ -167,11 +167,11 @@ export class RecipeService {
   }
 
   // 获取用户所属的家庭组ID列表
-  private async getUserFamilyGroupIds(userId: string): Promise<string[]> {
+  private async getUserFamilyGroupIds(userID: string): Promise<string[]> {
     const members = await this.db
       .select({ familyGroupId: familyMembers.familyGroupId })
       .from(familyMembers)
-      .where(eq(familyMembers.userId, userId));
+      .where(eq(familyMembers.userID, userID));
 
     return members.map((m) => m.familyGroupId);
   }
