@@ -19,6 +19,7 @@ export async function getCurrentUser(c: Context): Promise<AuthUser> {
   }
   return {
     id: payload.id as string,
-    email: payload.email as string,
+    userName: payload.userName as string,
+    name: payload.name as string,
   };
 }

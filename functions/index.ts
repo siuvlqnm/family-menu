@@ -4,7 +4,7 @@ import { HTTPException } from 'hono/http-exception';
 import { authRouter } from './routes/auth';
 import { familyRouter } from './routes/family';
 // import { menuRouter } from './routes/menu.ts.dev';
-// import { recipeRouter } from './routes/recipe';
+import { recipeRouter } from './routes/recipe';
 // import { recipeShareRouter } from './routes/recipe-share.ts.dev';
 import { authMiddleware } from './middleware/auth';
 import { errorHandler } from './middleware/error';
@@ -32,7 +32,7 @@ app.route('/api/auth', authRouter);
 const protectedRoutes = app.use('*', authMiddleware);
 protectedRoutes.route('/api/family', familyRouter);
 // protectedRoutes.route('/api/menu', menuRouter);
-// protectedRoutes.route('/api/recipe', recipeRouter);
+protectedRoutes.route('/api/recipe', recipeRouter);
 // protectedRoutes.route('/api/recipe-share', recipeShareRouter);
 
 // 404 处理

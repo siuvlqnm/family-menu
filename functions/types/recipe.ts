@@ -32,7 +32,7 @@ export const MeasurementUnit = {
 export const ingredientSchema = z.object({
   name: z.string().min(1),
   amount: z.number().min(0),
-  unit: z.enum(Object.values(MeasurementUnit)),
+  unit: z.nativeEnum(MeasurementUnit),
   orderIndex: z.number().int().min(0),
 });
 
@@ -47,8 +47,8 @@ export const stepSchema = z.object({
 export const createRecipeSchema = z.object({
   title: z.string().min(1),
   description: z.string().optional(),
-  category: z.enum(Object.values(RecipeCategory)),
-  difficulty: z.enum(Object.values(DifficultyLevel)),
+  category: z.nativeEnum(RecipeCategory),
+  difficulty: z.nativeEnum(DifficultyLevel),
   prepTime: z.number().int().min(0).optional(),
   cookTime: z.number().int().min(0).optional(),
   servings: z.number().int().min(1).optional(),
@@ -62,8 +62,8 @@ export const updateRecipeSchema = createRecipeSchema.partial();
 
 // 食谱查询参数验证 schema
 export const recipeQuerySchema = z.object({
-  category: z.enum(Object.values(RecipeCategory)).optional(),
-  difficulty: z.enum(Object.values(DifficultyLevel)).optional(),
+  category: z.nativeEnum(RecipeCategory).optional(),
+  difficulty: z.nativeEnum(DifficultyLevel).optional(),
   search: z.string().optional(),
   familyGroupId: z.string().optional(),
   page: z.number().int().min(1).default(1),
