@@ -11,7 +11,7 @@ class ApiError extends Error {
 export const recipeApi = {
   // 获取单个食谱
   async getRecipe(id: string): Promise<Recipe> {
-    const response = await apiClient.get(`/recipes/${id}`);
+    const response = await apiClient.get(`/recipe/${id}`);
     if (!response.ok) {
       throw new ApiError(response.status, 'Failed to fetch recipe');
     }
@@ -20,7 +20,7 @@ export const recipeApi = {
 
   // 更新食谱
   async updateRecipe(id: string, data: UpdateRecipeInput): Promise<Recipe> {
-    const response = await apiClient.put(`/recipes/${id}`, data);
+    const response = await apiClient.put(`/recipe/${id}`, data);
     if (!response.ok) {
       throw new ApiError(response.status, 'Failed to update recipe');
     }
@@ -29,7 +29,7 @@ export const recipeApi = {
 
   // 创建食谱
   async createRecipe(data: CreateRecipeInput): Promise<Recipe> {
-    const response = await apiClient.post('/recipes', data);
+    const response = await apiClient.post('/recipe', data);
     if (!response.ok) {
       throw new ApiError(response.status, 'Failed to create recipe');
     }
@@ -49,7 +49,7 @@ export const recipeApi = {
       if (filters.limit) params.append('limit', filters.limit.toString());
     }
 
-    const response = await apiClient.get(`/recipes?${params.toString()}`);
+    const response = await apiClient.get(`/recipe?${params.toString()}`);
     if (!response.ok) {
       throw new ApiError(response.status, 'Failed to fetch recipes');
     }
@@ -58,7 +58,7 @@ export const recipeApi = {
 
   // 删除食谱
   async deleteRecipe(id: string): Promise<void> {
-    const response = await apiClient.delete(`/recipes/${id}`);
+    const response = await apiClient.delete(`/recipe/${id}`);
     if (!response.ok) {
       throw new ApiError(response.status, 'Failed to delete recipe');
     }

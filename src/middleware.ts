@@ -2,13 +2,15 @@ import { NextResponse } from 'next/server'
 import type { NextRequest } from 'next/server'
 
 // 需要保护的路由
-const protectedRoutes = ['/dashboard', '/recipes', '/menu', '/shopping'];
+const protectedRoutes = [];
+// const protectedRoutes = ['/dashboard', '/recipes', '/menu', '/shopping'];
 // 认证路由（已登录时不能访问）
 const authRoutes = ['/login', '/register'];
 
 export function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl
-  const token = request.cookies.get('token')?.value
+  // 从Authorization头中读取token
+  const token = request.headers.get('Authorization')?.replace('Bearer ', '')
   const isAuthenticated = !!token
 
   // 检查是否是受保护的路由
