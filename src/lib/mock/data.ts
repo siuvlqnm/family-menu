@@ -1,5 +1,5 @@
 import { Menu } from '@/types/menu';
-import { Recipe } from '@/types/recipe';
+import { Recipe } from '@/types/recipes';
 import { ShoppingList } from '@/types/shopping';
 import { User } from '@/types/auth';
 

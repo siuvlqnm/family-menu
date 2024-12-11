@@ -1,5 +1,5 @@
 import { User } from './auth';
-import { Ingredient } from './recipe';
+import { Ingredient } from './recipes';
 
 export interface ShoppingItem extends Ingredient {
   completed: boolean;

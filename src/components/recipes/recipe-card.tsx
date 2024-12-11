@@ -1,4 +1,4 @@
-import { Recipe } from "@/types/recipe"
+import { Recipe } from "@/types/recipes"
 import { Button } from "@/components/ui/button"
 import {
   Card,
@@ -10,7 +10,7 @@ import {
 } from "@/components/ui/card"
 import { Clock, Heart, ChefHat, Star } from "lucide-react"
 import { useRouter } from "next/navigation"
-import { useRecipeStore } from "@/stores/recipe-store"
+import { useRecipeStore } from "@/stores/recipes-store"
 
 interface RecipeCardProps {
   recipe: Recipe
@@ -22,11 +22,11 @@ export function RecipeCard({ recipe }: RecipeCardProps) {
 
   const getDifficultyColor = (difficulty: Recipe["difficulty"]) => {
     switch (difficulty) {
-      case "easy":
+      case "EASY":
         return "text-green-600"
-      case "medium":
+      case "MEDIUM":
         return "text-yellow-600"
-      case "hard":
+      case "HARD":
         return "text-red-600"
       default:
         return "text-gray-600"
@@ -35,11 +35,11 @@ export function RecipeCard({ recipe }: RecipeCardProps) {
 
   const getDifficultyText = (difficulty: Recipe["difficulty"]) => {
     switch (difficulty) {
-      case "easy":
+      case "EASY":
         return "简单"
-      case "medium":
+      case "MEDIUM":
         return "中等"
-      case "hard":
+      case "HARD":
         return "困难"
       default:
         return "未知"

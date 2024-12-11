@@ -46,7 +46,7 @@ export const stepSchema = z.object({
 
 // 创建食谱验证 schema
 export const createRecipeSchema = z.object({
-  title: z.string().min(1),
+  name: z.string().min(1),
   description: z.string().optional(),
   category: z.enum(Object.keys(RecipeCategory) as [keyof typeof RecipeCategory]),
   difficulty: z.enum(Object.keys(DifficultyLevel) as [keyof typeof DifficultyLevel]),
@@ -80,7 +80,7 @@ export type RecipeQuery = z.infer<typeof recipeQuerySchema>;
 
 export interface Recipe {
   id: string;
-  title: string;
+  name: string;
   description?: string;
   category: keyof typeof RecipeCategory;
   difficulty: keyof typeof DifficultyLevel;

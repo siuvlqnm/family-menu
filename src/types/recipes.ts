@@ -1,5 +1,3 @@
-import { User } from './auth';
-
 // 食谱分类
 export const RecipeCategory = {
   MEAT: '荤菜',
@@ -44,7 +42,7 @@ export interface Step {
 
 export interface Recipe {
   id: string;
-  title: string;
+  name: string;
   description?: string;
   category: keyof typeof RecipeCategory;
   difficulty: keyof typeof DifficultyLevel;
@@ -60,7 +58,7 @@ export interface Recipe {
 }
 
 export interface CreateRecipeInput {
-  title: string;
+  name: string;
   description?: string;
   category: keyof typeof RecipeCategory;
   difficulty: keyof typeof DifficultyLevel;

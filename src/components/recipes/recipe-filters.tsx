@@ -1,4 +1,4 @@
-import { RecipeFilters } from "@/types/recipe"
+import { RecipeFilters } from "@/types/recipes"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"

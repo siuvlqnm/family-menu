@@ -1,6 +1,6 @@
 import { create } from 'zustand';
-import { Recipe, RecipeFilters, CreateRecipeInput, UpdateRecipeInput } from '@/types/recipe';
-import { recipeApi } from '@/services/recipe';
+import { Recipe, RecipeFilters, CreateRecipeInput, UpdateRecipeInput } from '@/types/recipes';
+import { recipeApi } from '@/services/recipes';
 
 interface RecipeState {
   // 列表状态
@@ -62,8 +62,8 @@ export const useRecipeStore = create<RecipeState>((set, get) => ({
         params.append('sort', filters.sort);
       }
 
-      const { recipes } = await recipeApi.getRecipes(params);
-      set({ recipes, loading: false });
+      const response = await recipeApi.getRecipes(params);
+      set({ recipes: response, loading: false });
     } catch (error) {
       set({ 
         error: error instanceof Error ? error.message : '获取食谱列表失败', 

@@ -1,7 +1,7 @@
 import { Hono } from 'hono';
 import { zValidator } from '@hono/zod-validator';
 import { createRecipeSchema, recipeQuerySchema, updateRecipeSchema } from '../types/recipe';
-import { RecipeService } from '../services/recipe';
+import { RecipeService } from '../services/recipes';
 import { authMiddleware, getCurrentUser } from '../middleware/auth';
 import { HTTPException } from 'hono/http-exception';
 import { createDb } from '../db';

@@ -3,7 +3,7 @@
 import { RecipeForm } from "@/components/recipes/recipe-form"
 import { useToast } from "@/components/ui/use-toast"
 import { useRouter } from "next/navigation"
-import { useRecipeStore } from "@/stores/recipe-store"
+import { useRecipeStore } from "@/stores/recipes-store"
 
 export default function NewRecipePage() {
   const { toast } = useToast()

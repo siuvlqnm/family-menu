@@ -61,7 +61,7 @@ export const familyMembers = sqliteTable('family_members', {
 // 食谱表
 export const recipes = sqliteTable('recipes', {
   id: text('id').primaryKey(),
-  title: text('title').notNull(),
+  name: text('name').notNull(),
   description: text('description'),
   category: text('category', {
     enum: ['MEAT', 'VEGETABLE', 'SOUP', 'STAPLE', 'SNACK'],

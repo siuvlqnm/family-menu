@@ -3,7 +3,7 @@
 import { useAuthStore } from '@/stores/auth-store'
 import { useRouter } from 'next/navigation'
 import { useEffect } from 'react'
-import { useRecipeStore } from '@/stores/recipe-store'
+import { useRecipeStore } from '@/stores/recipes-store'
 import { PageHeader } from '@/components/ui/page-header'
 import { RecipeCard } from '@/components/recipes/recipe-card'
 import { RecipeFilters } from '@/components/recipes/recipe-filters'
@@ -11,7 +11,7 @@ import { EmptyState } from '@/components/ui/empty-state'
 import { DataTableLoading } from '@/components/ui/data-table/loading'
 import { DataTableError } from '@/components/ui/data-table/error'
 import { Plus, UtensilsCrossed } from 'lucide-react'
-import { RecipeFilters as RecipeFiltersType } from '@/types/recipe'
+import { RecipeFilters as RecipeFiltersType } from '@/types/recipes'
 import { Button } from "@/components/ui/button"
 import Link from "next/link"
 
@@ -53,9 +53,9 @@ export default function RecipesPage() {
     if (filters.search) {
       const searchLower = filters.search.toLowerCase()
       return (
-        recipe.name.toLowerCase().includes(searchLower) ||
-        recipe.description.toLowerCase().includes(searchLower) ||
-        recipe.tags.some((tag) => tag.toLowerCase().includes(searchLower))
+        recipe.title.toLowerCase().includes(searchLower) ||
+        recipe.description.toLowerCase().includes(searchLower)
+        // recipe.tags.some((tag) => tag.toLowerCase().includes(searchLower))
       )
     }
     return true
@@ -66,9 +66,11 @@ export default function RecipesPage() {
       case 'latest':
         return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
       case 'popular':
-        return b.favorites - a.favorites
+        // 暂时按创建时间的倒序排列
+        return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
       case 'rating':
-        return b.rating - a.rating
+        // 暂时按更新时间的倒序排列
+        return new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime()
       default:
         return 0
     }
