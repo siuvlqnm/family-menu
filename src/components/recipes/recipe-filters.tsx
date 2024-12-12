@@ -40,7 +40,7 @@ export function RecipeFilters({
   const handleSortChange = (value: string) => {
     onFiltersChange({
       ...filters,
-      sort: value === 'default' ? '' : (value as RecipeFilters["sort"]),
+      sort: value === 'default' ? undefined : (value as RecipeFilters["sort"]),
     })
   }
 
@@ -81,11 +81,11 @@ export function RecipeFilters({
             </SelectTrigger>
             <SelectContent>
               <SelectItem value="all">全部分类</SelectItem>
-              <SelectItem value="荤菜">荤菜</SelectItem>
-              <SelectItem value="素菜">素菜</SelectItem>
-              <SelectItem value="汤类">汤类</SelectItem>
-              <SelectItem value="主食">主食</SelectItem>
-              <SelectItem value="小吃">小吃</SelectItem>
+              <SelectItem value="MEAT">荤菜</SelectItem>
+              <SelectItem value="VEGETABLE">素菜</SelectItem>
+              <SelectItem value="SOUP">汤类</SelectItem>
+              <SelectItem value="STAPLE">主食</SelectItem>
+              <SelectItem value="SNACK">小吃</SelectItem>
             </SelectContent>
           </Select>
         </div>
@@ -102,9 +102,9 @@ export function RecipeFilters({
             </SelectTrigger>
             <SelectContent>
               <SelectItem value="all">全部难度</SelectItem>
-              <SelectItem value="easy">简单</SelectItem>
-              <SelectItem value="medium">中等</SelectItem>
-              <SelectItem value="hard">困难</SelectItem>
+              <SelectItem value="EASY">简单</SelectItem>
+              <SelectItem value="MEDIUM">中等</SelectItem>
+              <SelectItem value="HARD">困难</SelectItem>
             </SelectContent>
           </Select>
         </div>

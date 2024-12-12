@@ -1,7 +1,7 @@
-import { Recipe, CreateRecipeInput, UpdateRecipeInput, RecipeFilters } from '@/types/recipes';
+import { Recipe, CreateRecipeInput, UpdateRecipeInput } from '@/types/recipes';
 import { apiClient } from '@/lib/api-client';
 
-export const recipeApi = {
+export const recipesApi = {
   // 获取单个食谱
   async getRecipe(id: string): Promise<Recipe> {
     return await apiClient.get<Recipe>(`/recipes/${id}`);
@@ -18,18 +18,7 @@ export const recipeApi = {
   },
 
   // 获取食谱列表
-  async getRecipes(filters?: RecipeFilters): Promise<Recipe[]> {
-    const params = new URLSearchParams();
-    if (filters) {
-      if (filters.category) params.append('category', filters.category);
-      if (filters.difficulty) params.append('difficulty', filters.difficulty);
-      if (filters.search) params.append('search', filters.search);
-      if (filters.tags?.length) params.append('tags', filters.tags.join(','));
-      if (filters.sort) params.append('sort', filters.sort);
-      if (filters.page) params.append('page', filters.page.toString());
-      if (filters.limit) params.append('limit', filters.limit.toString());
-    }
-
+  async getRecipes(params: URLSearchParams): Promise<Recipe[]> {
     return await apiClient.get<Recipe[]>(`/recipes?${params.toString()}`);
   },
 

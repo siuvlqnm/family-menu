@@ -1,3 +1,4 @@
+DROP TABLE IF EXISTS family_groups;
 CREATE TABLE `family_groups` (
 	`id` text PRIMARY KEY NOT NULL,
 	`name` text NOT NULL,
@@ -5,6 +6,8 @@ CREATE TABLE `family_groups` (
 	`created_at` integer DEFAULT CURRENT_TIMESTAMP NOT NULL,
 	`updated_at` integer DEFAULT CURRENT_TIMESTAMP NOT NULL
 );
+
+DROP TABLE IF EXISTS family_members;
 --> statement-breakpoint
 CREATE UNIQUE INDEX `family_groups_invite_code_unique` ON `family_groups` (`invite_code`);--> statement-breakpoint
 CREATE TABLE `family_members` (
@@ -16,6 +19,8 @@ CREATE TABLE `family_members` (
 	FOREIGN KEY (`user_id`) REFERENCES `users`(`id`) ON UPDATE no action ON DELETE cascade,
 	FOREIGN KEY (`family_group_id`) REFERENCES `family_groups`(`id`) ON UPDATE no action ON DELETE cascade
 );
+
+DROP TABLE IF EXISTS menu_items;
 --> statement-breakpoint
 CREATE TABLE `menu_items` (
 	`id` text PRIMARY KEY NOT NULL,
@@ -29,6 +34,8 @@ CREATE TABLE `menu_items` (
 	FOREIGN KEY (`menu_id`) REFERENCES `menus`(`id`) ON UPDATE no action ON DELETE cascade,
 	FOREIGN KEY (`recipe_id`) REFERENCES `recipes`(`id`) ON UPDATE no action ON DELETE no action
 );
+
+DROP TABLE IF EXISTS menus;
 --> statement-breakpoint
 CREATE TABLE `menus` (
 	`id` text PRIMARY KEY NOT NULL,
@@ -43,6 +50,8 @@ CREATE TABLE `menus` (
 	FOREIGN KEY (`family_group_id`) REFERENCES `family_groups`(`id`) ON UPDATE no action ON DELETE cascade,
 	FOREIGN KEY (`created_by`) REFERENCES `users`(`id`) ON UPDATE no action ON DELETE no action
 );
+
+DROP TABLE IF EXISTS recipe_shares;
 --> statement-breakpoint
 CREATE TABLE `recipe_shares` (
 	`id` text PRIMARY KEY NOT NULL,
@@ -57,10 +66,12 @@ CREATE TABLE `recipe_shares` (
 	FOREIGN KEY (`target_family_group_id`) REFERENCES `family_groups`(`id`) ON UPDATE no action ON DELETE cascade,
 	FOREIGN KEY (`shared_by`) REFERENCES `users`(`id`) ON UPDATE no action ON DELETE no action
 );
+
+DROP TABLE IF EXISTS recipes;
 --> statement-breakpoint
 CREATE TABLE `recipes` (
 	`id` text PRIMARY KEY NOT NULL,
-	`title` text NOT NULL,
+	`name` text NOT NULL,
 	`description` text,
 	`category` text NOT NULL,
 	`difficulty` text NOT NULL,
@@ -71,19 +82,24 @@ CREATE TABLE `recipes` (
 	`family_group_id` text,
 	`ingredients` text NOT NULL,
 	`steps` text NOT NULL,
+	`favorites` integer DEFAULT 0 NOT NULL,
+	`rating` integer DEFAULT 0 NOT NULL,
+	`tags` text NOT NULL,
 	`created_at` integer DEFAULT CURRENT_TIMESTAMP NOT NULL,
 	`updated_at` integer DEFAULT CURRENT_TIMESTAMP NOT NULL,
 	FOREIGN KEY (`created_by`) REFERENCES `users`(`id`) ON UPDATE no action ON DELETE no action,
 	FOREIGN KEY (`family_group_id`) REFERENCES `family_groups`(`id`) ON UPDATE no action ON DELETE cascade
 );
+
+DROP TABLE IF EXISTS users;
 --> statement-breakpoint
 CREATE TABLE `users` (
 	`id` text PRIMARY KEY NOT NULL,
+	`user_name` text NOT NULL,
 	`name` text NOT NULL,
-	`email` text NOT NULL,
 	`password` text NOT NULL,
 	`created_at` integer DEFAULT CURRENT_TIMESTAMP NOT NULL,
 	`updated_at` integer DEFAULT CURRENT_TIMESTAMP NOT NULL
 );
 --> statement-breakpoint
-CREATE UNIQUE INDEX `users_email_unique` ON `users` (`email`);
+CREATE UNIQUE INDEX `users_user_name_unique` ON `users` (`user_name`);

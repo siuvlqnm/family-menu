@@ -102,7 +102,7 @@ export function RecipeCard({ recipe }: RecipeCardProps) {
         <div className="flex w-full items-center justify-between">
           <div className="flex items-center space-x-1 text-sm text-muted-foreground">
             <Star className="h-4 w-4 fill-yellow-400 text-yellow-400" />
-            <span>{recipe.rating.toFixed(1)}</span>
+            <span>{Number(recipe.rating).toFixed(1)}</span>
           </div>
           <Button variant="outline" size="sm">
             查看详情

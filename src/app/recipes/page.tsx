@@ -53,7 +53,7 @@ export default function RecipesPage() {
     if (filters.search) {
       const searchLower = filters.search.toLowerCase()
       return (
-        recipe.title.toLowerCase().includes(searchLower) ||
+        recipe.name.toLowerCase().includes(searchLower) ||
         recipe.description.toLowerCase().includes(searchLower)
         // recipe.tags.some((tag) => tag.toLowerCase().includes(searchLower))
       )

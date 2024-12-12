@@ -80,6 +80,10 @@ export const recipes = sqliteTable('recipes', {
   }),
   ingredients: text('ingredients', { mode: 'json' }).notNull().$type<Ingredient[]>(),
   steps: text('steps', { mode: 'json' }).notNull().$type<Step[]>(),
+  favorites: integer('favorites').notNull().default(0),
+  rating: integer('rating').notNull().default(0),
+  // tags: text('tags').notNull().default('[]'),
+  tags: text('tags', { mode: 'json' }).notNull().$type<string[]>(),
   createdAt: integer('created_at', { mode: 'timestamp' })
     .notNull()
     .default(sql`CURRENT_TIMESTAMP`),

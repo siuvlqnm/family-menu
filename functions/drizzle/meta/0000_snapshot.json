@@ -1,7 +1,7 @@
 {
   "version": "6",
   "dialect": "sqlite",
-  "id": "a3f71b48-6470-4d21-8cfb-469a8eb85114",
+  "id": "2546c05e-23c8-4f59-8ecb-3eb3b6b14355",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "tables": {
     "family_groups": {
@@ -453,8 +453,8 @@
           "notNull": true,
           "autoincrement": false
         },
-        "title": {
-          "name": "title",
+        "name": {
+          "name": "name",
           "type": "text",
           "primaryKey": false,
           "notNull": true,
@@ -530,6 +530,29 @@
           "notNull": true,
           "autoincrement": false
         },
+        "favorites": {
+          "name": "favorites",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "default": 0
+        },
+        "rating": {
+          "name": "rating",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "default": 0
+        },
+        "tags": {
+          "name": "tags",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
         "created_at": {
           "name": "created_at",
           "type": "integer",
@@ -590,15 +613,15 @@
           "notNull": true,
           "autoincrement": false
         },
-        "name": {
-          "name": "name",
+        "user_name": {
+          "name": "user_name",
           "type": "text",
           "primaryKey": false,
           "notNull": true,
           "autoincrement": false
         },
-        "email": {
-          "name": "email",
+        "name": {
+          "name": "name",
           "type": "text",
           "primaryKey": false,
           "notNull": true,
@@ -629,10 +652,10 @@
         }
       },
       "indexes": {
-        "users_email_unique": {
-          "name": "users_email_unique",
+        "users_user_name_unique": {
+          "name": "users_user_name_unique",
           "columns": [
-            "email"
+            "user_name"
           ],
           "isUnique": true
         }

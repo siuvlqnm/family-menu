@@ -4,9 +4,9 @@
   "private": true,
   "scripts": {
     "dev": "npx wrangler dev index.ts",
-    "deploy": "npxwrangler deploy index.ts",
-    "generate": "drizzle-kit generate:sqlite",
-    "push": "drizzle-kit push:sqlite",
+    "deploy": "npx wrangler deploy index.ts",
+    "generate": "drizzle-kit generate",
+    "push": "drizzle-kit push",
     "check": "tsc"
   },
   "dependencies": {

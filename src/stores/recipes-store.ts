@@ -1,26 +1,22 @@
 import { create } from 'zustand';
 import { Recipe, RecipeFilters, CreateRecipeInput, UpdateRecipeInput } from '@/types/recipes';
-import { recipeApi } from '@/services/recipes';
+import { recipesApi } from '@/services/recipes';
 
 interface RecipeState {
-  // 列表状态
   recipes: Recipe[];
   filters: RecipeFilters;
   loading: boolean;
   error: string | null;
-  
-  // 单个食谱状态
   recipe: Recipe | null;
   recipeLoading: boolean;
   recipeError: string | null;
-
-  // 操作方法
   setFilters: (filters: RecipeFilters) => void;
   fetchRecipes: () => Promise<void>;
   fetchRecipe: (id: string) => Promise<void>;
   createRecipe: (recipe: CreateRecipeInput) => Promise<void>;
   updateRecipe: (id: string, recipe: UpdateRecipeInput) => Promise<void>;
   deleteRecipe: (id: string) => Promise<void>;
+  toggleFavorite: (id: string) => Promise<void>;
 }
 
 export const useRecipeStore = create<RecipeState>((set, get) => ({
@@ -41,10 +37,10 @@ export const useRecipeStore = create<RecipeState>((set, get) => ({
 
   // 获取食谱列表
   fetchRecipes: async () => {
+    const { filters } = get();
     set({ loading: true, error: null });
     try {
       const params = new URLSearchParams();
-      const filters = get().filters;
       
       if (filters.category) {
         params.append('category', filters.category);
@@ -59,10 +55,14 @@ export const useRecipeStore = create<RecipeState>((set, get) => ({
         filters.tags.forEach(tag => params.append('tags', tag));
       }
       if (filters.sort) {
-        params.append('sort', filters.sort);
+        const validSorts = ['latest', 'popular', 'rating'] as const;
+        const sortValue = validSorts.find(s => s === filters.sort);
+        if (sortValue) {
+          params.append('sort', sortValue);
+        }
       }
 
-      const response = await recipeApi.getRecipes(params);
+      const response = await recipesApi.getRecipes(params);
       set({ recipes: response, loading: false });
     } catch (error) {
       set({ 
@@ -76,8 +76,14 @@ export const useRecipeStore = create<RecipeState>((set, get) => ({
   fetchRecipe: async (id: string) => {
     set({ recipeLoading: true, recipeError: null });
     try {
-      const recipe = await recipeApi.getRecipe(id);
-      set({ recipe, recipeLoading: false });
+      const recipe = await recipesApi.getRecipe(id);
+      // 转换时间字段
+      const processedRecipe = {
+        ...recipe,
+        createdAt: new Date(recipe.createdAt).toISOString(),
+        updatedAt: new Date(recipe.updatedAt).toISOString()
+      };
+      set({ recipe: processedRecipe, recipeLoading: false });
     } catch (error) {
       set({ 
         recipeError: error instanceof Error ? error.message : '获取食谱详情失败', 
@@ -89,53 +95,72 @@ export const useRecipeStore = create<RecipeState>((set, get) => ({
   // 创建食谱
   createRecipe: async (data: CreateRecipeInput) => {
     try {
-      const newRecipe = await recipeApi.createRecipe(data);
+      const newRecipe = await recipesApi.createRecipe(data);
+      // 转换时间字段
+      const processedRecipe = {
+        ...newRecipe,
+        createdAt: new Date(newRecipe.createdAt).toISOString(),
+        updatedAt: new Date(newRecipe.updatedAt).toISOString()
+      };
       set(state => ({
-        recipes: [newRecipe, ...state.recipes],
-        loading: false,
+        recipes: [processedRecipe, ...state.recipes],
       }));
     } catch (error) {
-      set({ error: error instanceof Error ? error.message : '创建食谱失败', loading: false });
       throw error;
     }
   },
 
   // 更新食谱
   updateRecipe: async (id: string, data: UpdateRecipeInput) => {
-    set({ loading: true, error: null });
     try {
-      const updatedRecipe = await recipeApi.updateRecipe(id, data);
+      const updatedRecipe = await recipesApi.updateRecipe(id, data);
+      // 转换时间字段
+      const processedRecipe = {
+        ...updatedRecipe,
+        createdAt: new Date(updatedRecipe.createdAt).toISOString(),
+        updatedAt: new Date(updatedRecipe.updatedAt).toISOString()
+      };
       set(state => ({
         recipes: state.recipes.map(recipe => 
-          recipe.id === id ? updatedRecipe : recipe
+          recipe.id === id ? processedRecipe : recipe
         ),
-        recipe: updatedRecipe,
-        loading: false,
+        recipe: state.recipe?.id === id ? processedRecipe : state.recipe,
       }));
     } catch (error) {
-      set({ 
-        error: error instanceof Error ? error.message : '更新食谱失败', 
-        loading: false 
-      });
       throw error;
     }
   },
 
   // 删除食谱
   deleteRecipe: async (id: string) => {
-    set({ loading: true, error: null });
     try {
-      await recipeApi.deleteRecipe(id);
+      await recipesApi.deleteRecipe(id);
       set(state => ({
         recipes: state.recipes.filter(recipe => recipe.id !== id),
         recipe: state.recipe?.id === id ? null : state.recipe,
-        loading: false,
       }));
     } catch (error) {
-      set({ 
-        error: error instanceof Error ? error.message : '删除食谱失败', 
-        loading: false 
-      });
+      throw error;
+    }
+  },
+
+  // 收藏/取消收藏食谱
+  toggleFavorite: async (id: string) => {
+    try {
+      const updatedRecipe = await recipesApi.toggleFavorite(id);
+      // 转换时间字段
+      const processedRecipe = {
+        ...updatedRecipe,
+        createdAt: new Date(updatedRecipe.createdAt).toISOString(),
+        updatedAt: new Date(updatedRecipe.updatedAt).toISOString()
+      };
+      set(state => ({
+        recipes: state.recipes.map(recipe => 
+          recipe.id === id ? processedRecipe : recipe
+        ),
+        recipe: state.recipe?.id === id ? processedRecipe : state.recipe,
+      }));
+    } catch (error) {
       throw error;
     }
   },

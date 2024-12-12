@@ -34,7 +34,7 @@ export class RecipeService {
 
     const recipe: NewDbRecipe = {
       id: recipeId,
-      title: data.title,
+      name: data.name,
       description: data.description ?? null,
       category: data.category,
       difficulty: data.difficulty,
@@ -43,6 +43,9 @@ export class RecipeService {
       servings: data.servings ?? null,
       ingredients: data.ingredients,
       steps: data.steps,
+      favorites: 0,
+      rating: 0,
+      tags: [],
       createdBy: userID,
       familyGroupId: data.familyGroupId ?? null,
       createdAt: now,
@@ -65,7 +68,7 @@ export class RecipeService {
     }
 
     const updateData: Partial<NewDbRecipe> = {
-      title: data.title,
+      name: data.name,
       description: data.description ?? null,
       category: data.category,
       difficulty: data.difficulty,
@@ -113,7 +116,7 @@ export class RecipeService {
 
   // 获取食谱列表
   async listRecipes(userID: string, query: RecipeQuery): Promise<Recipe[]> {
-    const { category, difficulty, search, familyGroupId, page, limit } = query;
+    const { category, difficulty, search, familyGroupId, page, limit, sort } = query;
     const offset = (page - 1) * limit;
 
     // const familyGroupIds = await this.getUserFamilyGroupIds(userID);
@@ -138,21 +141,31 @@ export class RecipeService {
     if (search) {
       conditions.push(
         or(
-          like(recipes.title, `%${search}%`),
+          like(recipes.name, `%${search}%`),
           like(recipes.description || '', `%${search}%`)
         )
       );
+    }
+
+    // 排序
+    let orderBy = desc(recipes.createdAt); // 默认按创建时间倒序
+    if (sort === 'LATEST') {
+      orderBy = desc(recipes.createdAt);
+    } else if (sort === 'POPULAR') {
+      orderBy = desc(recipes.favorites);
+    } else if (sort === 'RATING') {
+      orderBy = desc(recipes.rating);
     }
 
     const result = await this.db
       .select()
       .from(recipes)
       .where(and(...conditions))
-      .orderBy(desc(recipes.createdAt))
+      .orderBy(orderBy)
       .limit(limit)
       .offset(offset);
 
-    return result.map(this.mapToRecipe);
+    return result.map(recipe => this.mapToRecipe(recipe));
   }
 
   // 删除食谱
@@ -180,11 +193,13 @@ export class RecipeService {
   private mapToRecipe(data: DbRecipe): Recipe {
     return {
       ...data,
-      description: data.description ?? undefined,
-      prepTime: data.prepTime ?? undefined,
-      cookTime: data.cookTime ?? undefined,
-      servings: data.servings ?? undefined,
-      familyGroupId: data.familyGroupId ?? undefined,
+      ingredients: (data.ingredients, []),
+      steps: (data.steps, []),
+      tags: <string[]>(data.tags, []),
+      rating: Number(data.rating) || 0,
+      favorites: Number(data.favorites) || 0,
+      createdAt: new Date(data.createdAt),
+      updatedAt: data.updatedAt
     };
   }
 }

@@ -53,6 +53,9 @@ export interface Recipe {
   familyGroupId?: string;
   ingredients: Ingredient[];
   steps: Step[];
+  favorites: number;
+  rating: number;
+  tags?: string[];
   createdAt: string;
   updatedAt: string;
 }

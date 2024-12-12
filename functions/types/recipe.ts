@@ -28,6 +28,21 @@ export const MeasurementUnit = {
   AS_NEEDED: '适量',
 } as const;
 
+// 食谱状态
+export const RecipeStatus = {
+  DRAFT: 'draft',
+  PUBLISHED: 'published',
+  ARCHIVED: 'archived',
+} as const;
+
+// sort
+export const RecipeSort = {
+  LATEST: 'latest',
+  POPULAR: 'popular',
+  RATING: 'rating',
+} as const
+
+
 // 配料验证 schema
 export const ingredientSchema = z.object({
   name: z.string().min(1),
@@ -69,6 +84,7 @@ export const recipeQuerySchema = z.object({
   familyGroupId: z.string().optional(),
   page: z.number().int().min(1).default(1),
   limit: z.number().int().min(1).max(50).default(10),
+  sort: z.enum(Object.keys(RecipeSort) as [keyof typeof RecipeSort]).optional(),
 });
 
 // 类型定义
@@ -91,6 +107,9 @@ export interface Recipe {
   familyGroupId?: string;
   ingredients: Ingredient[];
   steps: Step[];
+  tags?: string[];
+  favorites: number;
+  rating: number;
   createdAt: Date;
   updatedAt: Date;
 }
