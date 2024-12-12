@@ -46,7 +46,7 @@ export const RecipeSort = {
 // 配料验证 schema
 export const ingredientSchema = z.object({
   name: z.string().min(1),
-  amount: z.number().min(0),
+  // amount: z.number().min(0),
   quantity: z.number().min(0),
   unit: z.enum(Object.keys(MeasurementUnit) as [keyof typeof MeasurementUnit]),
   orderIndex: z.number().int().min(0),

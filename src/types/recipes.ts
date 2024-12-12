@@ -28,7 +28,7 @@ export const MeasurementUnit = {
 
 export interface Ingredient {
   name: string;
-  amount: number;
+  // amount: number;
   quantity: number;
   unit: keyof typeof MeasurementUnit;
   orderIndex: number;

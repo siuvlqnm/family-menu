@@ -5,7 +5,7 @@ import { MeasurementUnit } from '../types/recipe';
 // 定义食材接口
 export interface Ingredient {
   name: string;
-  amount: number;
+  // amount: number;
   quantity: number;
   unit: keyof typeof MeasurementUnit;
   orderIndex: number;

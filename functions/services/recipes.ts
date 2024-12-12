@@ -7,7 +7,6 @@ import type {
   Recipe,
   RecipeQuery,
 } from '../types/recipe';
-// import { RecipeCategory, DifficultyLevel } from '../types/recipe';
 
 // 数据库记录类型
 type DbRecipe = typeof recipes.$inferSelect;
@@ -99,14 +98,14 @@ export class RecipeService {
 
   // 获取单个食谱
   async getRecipe(id: string, userID: string): Promise<Recipe | null> {
-    // const familyGroupIds = await this.getUserFamilyGroupIds(userID);
+    const familyGroupIds = await this.getUserFamilyGroupIds(userID);
     
     const recipe = await this.db.query.recipes.findFirst({
       where: and(
         eq(recipes.id, id),
         or(
           eq(recipes.createdBy, userID),
-          // eq(recipes.familyGroupId, familyGroupIds)
+          eq(recipes.familyGroupId, familyGroupIds)
         )
       ),
     });
@@ -119,13 +118,13 @@ export class RecipeService {
     const { category, difficulty, search, familyGroupId, page, limit, sort } = query;
     const offset = (page - 1) * limit;
 
-    // const familyGroupIds = await this.getUserFamilyGroupIds(userID);
+    const familyGroupIds = await this.getUserFamilyGroupIds(userID);
     let conditions = [];
 
     conditions.push(
       or(
         eq(recipes.createdBy, userID),
-        // eq(recipes.familyGroupId, familyGroupIds)
+        eq(recipes.familyGroupId, familyGroupIds)
       )
     );
 
@@ -179,27 +178,27 @@ export class RecipeService {
     return true;
   }
 
-  // 获取用户所属的家庭组ID列表
-  // private async getUserFamilyGroupIds(userID: string): Promise<string[]> {
-  //   const members = await this.db
-  //     .select({ familyGroupId: familyMembers.familyGroupId })
-  //     .from(familyMembers)
-  //     .where(eq(familyMembers.userID, userID));
+  // 获取用户所在的家庭组ID列表
+  private async getUserFamilyGroupIds(userID: string): Promise<string[]> {
+    const members = await this.db
+      .select({ familyGroupId: familyMembers.familyGroupId })
+      .from(familyMembers)
+      .where(eq(familyMembers.userId, userID));
 
-  //   return members.map((m) => m.familyGroupId);
-  // }
+    return members.map(m => m.familyGroupId);
+  }
 
   // 将数据库记录映射为 Recipe 类型
   private mapToRecipe(data: DbRecipe): Recipe {
     return {
       ...data,
-      ingredients: (data.ingredients, []),
-      steps: (data.steps, []),
-      tags: <string[]>(data.tags, []),
+      ingredients: typeof data.ingredients === 'string' ? JSON.parse(data.ingredients) : data.ingredients || [],
+      steps: typeof data.steps === 'string' ? JSON.parse(data.steps) : data.steps || [],
+      tags: typeof data.tags === 'string' ? JSON.parse(data.tags) : data.tags || [],
       rating: Number(data.rating) || 0,
       favorites: Number(data.favorites) || 0,
       createdAt: new Date(data.createdAt),
-      updatedAt: data.updatedAt
+      updatedAt: new Date(data.updatedAt)
     };
   }
 }

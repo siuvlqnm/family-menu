@@ -34,7 +34,7 @@ const recipeFormSchema = z.object({
   description: z.string().min(10, {
     message: "描述至少需要10个字符",
   }),
-  category: z.string({
+  category: z.enum(["MEAT", "VEGETABLE", "SOUP", "STAPLE", "SNACK"], {
     required_error: "请选择食谱分类",
   }),
   servings: z.number().min(1, {
@@ -46,21 +46,22 @@ const recipeFormSchema = z.object({
   cookTime: z.number().min(1, {
     message: "至少需要1分钟",
   }),
-  difficulty: z.enum(["easy", "medium", "hard"], {
+  difficulty: z.enum(["EASY", "MEDIUM", "HARD"], {
     required_error: "请选择难度等级",
   }),
   ingredients: z.array(
     z.object({
       name: z.string(),
-      amount: z.number(),
-      unit: z.string(),
+      quantity: z.number(),
+      unit: z.enum(["GRAM", "MILLILITER", "PIECE", "WHOLE", "ROOT", "SLICE", "SPOON", "AS_NEEDED"]),
+      orderIndex: z.number(),
     })
   ),
   steps: z.array(
     z.object({
-      order: z.number(),
       description: z.string(),
       duration: z.number().optional(),
+      orderIndex: z.number(),
     })
   ),
   tags: z.array(z.string()),
@@ -97,7 +98,7 @@ export function RecipeForm({
       servings: 2,
       prepTime: 15,
       cookTime: 30,
-      difficulty: "medium",
+      difficulty: "MEDIUM",
       ingredients: [],
       steps: [],
       tags: [],
@@ -192,11 +193,11 @@ export function RecipeForm({
                     </SelectTrigger>
                   </FormControl>
                   <SelectContent>
-                    <SelectItem value="荤菜">荤菜</SelectItem>
-                    <SelectItem value="素菜">素菜</SelectItem>
-                    <SelectItem value="汤类">汤类</SelectItem>
-                    <SelectItem value="主食">主食</SelectItem>
-                    <SelectItem value="小吃">小吃</SelectItem>
+                    <SelectItem value="MEAT">荤菜</SelectItem>
+                    <SelectItem value="VEGETABLE">素菜</SelectItem>
+                    <SelectItem value="SOUP">汤类</SelectItem>
+                    <SelectItem value="STAPLE">主食</SelectItem>
+                    <SelectItem value="SNACK">小吃</SelectItem>
                   </SelectContent>
                 </Select>
                 <FormMessage />
@@ -220,9 +221,9 @@ export function RecipeForm({
                     </SelectTrigger>
                   </FormControl>
                   <SelectContent>
-                    <SelectItem value="easy">简单</SelectItem>
-                    <SelectItem value="medium">中等</SelectItem>
-                    <SelectItem value="hard">困难</SelectItem>
+                    <SelectItem value="EASY">简单</SelectItem>
+                    <SelectItem value="MEDIUM">中等</SelectItem>
+                    <SelectItem value="HARD">困难</SelectItem>
                   </SelectContent>
                 </Select>
                 <FormMessage />
@@ -304,7 +305,7 @@ export function RecipeForm({
                   form={form}
                   name="ingredients"
                   addButtonText="添加食材"
-                  defaultValues={{ name: "", amount: 0, unit: "g" }}
+                  defaultValues={{ name: "", quantity: 0, unit: "GRAM", orderIndex: 0 }}
                   renderItem={(index) => (
                     <div className="grid gap-4 sm:grid-cols-3">
                       <FormField
@@ -321,7 +322,7 @@ export function RecipeForm({
                       />
                       <FormField
                         control={form.control}
-                        name={`ingredients.${index}.amount`}
+                        name={`ingredients.${index}.quantity`}
                         render={({ field }) => (
                           <FormItem>
                             <FormControl>
@@ -355,14 +356,14 @@ export function RecipeForm({
                                 </SelectTrigger>
                               </FormControl>
                               <SelectContent>
-                                <SelectItem value="g">克</SelectItem>
-                                <SelectItem value="ml">毫升</SelectItem>
-                                <SelectItem value="个">个</SelectItem>
-                                <SelectItem value="只">只</SelectItem>
-                                <SelectItem value="根">根</SelectItem>
-                                <SelectItem value="片">片</SelectItem>
-                                <SelectItem value="勺">勺</SelectItem>
-                                <SelectItem value="适量">适量</SelectItem>
+                                <SelectItem value="GRAM">克</SelectItem>
+                                <SelectItem value="MILLILITER">毫升</SelectItem>
+                                <SelectItem value="PIECE">个</SelectItem>
+                                <SelectItem value="WHOLE">只</SelectItem>
+                                <SelectItem value="ROOT">根</SelectItem>
+                                <SelectItem value="SLICE">片</SelectItem>
+                                <SelectItem value="SPOON">勺</SelectItem>
+                                <SelectItem value="AS_NEEDED">适量</SelectItem>
                               </SelectContent>
                             </Select>
                             <FormMessage />
@@ -390,7 +391,7 @@ export function RecipeForm({
                   form={form}
                   name="steps"
                   addButtonText="添加步骤"
-                  defaultValues={{ description: "", duration: 0, order: 0 }}
+                  defaultValues={{ description: "", duration: 0, orderIndex: 0 }}
                   renderItem={(index) => (
                     <div className="grid gap-4 sm:grid-cols-2">
                       <FormField
