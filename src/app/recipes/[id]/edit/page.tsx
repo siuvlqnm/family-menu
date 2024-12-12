@@ -55,7 +55,7 @@ const EditRecipePage = () => {
       </div>
       <div className="mx-auto max-w-2xl">
         <RecipeForm
-          recipe={recipe}
+          initialData={recipe}
           onSubmit={async (data) => {
             try {
               await updateRecipe(id, data)

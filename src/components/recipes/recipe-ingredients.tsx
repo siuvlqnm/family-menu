@@ -1,5 +1,6 @@
 import { Ingredient } from "@/types/recipes"
 import { cn } from "@/lib/utils"
+import { UNIT_MAP } from "./recipe-form"
 
 interface RecipeIngredientsProps {
   ingredients: Ingredient[]
@@ -27,7 +28,7 @@ export function RecipeIngredients({
         >
           <span className="font-medium">{ingredient.name}</span>
           <span className="text-muted-foreground">
-            {ingredient.quantity} {ingredient.unit}
+            {ingredient.quantity} {UNIT_MAP[ingredient.unit]}
           </span>
         </li>
       ))}

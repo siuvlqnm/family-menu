@@ -25,7 +25,20 @@ import {
 import { DynamicFormList } from "./dynamic-form-list"
 import { TagInput } from "./tag-input"
 import { Recipe } from "@/types/recipes"
-import { useEffect } from "react"
+
+// 单位映射表
+export const UNIT_MAP = {
+  GRAM: "克",
+  MILLILITER: "毫升",
+  PIECE: "个",
+  WHOLE: "整",
+  ROOT: "根",
+  SLICE: "片",
+  SPOON: "勺",
+  AS_NEEDED: "适量"
+} as const;
+
+export type Unit = keyof typeof UNIT_MAP;
 
 const recipeFormSchema = z.object({
   name: z.string().min(2, {
@@ -37,13 +50,13 @@ const recipeFormSchema = z.object({
   category: z.enum(["MEAT", "VEGETABLE", "SOUP", "STAPLE", "SNACK"], {
     required_error: "请选择食谱分类",
   }),
-  servings: z.number().min(1, {
+  servings: z.coerce.number().min(1, {
     message: "至少需要1份",
   }),
-  prepTime: z.number().min(1, {
+  prepTime: z.coerce.number().min(1, {
     message: "至少需要1分钟",
   }),
-  cookTime: z.number().min(1, {
+  cookTime: z.coerce.number().min(1, {
     message: "至少需要1分钟",
   }),
   difficulty: z.enum(["EASY", "MEDIUM", "HARD"], {
@@ -52,24 +65,24 @@ const recipeFormSchema = z.object({
   ingredients: z.array(
     z.object({
       name: z.string(),
-      quantity: z.number(),
-      unit: z.enum(["GRAM", "MILLILITER", "PIECE", "WHOLE", "ROOT", "SLICE", "SPOON", "AS_NEEDED"]),
-      orderIndex: z.number(),
+      quantity: z.coerce.number(),
+      unit: z.enum(["GRAM", "MILLILITER", "PIECE", "WHOLE", "ROOT", "SLICE", "SPOON", "AS_NEEDED"] as const),
+      orderIndex: z.coerce.number(),
     })
   ),
   steps: z.array(
     z.object({
       description: z.string(),
-      duration: z.number().optional(),
-      orderIndex: z.number(),
+      duration: z.coerce.number().optional(),
+      orderIndex: z.coerce.number(),
     })
   ),
   tags: z.array(z.string()),
   nutrition: z.object({
-    calories: z.number().min(0),
-    protein: z.number().min(0),
-    carbs: z.number().min(0),
-    fat: z.number().min(0),
+    calories: z.coerce.number().min(0),
+    protein: z.coerce.number().min(0),
+    carbs: z.coerce.number().min(0),
+    fat: z.coerce.number().min(0),
     servingSize: z.string(),
   }),
 })
@@ -92,17 +105,17 @@ export function RecipeForm({
   const form = useForm<RecipeFormValues>({
     resolver: zodResolver(recipeFormSchema),
     defaultValues: {
-      name: "",
-      description: "",
-      category: "",
-      servings: 2,
-      prepTime: 15,
-      cookTime: 30,
-      difficulty: "MEDIUM",
-      ingredients: [],
-      steps: [],
-      tags: [],
-      nutrition: {
+      name: initialData?.name ?? "",
+      description: initialData?.description ?? "",
+      category: initialData?.category ?? "MEAT",
+      servings: initialData?.servings ?? 2,
+      prepTime: initialData?.prepTime ?? 15,
+      cookTime: initialData?.cookTime ?? 30,
+      difficulty: initialData?.difficulty ?? "MEDIUM",
+      ingredients: initialData?.ingredients ?? [],
+      steps: initialData?.steps ?? [],
+      tags: initialData?.tags ?? [],
+      nutrition: initialData?.nutrition ?? {
         calories: 0,
         protein: 0,
         carbs: 0,
@@ -111,30 +124,6 @@ export function RecipeForm({
       },
     },
   })
-
-  useEffect(() => {
-    if (initialData) {
-      form.reset({
-        name: initialData.name,
-        description: initialData.description,
-        category: initialData.category,
-        servings: initialData.servings,
-        prepTime: initialData.prepTime,
-        cookTime: initialData.cookTime,
-        difficulty: initialData.difficulty,
-        ingredients: initialData.ingredients,
-        steps: initialData.steps,
-        tags: initialData.tags,
-        nutrition: initialData.nutrition || {
-          calories: 0,
-          protein: 0,
-          carbs: 0,
-          fat: 0,
-          servingSize: "100g",
-        },
-      })
-    }
-  }, [initialData, form])
 
   return (
     <Form {...form}>
@@ -352,18 +341,15 @@ export function RecipeForm({
                             >
                               <FormControl>
                                 <SelectTrigger>
-                                  <SelectValue placeholder="单位" />
+                                  <SelectValue placeholder="选择单位" />
                                 </SelectTrigger>
                               </FormControl>
                               <SelectContent>
-                                <SelectItem value="GRAM">克</SelectItem>
-                                <SelectItem value="MILLILITER">毫升</SelectItem>
-                                <SelectItem value="PIECE">个</SelectItem>
-                                <SelectItem value="WHOLE">只</SelectItem>
-                                <SelectItem value="ROOT">根</SelectItem>
-                                <SelectItem value="SLICE">片</SelectItem>
-                                <SelectItem value="SPOON">勺</SelectItem>
-                                <SelectItem value="AS_NEEDED">适量</SelectItem>
+                                {Object.entries(UNIT_MAP).map(([key, value]) => (
+                                  <SelectItem key={key} value={key}>
+                                    {value}
+                                  </SelectItem>
+                                ))}
                               </SelectContent>
                             </Select>
                             <FormMessage />
