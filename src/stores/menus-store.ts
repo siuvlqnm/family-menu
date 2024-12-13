@@ -1,11 +1,10 @@
 import { create } from 'zustand'
-import { devtools } from 'zustand/middleware'
-import { Menu, MenuItem, MenuShare, MenuFilters, CreateMenuInput, UpdateMenuInput, AddMenuItemInput, UpdateMenuItemInput, CreateMenuShareInput } from '@/types/menus'
-import { api } from '@/lib/api'
+import { Menu, MenuItem, MenuShare, MenuFilters } from '@/types/menus'
+import { menusApi } from '@/services/menus'
 
 interface MenusState {
   menus: Menu[]
-  currentMenu: Menu | null
+  menu: Menu | null
   menuItems: MenuItem[]
   menuShares: MenuShare[]
   loading: boolean
@@ -13,213 +12,205 @@ interface MenusState {
   filters: MenuFilters
 
   fetchMenus: () => Promise<void>
-  getMenu: (id: string) => Promise<void>
-  getMenuItems: (menuId: string) => Promise<void>
-  getMenuShares: (menuId: string) => Promise<void>
-  createMenu: (input: CreateMenuInput) => Promise<Menu>
-  updateMenu: (id: string, input: UpdateMenuInput) => Promise<Menu>
+  fetchMenu: (id: string) => Promise<void>
+  fetchMenuItem: (menuId: string, itemId: string) => Promise<MenuItem>
+  fetchMenuItems: (menuId: string) => Promise<void>
+  fetchMenuShares: (menuId: string) => Promise<void>
+  createMenu: (data: Partial<Menu>) => Promise<Menu>
+  updateMenu: (id: string, data: Partial<Menu>) => Promise<Menu>
   deleteMenu: (id: string) => Promise<void>
-  addMenuItem: (menuId: string, input: AddMenuItemInput) => Promise<void>
-  updateMenuItem: (menuId: string, itemId: string, input: UpdateMenuItemInput) => Promise<void>
+  createMenuItem: (menuId: string, data: Partial<MenuItem>) => Promise<MenuItem>
+  updateMenuItem: (menuId: string, itemId: string, data: Partial<MenuItem>) => Promise<MenuItem>
   deleteMenuItem: (menuId: string, itemId: string) => Promise<void>
-  createMenuShare: (menuId: string, input: CreateMenuShareInput) => Promise<MenuShare>
+  createMenuShare: (menuId: string, data: Partial<MenuShare>) => Promise<MenuShare>
   deleteMenuShare: (menuId: string, shareId: string) => Promise<void>
+  reorderMenuItems: (menuId: string, itemIds: string[]) => Promise<void>
   setFilters: (filters: MenuFilters) => void
   resetFilters: () => void
+  clearMenu: () => void
 }
 
-export const useMenuStore = create<MenusState>()(
-  devtools(
-    (set, get) => ({
-      menus: [],
-      currentMenu: null,
-      menuItems: [],
-      menuShares: [],
-      loading: false,
-      error: null,
-      filters: {},
+export const useMenuStore = create<MenusState>((set, get) => ({
+  menus: [],
+  menu: null,
+  menuItems: [],
+  menuShares: [],
+  loading: false,
+  error: null,
+  filters: {},
 
-      fetchMenus: async () => {
-        try {
-          set({ loading: true, error: null })
-          const { data } = await api.get('/menus', {
-            params: get().filters,
-          })
-          set({ menus: data.menus })
-        } catch (error) {
-          set({ error: error instanceof Error ? error.message : '获取菜单列表失败' })
-        } finally {
-          set({ loading: false })
-        }
-      },
+  fetchMenus: async () => {
+    set({ loading: true, error: null })
+    try {
+      const menus = await menusApi.getMenus(get().filters)
+      set({ menus, loading: false })
+    } catch (error) {
+      set({
+        error: error instanceof Error ? error.message : '获取菜单列表失败',
+        loading: false,
+      })
+    }
+  },
 
-      getMenu: async (id: string) => {
-        try {
-          set({ loading: true, error: null })
-          const { data } = await api.get(`/menus/${id}`)
-          set({ currentMenu: data.menu })
-        } catch (error) {
-          set({ error: error instanceof Error ? error.message : '获取菜单详情失败' })
-        } finally {
-          set({ loading: false })
-        }
-      },
+  fetchMenu: async (id: string) => {
+    set({ loading: true, error: null })
+    try {
+      const menu = await menusApi.getMenu(id)
+      set({ menu, loading: false })
+    } catch (error) {
+      set({
+        error: error instanceof Error ? error.message : '获取菜单详情失败',
+        loading: false,
+      })
+    }
+  },
 
-      getMenuItems: async (menuId: string) => {
-        try {
-          set({ loading: true, error: null })
-          const { data } = await api.get(`/menus/${menuId}/items`)
-          set({ menuItems: data.menuItems })
-        } catch (error) {
-          set({ error: error instanceof Error ? error.message : '获取菜品列表失败' })
-        } finally {
-          set({ loading: false })
-        }
-      },
+  fetchMenuItem: async (menuId: string, itemId: string) => {
+    try {
+      return await menusApi.getMenuItem(menuId, itemId)
+    } catch (error) {
+      throw error
+    }
+  },
 
-      getMenuShares: async (menuId: string) => {
-        try {
-          set({ loading: true, error: null })
-          const { data } = await api.get(`/menus/${menuId}/shares`)
-          set({ menuShares: data.menuShares })
-        } catch (error) {
-          set({ error: error instanceof Error ? error.message : '获取分享记录失败' })
-        } finally {
-          set({ loading: false })
-        }
-      },
+  fetchMenuItems: async (menuId: string) => {
+    set({ loading: true, error: null })
+    try {
+      const menuItems = await menusApi.getMenuItems(menuId)
+      set({ menuItems, loading: false })
+    } catch (error) {
+      set({
+        error: error instanceof Error ? error.message : '获取菜品列表失败',
+        loading: false,
+      })
+    }
+  },
 
-      createMenu: async (input: CreateMenuInput) => {
-        try {
-          set({ loading: true, error: null })
-          const { data } = await api.post('/menus', input)
-          set((state) => ({ menus: [...state.menus, data.menu] }))
-          return data.menu
-        } catch (error) {
-          set({ error: error instanceof Error ? error.message : '创建菜单失败' })
-          throw error
-        } finally {
-          set({ loading: false })
-        }
-      },
+  fetchMenuShares: async (menuId: string) => {
+    set({ loading: true, error: null })
+    try {
+      const menuShares = await menusApi.getMenuShares(menuId)
+      set({ menuShares, loading: false })
+    } catch (error) {
+      set({
+        error: error instanceof Error ? error.message : '获取分享记录失败',
+        loading: false,
+      })
+    }
+  },
 
-      updateMenu: async (id: string, input: UpdateMenuInput) => {
-        try {
-          set({ loading: true, error: null })
-          const { data } = await api.put(`/menus/${id}`, input)
-          set((state) => ({
-            menus: state.menus.map((menu) => (menu.id === id ? data.menu : menu)),
-            currentMenu: state.currentMenu?.id === id ? data.menu : state.currentMenu,
-          }))
-          return data.menu
-        } catch (error) {
-          set({ error: error instanceof Error ? error.message : '更新菜单失败' })
-          throw error
-        } finally {
-          set({ loading: false })
-        }
-      },
+  createMenu: async (data: Partial<Menu>) => {
+    try {
+      const menu = await menusApi.createMenu(data)
+      set((state) => ({ menus: [...state.menus, menu] }))
+      return menu
+    } catch (error) {
+      throw error
+    }
+  },
 
-      deleteMenu: async (id: string) => {
-        try {
-          set({ loading: true, error: null })
-          await api.delete(`/menus/${id}`)
-          set((state) => ({
-            menus: state.menus.filter((menu) => menu.id !== id),
-            currentMenu: state.currentMenu?.id === id ? null : state.currentMenu,
-          }))
-        } catch (error) {
-          set({ error: error instanceof Error ? error.message : '删除菜单失败' })
-          throw error
-        } finally {
-          set({ loading: false })
-        }
-      },
+  updateMenu: async (id: string, data: Partial<Menu>) => {
+    try {
+      const menu = await menusApi.updateMenu(id, data)
+      set((state) => ({
+        menus: state.menus.map((m) => (m.id === id ? menu : m)),
+        menu: state.menu?.id === id ? menu : state.menu,
+      }))
+      return menu
+    } catch (error) {
+      throw error
+    }
+  },
 
-      addMenuItem: async (menuId: string, input: AddMenuItemInput) => {
-        try {
-          set({ loading: true, error: null })
-          const { data } = await api.post(`/menus/${menuId}/items`, input)
-          set((state) => ({
-            menuItems: [...state.menuItems, data.menuItem],
-          }))
-        } catch (error) {
-          set({ error: error instanceof Error ? error.message : '添加菜单项失败' })
-          throw error
-        } finally {
-          set({ loading: false })
-        }
-      },
+  deleteMenu: async (id: string) => {
+    try {
+      await menusApi.deleteMenu(id)
+      set((state) => ({
+        menus: state.menus.filter((m) => m.id !== id),
+        menu: state.menu?.id === id ? null : state.menu,
+      }))
+    } catch (error) {
+      throw error
+    }
+  },
 
-      updateMenuItem: async (menuId: string, itemId: string, input: UpdateMenuItemInput) => {
-        try {
-          set({ loading: true, error: null })
-          const { data } = await api.put(`/menus/${menuId}/items/${itemId}`, input)
-          set((state) => ({
-            menuItems: state.menuItems.map((item) =>
-              item.id === itemId ? data.menuItem : item
-            ),
-          }))
-        } catch (error) {
-          set({ error: error instanceof Error ? error.message : '更新菜单项失败' })
-          throw error
-        } finally {
-          set({ loading: false })
-        }
-      },
+  createMenuItem: async (menuId: string, data: Partial<MenuItem>) => {
+    try {
+      const menuItem = await menusApi.addMenuItem(menuId, data)
+      set((state) => ({ menuItems: [...state.menuItems, menuItem] }))
+      return menuItem
+    } catch (error) {
+      throw error
+    }
+  },
 
-      deleteMenuItem: async (menuId: string, itemId: string) => {
-        try {
-          set({ loading: true, error: null })
-          await api.delete(`/menus/${menuId}/items/${itemId}`)
-          set((state) => ({
-            menuItems: state.menuItems.filter((item) => item.id !== itemId),
-          }))
-        } catch (error) {
-          set({ error: error instanceof Error ? error.message : '删除菜单项失败' })
-          throw error
-        } finally {
-          set({ loading: false })
-        }
-      },
+  updateMenuItem: async (menuId: string, itemId: string, data: Partial<MenuItem>) => {
+    try {
+      const menuItem = await menusApi.updateMenuItem(menuId, itemId, data)
+      set((state) => ({
+        menuItems: state.menuItems.map((item) =>
+          item.id === itemId ? menuItem : item
+        ),
+      }))
+      return menuItem
+    } catch (error) {
+      throw error
+    }
+  },
 
-      createMenuShare: async (menuId: string, input: CreateMenuShareInput) => {
-        try {
-          set({ loading: true, error: null })
-          const { data } = await api.post(`/menus/${menuId}/shares`, input)
-          set((state) => ({ menuShares: [...state.menuShares, data.menuShare] }))
-          return data.menuShare
-        } catch (error) {
-          set({ error: error instanceof Error ? error.message : '创建分享记录失败' })
-          throw error
-        } finally {
-          set({ loading: false })
-        }
-      },
+  deleteMenuItem: async (menuId: string, itemId: string) => {
+    try {
+      await menusApi.deleteMenuItem(menuId, itemId)
+      set((state) => ({
+        menuItems: state.menuItems.filter((item) => item.id !== itemId),
+      }))
+    } catch (error) {
+      throw error
+    }
+  },
 
-      deleteMenuShare: async (menuId: string, shareId: string) => {
-        try {
-          set({ loading: true, error: null })
-          await api.delete(`/menus/${menuId}/shares/${shareId}`)
-          set((state) => ({
-            menuShares: state.menuShares.filter((share) => share.id !== shareId),
-          }))
-        } catch (error) {
-          set({ error: error instanceof Error ? error.message : '删除分享记录失败' })
-          throw error
-        } finally {
-          set({ loading: false })
-        }
-      },
+  createMenuShare: async (menuId: string, data: Partial<MenuShare>) => {
+    try {
+      const menuShare = await menusApi.createMenuShare(menuId, data)
+      set((state) => ({ menuShares: [...state.menuShares, menuShare] }))
+      return menuShare
+    } catch (error) {
+      throw error
+    }
+  },
 
-      setFilters: (filters: MenuFilters) => {
-        set({ filters })
-      },
+  deleteMenuShare: async (menuId: string, shareId: string) => {
+    try {
+      await menusApi.deleteMenuShare(menuId, shareId)
+      set((state) => ({
+        menuShares: state.menuShares.filter((share) => share.id !== shareId),
+      }))
+    } catch (error) {
+      throw error
+    }
+  },
 
-      resetFilters: () => {
-        set({ filters: {} })
-      },
-    }),
-    { name: 'menus-store' }
-  )
-)
+  reorderMenuItems: async (menuId: string, itemIds: string[]) => {
+    try {
+      await menusApi.reorderMenuItems(menuId, itemIds)
+      const menuItems = itemIds
+        .map((id) => get().menuItems.find((item) => item.id === id))
+        .filter((item): item is MenuItem => item !== undefined)
+      set({ menuItems })
+    } catch (error) {
+      throw error
+    }
+  },
+
+  setFilters: (filters: MenuFilters) => {
+    set({ filters })
+  },
+
+  resetFilters: () => {
+    set({ filters: {} })
+  },
+
+  clearMenu: () => {
+    set({ menu: null, menuItems: [], menuShares: [] })
+  },
+}))
