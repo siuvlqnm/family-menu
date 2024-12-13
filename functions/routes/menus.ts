@@ -3,11 +3,12 @@ import { zValidator } from '@hono/zod-validator';
 import {
   addMenuItemSchema,
   createMenuSchema,
+  createMenuShareSchema,
   menuQuerySchema,
   updateMenuItemSchema,
   updateMenuSchema,
 } from '../types/menu';
-import { MenuService } from '../services/menu.ts.dev';
+import { MenuService } from '../services/menus';
 import { createDb } from '../db';
 import { getCurrentUser } from '../middleware/auth';
 import { Bindings } from '../config';
@@ -126,6 +127,68 @@ menu.delete(
     await menuService.deleteMenuItem(menuId, itemId, user);
     
     return c.json({ success: true });
+  }
+);
+
+// 创建菜单分享
+menu.post(
+  '/:id/share',
+  zValidator('json', createMenuShareSchema),
+  async (c) => {
+    const menuId = c.req.param('id');
+    const input = c.req.valid('json');
+    const user = await getCurrentUser(c);
+    const db = createDb(c.env.DB);
+    const menuService = new MenuService(db);
+    
+    const share = await menuService.createMenuShare(menuId, input, user);
+    
+    return c.json(share, 201);
+  }
+);
+
+// 获取菜单分享列表
+menu.get(
+  '/:id/share',
+  async (c) => {
+    const menuId = c.req.param('id');
+    const user = await getCurrentUser(c);
+    const db = createDb(c.env.DB);
+    const menuService = new MenuService(db);
+    
+    const shares = await menuService.getMenuShares(menuId, user);
+    
+    return c.json(shares);
+  }
+);
+
+// 删除菜单分享
+menu.delete(
+  '/share/:shareId',
+  async (c) => {
+    const shareId = c.req.param('shareId');
+    const user = await getCurrentUser(c);
+    const db = createDb(c.env.DB);
+    const menuService = new MenuService(db);
+    
+    await menuService.deleteMenuShare(shareId, user);
+    
+    return c.json({ success: true });
+  }
+);
+
+// 获取分享的菜单（公开访问）
+menu.get(
+  '/share/:shareId',
+  async (c) => {
+    const shareId = c.req.param('shareId');
+    const token = c.req.query('token');  // 可选的访问令牌
+    const db = createDb(c.env.DB);
+    const menuService = new MenuService(db);
+    
+    const menu = await menuService.getSharedMenu(shareId, token);
+    
+    return c.json(menu);
   }
 );
 

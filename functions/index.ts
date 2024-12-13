@@ -2,8 +2,8 @@ import { Hono } from 'hono';
 import { cors } from 'hono/cors';
 import { HTTPException } from 'hono/http-exception';
 import { authRouter } from './routes/auth';
-import { familyRouter } from './routes/family';
-// import { menuRouter } from './routes/menu.ts.dev';
+// import { familyRouter } from './routes/family';
+import { menuRouter } from './routes/menus';
 import { recipeRouter } from './routes/recipes';
 // import { recipeShareRouter } from './routes/recipe-share.ts.dev';
 import { authMiddleware } from './middleware/auth';
@@ -30,8 +30,8 @@ app.route('/api/auth', authRouter);
 
 // 需要认证的路由
 const protectedRoutes = app.use('*', authMiddleware);
-protectedRoutes.route('/api/family', familyRouter);
-// protectedRoutes.route('/api/menu', menuRouter);
+// protectedRoutes.route('/api/family', familyRouter);
+protectedRoutes.route('/api/menus', menuRouter);
 protectedRoutes.route('/api/recipes', recipeRouter);
 // protectedRoutes.route('/api/recipe-share', recipeShareRouter);
 

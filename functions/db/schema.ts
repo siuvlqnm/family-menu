@@ -116,6 +116,11 @@ export const recipeShares = sqliteTable('recipe_shares', {
 export const menus = sqliteTable('menus', {
   id: text('id').primaryKey(),
   name: text('name').notNull(),
+  description: text('description'),
+  type: text('type', {
+    enum: ['daily', 'weekly', 'holiday', 'special']
+  }).notNull().default('daily'),
+  tags: text('tags', { mode: 'json' }).$type<string[]>().default([]),
   startDate: integer('start_date', { mode: 'timestamp' }).notNull(),
   endDate: integer('end_date', { mode: 'timestamp' }).notNull(),
   status: text('status', {
@@ -140,16 +145,18 @@ export const menus = sqliteTable('menus', {
 // 菜单项表
 export const menuItems = sqliteTable('menu_items', {
   id: text('id').primaryKey(),
-  menuId: text('menu_id')
+  menuID: text('menu_id')
     .notNull()
     .references(() => menus.id, { onDelete: 'cascade' }),
-  recipeId: text('recipe_id')
+  recipeID: text('recipe_id')
     .notNull()
     .references(() => recipes.id),
   date: integer('date', { mode: 'timestamp' }).notNull(),
   mealTime: text('meal_time', {
-    enum: ['breakfast', 'lunch', 'dinner'],
+    enum: ['breakfast', 'lunch', 'dinner', 'snack'],
   }).notNull(),
+  servings: integer('servings'),
+  orderIndex: integer('order_index').notNull().default(0),
   note: text('note'),
   createdAt: integer('created_at', { mode: 'timestamp' })
     .notNull()
@@ -157,4 +164,21 @@ export const menuItems = sqliteTable('menu_items', {
   updatedAt: integer('updated_at', { mode: 'timestamp' })
     .notNull()
     .default(sql`CURRENT_TIMESTAMP`),
+});
+
+// 菜单分享表
+export const menuShares = sqliteTable('menu_shares', {
+  id: text('id').primaryKey(),
+  menuID: text('menu_id')
+    .notNull()
+    .references(() => menus.id, { onDelete: 'cascade' }),
+  shareType: text('share_type', { enum: ['link', 'token'] }).notNull(),
+  token: text('token').unique(),
+  expiresAt: integer('expires_at', { mode: 'timestamp' }),
+  createdAt: integer('created_at', { mode: 'timestamp' })
+    .notNull()
+    .default(sql`CURRENT_TIMESTAMP`),
+  createdBy: text('created_by')
+    .notNull()
+    .references(() => users.id),
 });

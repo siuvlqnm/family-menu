@@ -1,11 +1,13 @@
-import { and, between, eq, sql } from 'drizzle-orm';
+import { and, between, eq, isNull, sql } from 'drizzle-orm';
 import { HTTPException } from 'hono/http-exception';
-import { Database, familyMembers, menuItems, menus, recipes } from '../db';
+import { Database, familyMembers, menuItems, menuShares, menus, recipes } from '../db';
 import {
   AddMenuItemInput,
   CreateMenuInput,
+  CreateMenuShareInput,
   Menu,
   MenuQueryInput,
+  MenuShare,
   MenuStatus,
   MenuWithItems,
   UpdateMenuInput,
@@ -280,5 +282,118 @@ export class MenuService {
     // 删除菜单项
     await this.db.delete(menuItems)
       .where(eq(menuItems.id, itemId));
+  }
+
+  // 创建菜单分享
+  async createMenuShare(menuId: string, input: CreateMenuShareInput, user: AuthUser): Promise<MenuShare> {
+    // 获取菜单
+    const menu = await this.db.query.menus.findFirst({
+      where: eq(menus.id, menuId),
+    });
+
+    if (!menu) {
+      throw new HTTPException(404, { message: 'Menu not found' });
+    }
+
+    // 检查家庭组成员权限
+    await this.checkFamilyMembership(menu.familyGroupId, user.id);
+
+    // 生成分享记录
+    const [share] = await this.db.insert(menuShares).values({
+      id: nanoid(),
+      menuId,
+      shareType: input.shareType,
+      token: input.shareType === 'token' ? nanoid(32) : null,
+      expiresAt: input.expiresAt,
+      createdBy: user.id,
+    }).returning();
+
+    return share;
+  }
+
+  // 通过分享链接获取菜单
+  async getSharedMenu(shareId: string, token?: string): Promise<MenuWithItems> {
+    // 获取分享记录
+    const share = await this.db.query.menuShares.findFirst({
+      where: eq(menuShares.id, shareId),
+    });
+
+    if (!share) {
+      throw new HTTPException(404, { message: 'Share not found' });
+    }
+
+    // 检查是否过期
+    if (share.expiresAt && share.expiresAt < new Date()) {
+      throw new HTTPException(403, { message: 'Share has expired' });
+    }
+
+    // 如果是token类型，验证token
+    if (share.shareType === 'token') {
+      if (!token || token !== share.token) {
+        throw new HTTPException(403, { message: 'Invalid token' });
+      }
+    }
+
+    // 获取菜单详情
+    const menu = await this.db.query.menus.findFirst({
+      where: eq(menus.id, share.menuId),
+      with: {
+        items: {
+          with: {
+            recipe: true,
+          },
+        },
+      },
+    });
+
+    if (!menu) {
+      throw new HTTPException(404, { message: 'Menu not found' });
+    }
+
+    return menu;
+  }
+
+  // 获取菜单的分享列表
+  async getMenuShares(menuId: string, user: AuthUser): Promise<MenuShare[]> {
+    // 获取菜单
+    const menu = await this.db.query.menus.findFirst({
+      where: eq(menus.id, menuId),
+    });
+
+    if (!menu) {
+      throw new HTTPException(404, { message: 'Menu not found' });
+    }
+
+    // 检查家庭组成员权限
+    await this.checkFamilyMembership(menu.familyGroupId, user.id);
+
+    // 获取分享列表
+    const shares = await this.db.query.menuShares.findMany({
+      where: eq(menuShares.menuId, menuId),
+    });
+
+    return shares;
+  }
+
+  // 删除菜单分享
+  async deleteMenuShare(shareId: string, user: AuthUser): Promise<void> {
+    // 获取分享记录
+    const share = await this.db.query.menuShares.findFirst({
+      where: eq(menuShares.id, shareId),
+      with: {
+        menu: true,
+      },
+    });
+
+    if (!share) {
+      throw new HTTPException(404, { message: 'Share not found' });
+    }
+
+    // 检查家庭组成员权限
+    await this.checkFamilyMembership(share.menu.familyGroupId, user.id);
+
+    // 删除分享记录
+    await this.db.delete(menuShares)
+      .where(eq(menuShares.id, shareId));
   }
 }
