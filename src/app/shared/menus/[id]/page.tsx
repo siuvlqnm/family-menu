@@ -18,13 +18,13 @@ import Image from 'next/image'
 function MenuTypeBadge({ type }: { type: keyof typeof MenuType }) {
   switch (type) {
     case "DAILY":
-      return "日常"
+      return <Badge variant="outline">日常</Badge>
     case "WEEKLY":
-      return "每周"
+      return <Badge variant="outline">每周</Badge>
     case "HOLIDAY":
-      return "节日"
+      return <Badge variant="outline">节日</Badge>
     case "SPECIAL":
-      return "特别"
+      return <Badge variant="outline">特别</Badge>
     default:
       return "未知"
   }
@@ -33,13 +33,13 @@ function MenuTypeBadge({ type }: { type: keyof typeof MenuType }) {
 function MealTimeLabel({ mealTime }: { mealTime: keyof typeof MealTime }) {
   switch (mealTime) {
     case "BREAKFAST":
-      return "早餐"
+      return <span className="font-medium">早餐</span>
     case "LUNCH":
-      return "午餐"
+      return <span className="font-medium">午餐</span>
     case "DINNER":
-      return "晚餐"
+      return <span className="font-medium">晚餐</span>
     case "SNACK":
-      return "点心"
+      return <span className="font-medium">点心</span>
     default:
       return "未知"
   }

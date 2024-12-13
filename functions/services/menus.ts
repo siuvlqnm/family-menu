@@ -44,15 +44,19 @@ export class MenuService {
     }
 
     // 创建菜单
-    const [menu] = await this.db.insert(menus).values({
+    const menuData = {
       id: nanoid(),
       name: input.name,
+      description: input.description || undefined,
+      type: input.type,
+      tags: input.tags || [],
       startDate: input.startDate,
       endDate: input.endDate,
-      status: MenuStatus.DRAFT,
       familyGroupId: input.familyGroupId,
       createdBy: user.id,
-    }).returning();
+    } satisfies Omit<Menu, 'createdAt' | 'updatedAt'>;
+
+    const [menu] = await this.db.insert(menus).values(menuData).returning();
 
     return menu;
   }

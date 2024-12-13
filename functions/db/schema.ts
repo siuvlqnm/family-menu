@@ -118,8 +118,8 @@ export const menus = sqliteTable('menus', {
   name: text('name').notNull(),
   description: text('description'),
   type: text('type', {
-    enum: ['daily', 'weekly', 'holiday', 'special']
-  }).notNull().default('daily'),
+    enum: ['DAILY', 'WEEKLY', 'HOLIDAY', 'SPECIAL']
+  }).notNull().default('DAILY'),
   tags: text('tags', { mode: 'json' }).$type<string[]>().default([]),
   startDate: integer('start_date', { mode: 'timestamp' }).notNull(),
   endDate: integer('end_date', { mode: 'timestamp' }).notNull(),

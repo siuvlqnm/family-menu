@@ -2,38 +2,38 @@ import { z } from 'zod';
 
 // 时段
 export const MealTime = {
-  BREAKFAST: 'breakfast',
-  LUNCH: 'lunch',
-  DINNER: 'dinner',
-  SNACK: 'snack',
+  BREAKFAST: '早餐',
+  LUNCH: '午餐',
+  DINNER: '晚餐',
+  SNACK: '夜宵',
 } as const;
 
 // 菜单类型
 export const MenuType = {
-  DAILY: 'daily',
-  WEEKLY: 'weekly',
-  HOLIDAY: 'holiday',
-  SPECIAL: 'special',
+  DAILY: '日常',
+  WEEKLY: '每周',
+  HOLIDAY: '节日',
+  SPECIAL: '特别',
 } as const;
 
 // 菜单状态
 export const MenuStatus = {
-  DRAFT: 'draft',
-  PUBLISHED: 'published',
-  ARCHIVED: 'archived',
+  DRAFT: '草稿',
+  PUBLISHED: '已发布',
+  ARCHIVED: '已归档',
 } as const;
 
 // 菜单分享类型
 export const MenuShareType = {
-  LINK: 'link',    // 链接分享
-  TOKEN: 'token',  // 一次性访问令牌
+  LINK: '链接分享',    // 链接分享
+  TOKEN: '一次性访问令牌',  // 一次性访问令牌
 } as const;
 
 // 创建菜单验证 schema
 export const createMenuSchema = z.object({
   name: z.string().min(2).max(100),
   description: z.string().max(500).optional(),
-  type: z.enum(Object.values(MenuType)).optional(),
+  type: z.enum(Object.keys(MenuType) as [keyof typeof MenuType]),
   coverImage: z.string().url().optional(),
   tags: z.array(z.string()).optional(),
   startDate: z.coerce.date(),
@@ -45,19 +45,19 @@ export const createMenuSchema = z.object({
 export const updateMenuSchema = z.object({
   name: z.string().min(2).max(100).optional(),
   description: z.string().max(500).optional(),
-  type: z.enum(Object.values(MenuType)).optional(),
+  type: z.enum(Object.keys(MenuType) as [keyof typeof MenuType]),
   coverImage: z.string().url().optional(),
   tags: z.array(z.string()).optional(),
   startDate: z.coerce.date().optional(),
   endDate: z.coerce.date().optional(),
-  status: z.enum(Object.values(MenuStatus)).optional(),
+  status: z.enum(Object.keys(MenuStatus) as [keyof typeof MenuStatus]),
 });
 
 // 添加菜单项验证 schema
 export const addMenuItemSchema = z.object({
   recipeId: z.string(),
   date: z.coerce.date(),
-  mealTime: z.enum(Object.values(MealTime)),
+  mealTime: z.enum(Object.keys(MealTime) as [keyof typeof MealTime]),
   servings: z.number().int().positive().optional(),
   orderIndex: z.number().int().min(0).optional(),
   note: z.string().max(500).optional(),
@@ -73,8 +73,8 @@ export const updateMenuItemSchema = z.object({
 // 菜单查询验证 schema
 export const menuQuerySchema = z.object({
   familyGroupId: z.string(),
-  type: z.enum(Object.values(MenuType)).optional(),
-  status: z.enum(Object.values(MenuStatus)).optional(),
+  type: z.enum(Object.keys(MenuType) as [keyof typeof MenuType]),
+  status: z.enum(Object.keys(MenuStatus) as [keyof typeof MenuStatus]),
   startDate: z.coerce.date().optional(),
   endDate: z.coerce.date().optional(),
   tags: z.array(z.string()).optional(),
@@ -84,7 +84,7 @@ export const menuQuerySchema = z.object({
 
 // 创建菜单分享验证 schema
 export const createMenuShareSchema = z.object({
-  shareType: z.enum(Object.values(MenuShareType)),
+  shareType: z.enum(Object.keys(MenuShareType) as [keyof typeof MenuShareType]),
   expiresAt: z.coerce.date().optional(),  // 分享过期时间，可选
 });
 
