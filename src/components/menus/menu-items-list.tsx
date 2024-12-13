@@ -63,13 +63,18 @@ export function MenuItemsList({
   }
 
   const getMealTimeLabel = (mealTime: keyof typeof MealTime) => {
-    return mealTime === 'breakfast'
-      ? '早餐'
-      : mealTime === 'lunch'
-      ? '午餐'
-      : mealTime === 'dinner'
-      ? '晚餐'
-      : '点心'
+    switch (mealTime) {
+      case 'BREAKFAST':
+        return '早餐'
+      case 'LUNCH':
+        return '午餐'
+      case 'DINNER':
+        return '晚餐'
+      case 'SNACK':
+        return '小吃'
+      default:
+        return ''
+    }
   }
 
   return (

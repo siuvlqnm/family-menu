@@ -170,7 +170,7 @@ export default function ShareMenuPage({ params }: { params: { id: string } }) {
       <PageHeader
         title="分享菜单"
         description={`分享菜单"${menu.name}"`}
-        backButton
+        // backButton
       />
 
       <Tabs defaultValue="create">

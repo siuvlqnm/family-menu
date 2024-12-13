@@ -118,7 +118,7 @@ export default function EditMenuPage({ params }: { params: { id: string } }) {
       <PageHeader
         title="编辑菜单"
         description="修改菜单信息"
-        backButton
+        // backButton
       />
 
       <Form {...form}>

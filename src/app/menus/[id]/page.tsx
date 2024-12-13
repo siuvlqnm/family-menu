@@ -17,14 +17,31 @@ import { Share2, Edit, Plus } from 'lucide-react'
 import Image from 'next/image'
 
 function MenuStatusBadge({ status }: { status: keyof typeof MenuStatus }) {
-  const variant = status === 'draft' ? 'secondary' : status === 'published' ? 'default' : 'outline'
-  const label = status === 'draft' ? '草稿' : status === 'published' ? '已发布' : '已归档'
-  return <Badge variant={variant}>{label}</Badge>
+  switch (status) {
+    case "DRAFT":
+      return <Badge variant="secondary">草稿</Badge>
+    case "PUBLISHED":
+      return <Badge variant="default">已发布</Badge>
+    case "ARCHIVED":
+      return <Badge variant="outline">已归档</Badge>
+    default:
+      break;
+  }
 }
 
 function MenuTypeBadge({ type }: { type: keyof typeof MenuType }) {
-  const label = type === 'daily' ? '日常' : type === 'weekly' ? '每周' : type === 'holiday' ? '节日' : '特别'
-  return <Badge variant="outline">{label}</Badge>
+  switch (type) {
+    case "DAILY":
+      return <Badge variant="outline">日常</Badge>
+    case "WEEKLY":
+      return <Badge variant="outline">每周</Badge>
+    case "HOLIDAY":
+      return <Badge variant="outline">节日</Badge>
+    case "SPECIAL":
+      return <Badge variant="outline">特别</Badge>
+    default:
+      return "未知"
+  }
 }
 
 export default function MenuDetailPage({ params }: { params: { id: string } }) {
@@ -110,7 +127,7 @@ export default function MenuDetailPage({ params }: { params: { id: string } }) {
       <PageHeader
         title={menu.name}
         description={menu.description}
-        backButton
+        // backButton
         actions={[
           {
             label: '添加菜品',

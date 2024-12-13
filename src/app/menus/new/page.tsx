@@ -1,17 +1,17 @@
 'use client'
 
-import { useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
-import { z } from 'zod'
+import * as z from 'zod'
+import { format } from 'date-fns'
 import { useAuthStore } from '@/stores/auth-store'
 import { useMenuStore } from '@/stores/menus-store'
-import { MenuType } from '@/types/menus'
 import { Button } from '@/components/ui/button'
 import {
   Form,
   FormControl,
+  FormDescription,
   FormField,
   FormItem,
   FormLabel,
@@ -30,213 +30,256 @@ import { DatePicker } from '@/components/ui/date-picker'
 import { TagInput } from '@/components/ui/tag-input'
 import { ImageUpload } from '@/components/ui/image-upload'
 import { PageHeader } from '@/components/ui/page-header'
-import { format } from 'date-fns'
+import { toast } from '@/components/ui/use-toast'
+import { MenuType, MenuStatus } from '@/types/menus'
 
-const menuFormSchema = z.object({
+const formSchema = z.object({
   name: z.string().min(1, '请输入菜单名称'),
   description: z.string().optional(),
-  type: z.enum(['daily', 'weekly', 'holiday', 'special']),
-  coverImage: z.string().optional(),
-  tags: z.array(z.string()).optional(),
+  type: z.enum(['DAILY', 'WEEKLY', 'HOLIDAY', 'SPECIAL']),
   startDate: z.string(),
   endDate: z.string(),
+  coverImage: z.string().optional(),
+  tags: z.array(z.object({ id: z.string(), name: z.string() })).optional(),
 })
 
-type MenuFormValues = z.infer<typeof menuFormSchema>
+type FormValues = z.infer<typeof formSchema>
 
 export default function NewMenuPage() {
   const router = useRouter()
   const { checkAuth } = useAuthStore()
   const { createMenu } = useMenuStore()
 
-  const form = useForm<MenuFormValues>({
-    resolver: zodResolver(menuFormSchema),
+  const form = useForm<FormValues>({
+    resolver: zodResolver(formSchema),
     defaultValues: {
-      name: '',
-      description: '',
-      type: 'daily',
-      tags: [],
+      type: 'DAILY',
       startDate: format(new Date(), 'yyyy-MM-dd'),
       endDate: format(new Date(), 'yyyy-MM-dd'),
+      tags: [],
     },
   })
 
-  useEffect(() => {
-    const isAuthed = checkAuth()
-    if (!isAuthed) {
-      router.replace('/login?from=/menus/new')
-    }
-  }, [checkAuth, router])
-
-  const onSubmit = async (values: MenuFormValues) => {
+  const onSubmit = async (values: FormValues) => {
     try {
-      await createMenu(values)
-      router.push('/menus')
+      const menu = await createMenu(values)
+      toast({
+        title: '创建成功',
+        description: '菜单已创建',
+      })
+      router.push(`/menus/${menu.id}`)
     } catch (error) {
       console.error('Failed to create menu:', error)
+      toast({
+        title: '创建失败',
+        description: '请稍后重试',
+        variant: 'destructive',
+      })
     }
   }
 
   return (
-    <div className="container space-y-6 py-6">
-      <PageHeader
-        title="新建菜单"
-        description="创建一个新的菜单"
-        backButton
-      />
+    <div className="min-h-screen bg-gradient-to-b from-background to-muted/20">
+      <div className="container py-6">
+        <PageHeader
+          title="新建菜单"
+          description="创建一个新的菜单，记录和分享你的美食计划"
+        />
 
-      <Form {...form}>
-        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-          <FormField
-            control={form.control}
-            name="name"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>菜单名称</FormLabel>
-                <FormControl>
-                  <Input placeholder="输入菜单名称" {...field} />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-
-          <FormField
-            control={form.control}
-            name="description"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>描述</FormLabel>
-                <FormControl>
-                  <Textarea
-                    placeholder="输入菜单描述"
-                    className="resize-none"
-                    {...field}
+        <div className="mx-auto max-w-2xl">
+          <div className="rounded-lg border bg-card p-6 shadow-sm">
+            <Form {...form}>
+              <form
+                onSubmit={form.handleSubmit(onSubmit)}
+                className="space-y-8"
+              >
+                <div className="space-y-4">
+                  <FormField
+                    control={form.control}
+                    name="coverImage"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>封面图片</FormLabel>
+                        <FormControl>
+                          <ImageUpload
+                            value={field.value}
+                            onChange={field.onChange}
+                            onRemove={() => field.onChange('')}
+                          />
+                        </FormControl>
+                        <FormDescription>
+                          上传一张美食图片作为菜单封面
+                        </FormDescription>
+                        <FormMessage />
+                      </FormItem>
+                    )}
                   />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
 
-          <FormField
-            control={form.control}
-            name="type"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>类型</FormLabel>
-                <Select
-                  onValueChange={field.onChange}
-                  defaultValue={field.value}
-                >
-                  <FormControl>
-                    <SelectTrigger>
-                      <SelectValue placeholder="选择菜单类型" />
-                    </SelectTrigger>
-                  </FormControl>
-                  <SelectContent>
-                    {Object.entries(MenuType).map(([key, value]) => (
-                      <SelectItem key={value} value={value}>
-                        {key === 'DAILY'
-                          ? '日常'
-                          : key === 'WEEKLY'
-                          ? '每周'
-                          : key === 'HOLIDAY'
-                          ? '节日'
-                          : '特别'}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-
-          <FormField
-            control={form.control}
-            name="coverImage"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>封面图片</FormLabel>
-                <FormControl>
-                  <ImageUpload
-                    value={field.value}
-                    onChange={field.onChange}
-                    onRemove={() => field.onChange('')}
+                  <FormField
+                    control={form.control}
+                    name="name"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>菜单名称</FormLabel>
+                        <FormControl>
+                          <Input placeholder="输入菜单名称" {...field} />
+                        </FormControl>
+                        <FormDescription>
+                          为你的菜单起一个有趣的名字
+                        </FormDescription>
+                        <FormMessage />
+                      </FormItem>
+                    )}
                   />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
 
-          <FormField
-            control={form.control}
-            name="tags"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>标签</FormLabel>
-                <FormControl>
-                  <TagInput
-                    placeholder="输入标签后按回车"
-                    tags={field.value || []}
-                    onChange={field.onChange}
+                  <FormField
+                    control={form.control}
+                    name="description"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>描述</FormLabel>
+                        <FormControl>
+                          <Textarea
+                            placeholder="描述一下这个菜单..."
+                            className="resize-none"
+                            {...field}
+                          />
+                        </FormControl>
+                        <FormDescription>
+                          添加一些描述，让大家更好地了解这个菜单
+                        </FormDescription>
+                        <FormMessage />
+                      </FormItem>
+                    )}
                   />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
 
-          <div className="grid gap-6 md:grid-cols-2">
-            <FormField
-              control={form.control}
-              name="startDate"
-              render={({ field }) => (
-                <FormItem className="flex flex-col">
-                  <FormLabel>开始日期</FormLabel>
-                  <DatePicker
-                    date={field.value ? new Date(field.value) : undefined}
-                    onSelect={(date) =>
-                      field.onChange(date ? format(date, 'yyyy-MM-dd') : '')
-                    }
-                  />
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
+                  <div className="grid gap-4 sm:grid-cols-2">
+                    <FormField
+                      control={form.control}
+                      name="type"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>类型</FormLabel>
+                          <Select
+                            onValueChange={field.onChange}
+                            defaultValue={field.value}
+                          >
+                            <FormControl>
+                              <SelectTrigger>
+                                <SelectValue placeholder="选择菜单类型" />
+                              </SelectTrigger>
+                            </FormControl>
+                            <SelectContent>
+                              {Object.entries(MenuType).map(([key, value]) => (
+                                <SelectItem key={key} value={key}>
+                                  {value}
+                                </SelectItem>
+                              ))}
+                            </SelectContent>
+                          </Select>
+                          <FormDescription>
+                            选择一个合适的类型来分类你的菜单
+                          </FormDescription>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
 
-            <FormField
-              control={form.control}
-              name="endDate"
-              render={({ field }) => (
-                <FormItem className="flex flex-col">
-                  <FormLabel>结束日期</FormLabel>
-                  <DatePicker
-                    date={field.value ? new Date(field.value) : undefined}
-                    onSelect={(date) =>
-                      field.onChange(date ? format(date, 'yyyy-MM-dd') : '')
-                    }
-                  />
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
+                    <FormField
+                      control={form.control}
+                      name="tags"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>标签</FormLabel>
+                          <FormControl>
+                            <TagInput
+                              tags={[
+                                { id: '1', name: '家常菜' },
+                                { id: '2', name: '川菜' },
+                                { id: '3', name: '粤菜' },
+                                { id: '4', name: '减脂' },
+                                { id: '5', name: '快手菜' },
+                              ]}
+                              selectedTags={field.value || []}
+                              onSelect={(tag) =>
+                                field.onChange([...(field.value || []), tag])
+                              }
+                              onRemove={(tag) =>
+                                field.onChange(
+                                  field.value?.filter((t) => t.id !== tag.id)
+                                )
+                              }
+                            />
+                          </FormControl>
+                          <FormDescription>
+                            添加一些标签来更好地分类和查找
+                          </FormDescription>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                  </div>
+
+                  <div className="grid gap-4 sm:grid-cols-2">
+                    <FormField
+                      control={form.control}
+                      name="startDate"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>开始日期</FormLabel>
+                          <FormControl>
+                            <DatePicker
+                              date={field.value ? new Date(field.value) : undefined}
+                              onSelect={(date) =>
+                                field.onChange(
+                                  date ? format(date, 'yyyy-MM-dd') : ''
+                                )
+                              }
+                            />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+
+                    <FormField
+                      control={form.control}
+                      name="endDate"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>结束日期</FormLabel>
+                          <FormControl>
+                            <DatePicker
+                              date={field.value ? new Date(field.value) : undefined}
+                              onSelect={(date) =>
+                                field.onChange(
+                                  date ? format(date, 'yyyy-MM-dd') : ''
+                                )
+                              }
+                            />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                  </div>
+                </div>
+
+                <div className="flex justify-end space-x-4">
+                  <Button
+                    type="button"
+                    variant="outline"
+                    onClick={() => router.back()}
+                  >
+                    取消
+                  </Button>
+                  <Button type="submit">创建菜单</Button>
+                </div>
+              </form>
+            </Form>
           </div>
-
-          <div className="flex justify-end space-x-4">
-            <Button
-              type="button"
-              variant="outline"
-              onClick={() => router.back()}
-            >
-              取消
-            </Button>
-            <Button type="submit">创建</Button>
-          </div>
-        </form>
-      </Form>
+        </div>
+      </div>
     </div>
   )
 }

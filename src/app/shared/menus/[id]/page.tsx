@@ -16,13 +16,33 @@ import { Plus, Edit2, Save, X } from 'lucide-react'
 import Image from 'next/image'
 
 function MenuTypeBadge({ type }: { type: keyof typeof MenuType }) {
-  const label = type === 'daily' ? '日常' : type === 'weekly' ? '每周' : type === 'holiday' ? '节日' : '特别'
-  return <Badge variant="outline">{label}</Badge>
+  switch (type) {
+    case "DAILY":
+      return "日常"
+    case "WEEKLY":
+      return "每周"
+    case "HOLIDAY":
+      return "节日"
+    case "SPECIAL":
+      return "特别"
+    default:
+      return "未知"
+  }
 }
 
 function MealTimeLabel({ mealTime }: { mealTime: keyof typeof MealTime }) {
-  const label = mealTime === 'breakfast' ? '早餐' : mealTime === 'lunch' ? '午餐' : mealTime === 'dinner' ? '晚餐' : '点心'
-  return <span className="font-medium">{label}</span>
+  switch (mealTime) {
+    case "BREAKFAST":
+      return "早餐"
+    case "LUNCH":
+      return "午餐"
+    case "DINNER":
+      return "晚餐"
+    case "SNACK":
+      return "点心"
+    default:
+      return "未知"
+  }
 }
 
 export default function SharedMenuPage({ params }: { params: { id: string } }) {

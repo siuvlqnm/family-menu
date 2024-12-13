@@ -24,6 +24,7 @@ const menuTypeLabels: Record<keyof typeof MenuType, string> = {
   WEEKLY: '每周',
   HOLIDAY: '节日',
   SPECIAL: '特别',
+  SHARE_RECORD: '分享记录',
 };
 
 const menuStatusColors: Record<keyof typeof MenuStatus, string> = {
