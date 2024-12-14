@@ -1,7 +1,7 @@
 'use client'
 
 import { useEffect } from 'react'
-import { useRouter, useSearchParams } from 'next/navigation'
+import { useRouter, useSearchParams, useParams } from 'next/navigation'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
@@ -36,25 +36,28 @@ import { RecipeCombobox } from '@/components/recipes/recipe-combobox'
 const menuItemFormSchema = z.object({
   recipeId: z.string().min(1, '请选择菜品'),
   date: z.string(),
-  mealTime: z.enum(['breakfast', 'lunch', 'dinner', 'snack']),
+  mealTime: z.enum(['BREAKFAST', 'LUNCH', 'DINNER', 'SNACK']),
   servings: z.number().min(1).optional(),
   note: z.string().optional(),
 })
 
 type MenuItemFormValues = z.infer<typeof menuItemFormSchema>
 
-export default function NewMenuItemPage({ params }: { params: { id: string } }) {
+export default function NewMenuItemPage() {
+  const params = useParams() as { id: string }
+  const { id } = params
+
   const router = useRouter()
   const searchParams = useSearchParams()
   const { checkAuth } = useAuthStore()
-  const { menu, loading, error, fetchMenu, addMenuItem } = useMenuStore()
+  const { menu, loading, error, fetchMenu, createMenuItem } = useMenuStore()
   const { recipes, fetchRecipes } = useRecipeStore()
 
   const form = useForm<MenuItemFormValues>({
     resolver: zodResolver(menuItemFormSchema),
     defaultValues: {
       date: searchParams.get('date') || format(new Date(), 'yyyy-MM-dd'),
-      mealTime: (searchParams.get('mealTime') as keyof typeof MealTime) || 'breakfast',
+      mealTime: (searchParams.get('mealTime') as keyof typeof MealTime) || 'BREAKFAST',
       servings: 1,
     },
   })
@@ -62,17 +65,17 @@ export default function NewMenuItemPage({ params }: { params: { id: string } }) 
   useEffect(() => {
     const isAuthed = checkAuth()
     if (!isAuthed) {
-      router.replace('/login?from=/menus/' + params.id + '/items/new')
+      router.replace('/login?from=/menus/' + id + '/items/new')
       return
     }
-    fetchMenu(params.id)
+    fetchMenu(id)
     fetchRecipes()
-  }, [checkAuth, fetchMenu, fetchRecipes, params.id, router])
+  }, [checkAuth, fetchMenu, fetchRecipes, id, router])
 
   const onSubmit = async (values: MenuItemFormValues) => {
     try {
-      await addMenuItem(params.id, values)
-      router.push(`/menus/${params.id}`)
+      await createMenuItem(id, values)
+      router.push(`/menus/${id}`)
     } catch (error) {
       console.error('Failed to add menu item:', error)
     }

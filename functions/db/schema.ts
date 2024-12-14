@@ -1,4 +1,4 @@
-import { sql } from 'drizzle-orm';
+import { sql, relations } from 'drizzle-orm';
 import { sqliteTable, text, integer } from 'drizzle-orm/sqlite-core';
 import { MeasurementUnit } from '../types/recipe';
 
@@ -116,11 +116,11 @@ export const recipeShares = sqliteTable('recipe_shares', {
 export const menus = sqliteTable('menus', {
   id: text('id').primaryKey(),
   name: text('name').notNull(),
-  description: text('description').notNull().default(''),
+  description: text('description'),
   type: text('type', {
     enum: ['DAILY', 'WEEKLY', 'HOLIDAY', 'SPECIAL']
   }).notNull().default('DAILY'),
-  tags: text('tags', { mode: 'json' }).$type<string[]>().default([]).notNull(),
+  tags: text('tags', { mode: 'json' }).$type<string[]>(),
   startDate: integer('start_date', { mode: 'timestamp' }).notNull(),
   endDate: integer('end_date', { mode: 'timestamp' }).notNull(),
   status: text('status', {
@@ -128,7 +128,7 @@ export const menus = sqliteTable('menus', {
   })
     .notNull()
     .default('DRAFT'),
-  familyGroupId: text('family_group_id').notNull().default('')
+  familyGroupId: text('family_group_id')
     .references(() => familyGroups.id, { onDelete: 'cascade' }),
   createdBy: text('created_by')
     .notNull()
@@ -144,10 +144,10 @@ export const menus = sqliteTable('menus', {
 // 菜单项表
 export const menuItems = sqliteTable('menu_items', {
   id: text('id').primaryKey(),
-  menuID: text('menu_id')
+  menuId: text('menu_id')
     .notNull()
     .references(() => menus.id, { onDelete: 'cascade' }),
-  recipeID: text('recipe_id')
+  recipeId: text('recipe_id')
     .notNull()
     .references(() => recipes.id),
   date: integer('date', { mode: 'timestamp' }).notNull(),
@@ -168,7 +168,7 @@ export const menuItems = sqliteTable('menu_items', {
 // 菜单分享表
 export const menuShares = sqliteTable('menu_shares', {
   id: text('id').primaryKey(),
-  menuID: text('menu_id')
+  menuId: text('menu_id')
     .notNull()
     .references(() => menus.id, { onDelete: 'cascade' }),
   shareType: text('share_type', { enum: ['LINK', 'TOKEN'] }).notNull(),
@@ -181,3 +181,29 @@ export const menuShares = sqliteTable('menu_shares', {
     .notNull()
     .references(() => users.id),
 });
+
+// 定义菜单与菜单项的关系
+export const menusRelations = relations(menus, ({ many }) => ({
+  items: many(menuItems),
+  shares: many(menuShares)
+}));
+
+// 定义菜单项与菜单的关系
+export const menuItemsRelations = relations(menuItems, ({ one }) => ({
+  menu: one(menus, {
+    fields: [menuItems.menuId],
+    references: [menus.id],
+  }),
+  recipe: one(recipes, {
+    fields: [menuItems.recipeId],
+    references: [recipes.id],
+  }),
+}));
+
+// 定义菜单分享与菜单的关系
+export const menuSharesRelations = relations(menuShares, ({ one }) => ({
+  menu: one(menus, {
+    fields: [menuShares.menuId],
+    references: [menus.id],
+  }),
+}));

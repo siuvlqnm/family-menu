@@ -7,7 +7,7 @@ import * as z from 'zod'
 import { format } from 'date-fns'
 import { useAuthStore } from '@/stores/auth-store'
 import { useMenuStore } from '@/stores/menus-store'
-import { useFamilyStore } from '@/stores/family-store'
+// import { useFamilyStore } from '@/stores/family-store'
 import { Button } from '@/components/ui/button'
 import {
   Form,
@@ -51,7 +51,7 @@ type FormValues = z.infer<typeof formSchema>
 export default function NewMenuPage() {
   const router = useRouter()
   const { checkAuth } = useAuthStore()
-  const { familyGroups, fetchFamilyGroups } = useFamilyStore()
+  // const { familyGroups, fetchFamilyGroups } = useFamilyStore()
   const { createMenu } = useMenuStore()
 
   const form = useForm<FormValues>({
@@ -136,7 +136,7 @@ export default function NewMenuPage() {
                     )}
                   />
 
-                  {form.watch('menuType') === 'family' && (
+                  {/* {form.watch('menuType') === 'family' && (
                     <FormField
                       control={form.control}
                       name="familyGroupId"
@@ -168,7 +168,7 @@ export default function NewMenuPage() {
                         </FormItem>
                       )}
                     />
-                  )}
+                  )} */}
 
                   <FormField
                     control={form.control}

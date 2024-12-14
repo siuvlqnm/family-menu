@@ -1,7 +1,7 @@
 'use client'
 
 import { useEffect, useState } from 'react'
-import { useRouter } from 'next/navigation'
+import { useRouter, useParams } from 'next/navigation'
 import { useAuthStore } from '@/stores/auth-store'
 // import { useFamilyStore } from '@/stores/family-store'
 import { useMenuStore } from '@/stores/menus-store'
@@ -23,17 +23,14 @@ import {
 import { MenuType } from '@/types/menus'
 import { cn } from '@/lib/utils'
 
-interface EditMenuPageProps {
-  params: {
-    id: string
-  }
-}
+export default function EditMenuPage() {
+  const params = useParams() as { id: string }
+  const { id } = params
 
-export default function EditMenuPage({ params }: EditMenuPageProps) {
   const router = useRouter()
   const { user, checkAuth } = useAuthStore()
   // const { familyGroups, fetchFamilyGroups } = useFamilyStore()
-  const { menu, getMenu, updateMenu } = useMenuStore()
+  const { menu, fetchMenu, updateMenu } = useMenuStore()
 
   // 表单状态
   const [name, setName] = useState('')
@@ -52,7 +49,7 @@ export default function EditMenuPage({ params }: EditMenuPageProps) {
     // 检查认证状态
     const isAuthed = checkAuth()
     if (!isAuthed) {
-      router.replace(`/login?from=/menus/${params.id}/edit`)
+      router.replace(`/login?from=/menus/${id}/edit`)
       return
     }
 
@@ -60,8 +57,8 @@ export default function EditMenuPage({ params }: EditMenuPageProps) {
     // fetchFamilyGroups()
 
     // 获取菜单详情
-    getMenu(params.id)
-  }, [checkAuth, router, params.id, getMenu])
+    fetchMenu(id)
+  }, [checkAuth, router, id, fetchMenu])
 
   useEffect(() => {
     if (menu) {
@@ -83,7 +80,7 @@ export default function EditMenuPage({ params }: EditMenuPageProps) {
     setError(undefined)
 
     try {
-      const updatedMenu = await updateMenu(params.id, {
+      const updatedMenu = await updateMenu(id, {
         name,
         description,
         type,

@@ -15,6 +15,7 @@ import {
 } from '../types/menu';
 import { AuthUser } from '../types/auth';
 import { nanoid } from '../utils/id';
+import { string } from 'zod';
 
 export class MenuService {
   constructor(private db: Database) {}
@@ -54,13 +55,13 @@ export class MenuService {
     const menuData = {
       id: nanoid(),
       name: input.name,
-      description: input.description,
+      description: input.description || null,
       type: input.type,
       status: 'PUBLISHED',
       tags: input.tags || [],
       startDate: input.startDate,
       endDate: input.endDate,
-      familyGroupId: input.familyGroupId,
+      familyGroupId: input.familyGroupId || null,
       createdBy: user.id,
     } satisfies Omit<Menu, 'createdAt' | 'updatedAt'>;
 
@@ -118,10 +119,10 @@ export class MenuService {
       with: {
         items: {
           with: {
-            recipe: true,
-          },
-        },
-      },
+            recipe: true
+          }
+        }
+      }
     });
 
     if (!menu) {
@@ -136,7 +137,7 @@ export class MenuService {
       throw new HTTPException(403, { message: 'Not authorized to view this menu' });
     }
 
-    return menu;
+    return menu as MenuWithItems;
   }
 
   // 查询菜单列表

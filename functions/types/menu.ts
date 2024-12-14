@@ -100,14 +100,14 @@ export type CreateMenuShareInput = z.infer<typeof createMenuShareSchema>;
 export interface Menu {
   id: string;
   name: string;
-  description?: string;
+  description: string | null;
   type: keyof typeof MenuType;
   coverImage?: string;
-  tags: string[];
+  tags: string[] | null;
   startDate: Date;
   endDate: Date;
   status: keyof typeof MenuStatus;
-  familyGroupId: string;
+  familyGroupId: string | null;
   createdBy: string;
   createdAt: Date;
   updatedAt: Date;
