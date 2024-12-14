@@ -12,7 +12,7 @@ import {
   SelectValue,
 } from '@/components/ui/select'
 import { MenuType, MenuStatus, MealTime } from '@/types/menus'
-import { useFamilyStore } from '@/stores/family-store'
+// import { useFamilyStore } from '@/stores/family-store'
 import { cn } from '@/lib/utils'
 
 interface MenuFiltersProps {
@@ -28,7 +28,7 @@ export function MenuFilters({
   onReset,
   className,
 }: MenuFiltersProps) {
-  const { familyGroups } = useFamilyStore()
+  // const { familyGroups } = useFamilyStore()
 
   return (
     <div className={cn('space-y-4', className)}>
@@ -58,7 +58,7 @@ export function MenuFilters({
         </div>
 
         {/* 家庭组选择（仅当选择家庭组菜单时显示） */}
-        {filters.menuType === 'family' && (
+        {/* {filters.menuType === 'family' && (
           <div className="w-full sm:w-auto">
             <Label>家庭组</Label>
             <Select
@@ -83,7 +83,7 @@ export function MenuFilters({
               </SelectContent>
             </Select>
           </div>
-        )}
+        )} */}
 
         {/* 菜单类型过滤器 */}
         <div className="w-full sm:w-auto">

@@ -116,11 +116,11 @@ export const recipeShares = sqliteTable('recipe_shares', {
 export const menus = sqliteTable('menus', {
   id: text('id').primaryKey(),
   name: text('name').notNull(),
-  description: text('description'),
+  description: text('description').notNull().default(''),
   type: text('type', {
     enum: ['DAILY', 'WEEKLY', 'HOLIDAY', 'SPECIAL']
   }).notNull().default('DAILY'),
-  tags: text('tags', { mode: 'json' }).$type<string[]>().default([]),
+  tags: text('tags', { mode: 'json' }).$type<string[]>().default([]).notNull(),
   startDate: integer('start_date', { mode: 'timestamp' }).notNull(),
   endDate: integer('end_date', { mode: 'timestamp' }).notNull(),
   status: text('status', {
@@ -128,7 +128,7 @@ export const menus = sqliteTable('menus', {
   })
     .notNull()
     .default('DRAFT'),
-  familyGroupId: text('family_group_id')
+  familyGroupId: text('family_group_id').notNull().default('')
     .references(() => familyGroups.id, { onDelete: 'cascade' }),
   createdBy: text('created_by')
     .notNull()

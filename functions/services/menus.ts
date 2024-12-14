@@ -54,13 +54,13 @@ export class MenuService {
     const menuData = {
       id: nanoid(),
       name: input.name,
-      description: input.description ?? undefined,
+      description: input.description,
       type: input.type,
       status: 'PUBLISHED',
       tags: input.tags || [],
       startDate: input.startDate,
       endDate: input.endDate,
-      familyGroupId: input.familyGroupId ?? undefined,
+      familyGroupId: input.familyGroupId,
       createdBy: user.id,
     } satisfies Omit<Menu, 'createdAt' | 'updatedAt'>;
 
@@ -240,7 +240,7 @@ export class MenuService {
       ...menuItem,
       recipe: {
         id: recipe.id,
-        title: recipe.title,
+        name: recipe.name,
         description: recipe.description,
         category: recipe.category,
         difficulty: recipe.difficulty,

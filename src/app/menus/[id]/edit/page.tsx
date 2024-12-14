@@ -3,7 +3,7 @@
 import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { useAuthStore } from '@/stores/auth-store'
-import { useFamilyStore } from '@/stores/family-store'
+// import { useFamilyStore } from '@/stores/family-store'
 import { useMenuStore } from '@/stores/menus-store'
 import { PageHeader } from '@/components/ui/page-header'
 import { Button } from '@/components/ui/button'
@@ -32,7 +32,7 @@ interface EditMenuPageProps {
 export default function EditMenuPage({ params }: EditMenuPageProps) {
   const router = useRouter()
   const { user, checkAuth } = useAuthStore()
-  const { familyGroups, fetchFamilyGroups } = useFamilyStore()
+  // const { familyGroups, fetchFamilyGroups } = useFamilyStore()
   const { menu, getMenu, updateMenu } = useMenuStore()
 
   // 表单状态
@@ -57,11 +57,11 @@ export default function EditMenuPage({ params }: EditMenuPageProps) {
     }
 
     // 获取家庭组列表
-    fetchFamilyGroups()
+    // fetchFamilyGroups()
 
     // 获取菜单详情
     getMenu(params.id)
-  }, [checkAuth, router, params.id, fetchFamilyGroups, getMenu])
+  }, [checkAuth, router, params.id, getMenu])
 
   useEffect(() => {
     if (menu) {
@@ -110,7 +110,7 @@ export default function EditMenuPage({ params }: EditMenuPageProps) {
       <PageHeader
         title="编辑菜单"
         description="更新菜单信息"
-        backButton
+        // backButton
       />
 
       <form onSubmit={handleSubmit} className="mx-auto max-w-2xl space-y-8">
@@ -138,7 +138,7 @@ export default function EditMenuPage({ params }: EditMenuPageProps) {
           </div>
 
           {/* 家庭组选择（仅当选择家庭组菜单时显示） */}
-          {menuType === 'family' && (
+          {/* {menuType === 'family' && (
             <div className="space-y-2">
               <Label>选择家庭组</Label>
               <Select
@@ -158,7 +158,7 @@ export default function EditMenuPage({ params }: EditMenuPageProps) {
                 </SelectContent>
               </Select>
             </div>
-          )}
+          )} */}
 
           {/* 基本信息 */}
           <div className="space-y-2">

@@ -7,8 +7,8 @@ CREATE TABLE menus (
   tags TEXT DEFAULT '[]',
   start_date INTEGER NOT NULL,
   end_date INTEGER NOT NULL,
-  status TEXT NOT NULL DEFAULT 'DRAFT' CHECK (status IN ('DRAFT', 'PUBLISHED', 'ARCHIVED')),
-  family_group_id TEXT NOT NULL REFERENCES family_groups(id) ON DELETE CASCADE,
+  status TEXT DEFAULT 'DRAFT' CHECK (status IN ('DRAFT', 'PUBLISHED', 'ARCHIVED')),
+  family_group_id TEXT REFERENCES family_groups(id) ON DELETE CASCADE,
   created_by TEXT NOT NULL REFERENCES users(id),
   created_at INTEGER NOT NULL DEFAULT CURRENT_TIMESTAMP,
   updated_at INTEGER NOT NULL DEFAULT CURRENT_TIMESTAMP
