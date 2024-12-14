@@ -7,6 +7,7 @@ import * as z from 'zod'
 import { format } from 'date-fns'
 import { useAuthStore } from '@/stores/auth-store'
 import { useMenuStore } from '@/stores/menus-store'
+import { useFamilyStore } from '@/stores/family-store'
 import { Button } from '@/components/ui/button'
 import {
   Form,
@@ -41,6 +42,8 @@ const formSchema = z.object({
   endDate: z.string(),
   coverImage: z.string().optional(),
   tags: z.array(z.object({ id: z.string(), name: z.string() })).optional(),
+  menuType: z.enum(['personal', 'family']),
+  familyGroupId: z.string().optional(),
 })
 
 type FormValues = z.infer<typeof formSchema>
@@ -48,6 +51,7 @@ type FormValues = z.infer<typeof formSchema>
 export default function NewMenuPage() {
   const router = useRouter()
   const { checkAuth } = useAuthStore()
+  const { familyGroups, fetchFamilyGroups } = useFamilyStore()
   const { createMenu } = useMenuStore()
 
   const form = useForm<FormValues>({
@@ -57,12 +61,22 @@ export default function NewMenuPage() {
       startDate: format(new Date(), 'yyyy-MM-dd'),
       endDate: format(new Date(), 'yyyy-MM-dd'),
       tags: [],
+      menuType: 'personal',
     },
   })
 
   const onSubmit = async (values: FormValues) => {
     try {
-      const menu = await createMenu(values)
+      const menu = await createMenu({
+        name: values.name,
+        description: values.description,
+        type: values.type,
+        coverImage: values.coverImage,
+        tags: values.tags,
+        startDate: values.startDate,
+        endDate: values.endDate,
+        familyGroupId: values.menuType === 'family' ? values.familyGroupId : undefined,
+      })
       toast({
         title: '创建成功',
         description: '菜单已创建',
@@ -94,6 +108,68 @@ export default function NewMenuPage() {
                 className="space-y-8"
               >
                 <div className="space-y-4">
+                  <FormField
+                    control={form.control}
+                    name="menuType"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>菜单归属</FormLabel>
+                        <FormControl>
+                          <Select
+                            onValueChange={field.onChange}
+                            value={field.value}
+                          >
+                            <SelectTrigger>
+                              <SelectValue placeholder="选择菜单归属" />
+                            </SelectTrigger>
+                            <SelectContent>
+                              <SelectItem value="personal">个人菜单</SelectItem>
+                              <SelectItem value="family">家庭组菜单</SelectItem>
+                            </SelectContent>
+                          </Select>
+                        </FormControl>
+                        <FormDescription>
+                          选择菜单归属
+                        </FormDescription>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+
+                  {form.watch('menuType') === 'family' && (
+                    <FormField
+                      control={form.control}
+                      name="familyGroupId"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>选择家庭组</FormLabel>
+                          <FormControl>
+                            <Select
+                              onValueChange={field.onChange}
+                              value={field.value}
+                              required
+                            >
+                              <SelectTrigger>
+                                <SelectValue placeholder="选择家庭组" />
+                              </SelectTrigger>
+                              <SelectContent>
+                                {familyGroups.map((group) => (
+                                  <SelectItem key={group.id} value={group.id}>
+                                    {group.name}
+                                  </SelectItem>
+                                ))}
+                              </SelectContent>
+                            </Select>
+                          </FormControl>
+                          <FormDescription>
+                            选择家庭组
+                          </FormDescription>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                  )}
+
                   <FormField
                     control={form.control}
                     name="coverImage"

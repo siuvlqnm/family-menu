@@ -38,7 +38,7 @@ export const createMenuSchema = z.object({
   tags: z.array(z.string()).optional(),
   startDate: z.coerce.date(),
   endDate: z.coerce.date(),
-  familyGroupId: z.string(),
+  familyGroupId: z.string().optional(),  // 改为可选
 });
 
 // 更新菜单验证 schema
@@ -51,6 +51,7 @@ export const updateMenuSchema = z.object({
   startDate: z.coerce.date().optional(),
   endDate: z.coerce.date().optional(),
   status: z.enum(Object.keys(MenuStatus) as [keyof typeof MenuStatus]),
+  familyGroupId: z.string().optional(),  // 添加可选的家庭组ID
 });
 
 // 添加菜单项验证 schema
@@ -72,9 +73,9 @@ export const updateMenuItemSchema = z.object({
 
 // 菜单查询验证 schema
 export const menuQuerySchema = z.object({
-  familyGroupId: z.string(),
-  type: z.enum(Object.keys(MenuType) as [keyof typeof MenuType]),
-  status: z.enum(Object.keys(MenuStatus) as [keyof typeof MenuStatus]),
+  familyGroupId: z.string().optional(),  // 改为可选
+  type: z.enum(Object.keys(MenuType) as [keyof typeof MenuType]).optional(),
+  status: z.enum(Object.keys(MenuStatus) as [keyof typeof MenuStatus]).optional(),
   startDate: z.coerce.date().optional(),
   endDate: z.coerce.date().optional(),
   tags: z.array(z.string()).optional(),
@@ -100,12 +101,12 @@ export interface Menu {
   id: string;
   name: string;
   description?: string;
-  type: typeof MenuType[keyof typeof MenuType];
+  type: keyof typeof MenuType;
   coverImage?: string;
   tags: string[];
   startDate: Date;
   endDate: Date;
-  status: typeof MenuStatus[keyof typeof MenuStatus];
+  status: keyof typeof MenuStatus;
   familyGroupId: string;
   createdBy: string;
   createdAt: Date;
@@ -117,7 +118,7 @@ export interface MenuItem {
   menuId: string;
   recipeId: string;
   date: Date;
-  mealTime: typeof MealTime[keyof typeof MealTime];
+  mealTime: keyof typeof MealTime;
   servings?: number;
   orderIndex: number;
   note?: string;
@@ -140,7 +141,7 @@ export interface MenuWithItems extends Menu {
 export interface MenuShare {
   id: string;
   menuId: string;
-  shareType: typeof MenuShareType[keyof typeof MenuShareType];
+  shareType: keyof typeof MenuShareType;
   token?: string;  // 一次性访问令牌
   expiresAt?: Date;
   createdAt: Date;

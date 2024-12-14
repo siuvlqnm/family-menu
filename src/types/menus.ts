@@ -31,7 +31,8 @@ export interface Menu {
   startDate: string
   endDate: string
   status: keyof typeof MenuStatus
-  familyGroupId: string
+  familyGroupId?: string
+  familyGroupName?: string
   createdBy: string
   createdAt: string
   updatedAt: string
@@ -77,7 +78,9 @@ export interface MenuFilters {
   tags?: string[]
   search?: string
   sort?: 'latest' | 'popular'
-  mealTime?: keyof typeof MealTime // 新增餐时过滤器
+  mealTime?: keyof typeof MealTime
+  familyGroupId?: string
+  menuType?: 'personal' | 'family'
 }
 
 // 创建菜单的输入
@@ -89,7 +92,7 @@ export interface CreateMenuInput {
   tags?: string[]
   startDate: string
   endDate: string
-  familyGroupId: string
+  familyGroupId?: string
   userId: string // 新增用户ID字段
 }
 
@@ -103,6 +106,7 @@ export interface UpdateMenuInput {
   startDate?: string
   endDate?: string
   status?: keyof typeof MenuStatus
+  familyGroupId?: string
 }
 
 // 添加菜单项的输入

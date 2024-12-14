@@ -124,12 +124,11 @@ export const menus = sqliteTable('menus', {
   startDate: integer('start_date', { mode: 'timestamp' }).notNull(),
   endDate: integer('end_date', { mode: 'timestamp' }).notNull(),
   status: text('status', {
-    enum: ['draft', 'published', 'archived'],
+    enum: ['DRAFT', 'PUBLISHED', 'ARCHIVED'],
   })
     .notNull()
-    .default('draft'),
+    .default('DRAFT'),
   familyGroupId: text('family_group_id')
-    .notNull()
     .references(() => familyGroups.id, { onDelete: 'cascade' }),
   createdBy: text('created_by')
     .notNull()
@@ -153,7 +152,7 @@ export const menuItems = sqliteTable('menu_items', {
     .references(() => recipes.id),
   date: integer('date', { mode: 'timestamp' }).notNull(),
   mealTime: text('meal_time', {
-    enum: ['breakfast', 'lunch', 'dinner', 'snack'],
+    enum: ['BREAKFAST', 'LUNCH', 'DINNER', 'SNACK'],
   }).notNull(),
   servings: integer('servings'),
   orderIndex: integer('order_index').notNull().default(0),
@@ -172,7 +171,7 @@ export const menuShares = sqliteTable('menu_shares', {
   menuID: text('menu_id')
     .notNull()
     .references(() => menus.id, { onDelete: 'cascade' }),
-  shareType: text('share_type', { enum: ['link', 'token'] }).notNull(),
+  shareType: text('share_type', { enum: ['LINK', 'TOKEN'] }).notNull(),
   token: text('token').unique(),
   expiresAt: integer('expires_at', { mode: 'timestamp' }),
   createdAt: integer('created_at', { mode: 'timestamp' })

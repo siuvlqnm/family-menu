@@ -20,7 +20,12 @@ export class MenuService {
   constructor(private db: Database) {}
 
   // 检查用户是否是家庭组成员
-  private async checkFamilyMembership(familyGroupId: string, userId: string): Promise<void> {
+  private async checkFamilyMembership(familyGroupId: string | null | undefined, userId: string): Promise<void> {
+    // 如果没有家庭组ID，说明是个人菜单，直接返回
+    if (!familyGroupId) {
+      return;
+    }
+
     const member = await this.db.query.familyMembers.findFirst({
       where: and(
         eq(familyMembers.familyGroupId, familyGroupId),
@@ -35,8 +40,10 @@ export class MenuService {
 
   // 创建菜单
   async createMenu(input: CreateMenuInput, user: AuthUser): Promise<Menu> {
-    // 检查家庭组成员权限
-    await this.checkFamilyMembership(input.familyGroupId, user.id);
+    // 如果指定了家庭组，检查成员权限
+    if (input.familyGroupId) {
+      await this.checkFamilyMembership(input.familyGroupId, user.id);
+    }
 
     // 验证日期
     if (input.startDate > input.endDate) {
@@ -47,12 +54,13 @@ export class MenuService {
     const menuData = {
       id: nanoid(),
       name: input.name,
-      description: input.description || undefined,
+      description: input.description ?? undefined,
       type: input.type,
+      status: 'PUBLISHED',
       tags: input.tags || [],
       startDate: input.startDate,
       endDate: input.endDate,
-      familyGroupId: input.familyGroupId,
+      familyGroupId: input.familyGroupId ?? undefined,
       createdBy: user.id,
     } satisfies Omit<Menu, 'createdAt' | 'updatedAt'>;
 
@@ -72,12 +80,17 @@ export class MenuService {
       throw new HTTPException(404, { message: 'Menu not found' });
     }
 
-    // 检查家庭组成员权限
-    await this.checkFamilyMembership(menu.familyGroupId, user.id);
-
-    // 只有创建者可以更新
-    if (menu.createdBy !== user.id) {
+    // 如果是家庭组菜单，检查权限
+    if (menu.familyGroupId) {
+      await this.checkFamilyMembership(menu.familyGroupId, user.id);
+    } else if (menu.createdBy !== user.id) {
+      // 如果是个人菜单，只有创建者可以更新
       throw new HTTPException(403, { message: 'Not authorized to update this menu' });
+    }
+
+    // 如果要更改家庭组，检查新家庭组的权限
+    if (input.familyGroupId && input.familyGroupId !== menu.familyGroupId) {
+      await this.checkFamilyMembership(input.familyGroupId, user.id);
     }
 
     // 验证日期
@@ -115,8 +128,13 @@ export class MenuService {
       throw new HTTPException(404, { message: 'Menu not found' });
     }
 
-    // 检查家庭组成员权限
-    await this.checkFamilyMembership(menu.familyGroupId, user.id);
+    // 如果是家庭组菜单，检查权限
+    if (menu.familyGroupId) {
+      await this.checkFamilyMembership(menu.familyGroupId, user.id);
+    } else if (menu.createdBy !== user.id) {
+      // 如果是个人菜单，只有创建者可以查看
+      throw new HTTPException(403, { message: 'Not authorized to view this menu' });
+    }
 
     return menu;
   }
@@ -126,13 +144,22 @@ export class MenuService {
     menus: Menu[];
     total: number;
   }> {
-    // 检查家庭组成员权限
-    await this.checkFamilyMembership(query.familyGroupId, user.id);
-
     // 构建查询条件
-    const conditions = [
-      eq(menus.familyGroupId, query.familyGroupId),
-    ];
+    const conditions = [];
+
+    // 如果指定了家庭组，检查权限并添加条件
+    if (query.familyGroupId) {
+      await this.checkFamilyMembership(query.familyGroupId, user.id);
+      conditions.push(eq(menus.familyGroupId, query.familyGroupId));
+    } else {
+      // 如果没有指定家庭组，只查询用户的个人菜单
+      conditions.push(
+        and(
+          eq(menus.createdBy, user.id),
+          isNull(menus.familyGroupId)
+        )
+      );
+    }
 
     if (query.status) {
       conditions.push(eq(menus.status, query.status));
@@ -178,7 +205,12 @@ export class MenuService {
     }
 
     // 检查家庭组成员权限
-    await this.checkFamilyMembership(menu.familyGroupId, user.id);
+    if (menu.familyGroupId) {
+      await this.checkFamilyMembership(menu.familyGroupId, user.id);
+    } else if (menu.createdBy !== user.id) {
+      // 如果是个人菜单，只有创建者可以添加菜单项
+      throw new HTTPException(403, { message: 'Not authorized to add menu item' });
+    }
 
     // 检查日期是否在菜单范围内
     if (input.date < menu.startDate || input.date > menu.endDate) {
@@ -190,7 +222,7 @@ export class MenuService {
       where: eq(recipes.id, input.recipeId),
     });
 
-    if (!recipe || recipe.familyGroupId !== menu.familyGroupId) {
+    if (!recipe || (menu.familyGroupId && recipe.familyGroupId !== menu.familyGroupId)) {
       throw new HTTPException(404, { message: 'Recipe not found in family group' });
     }
 
@@ -240,7 +272,12 @@ export class MenuService {
     }
 
     // 检查家庭组成员权限
-    await this.checkFamilyMembership(menuItem.menu.familyGroupId, user.id);
+    if (menuItem.menu.familyGroupId) {
+      await this.checkFamilyMembership(menuItem.menu.familyGroupId, user.id);
+    } else if (menuItem.menu.createdBy !== user.id) {
+      // 如果是个人菜单，只有创建者可以更新菜单项
+      throw new HTTPException(403, { message: 'Not authorized to update menu item' });
+    }
 
     // 更新菜单项
     const [updatedMenuItem] = await this.db.update(menuItems)
@@ -281,7 +318,12 @@ export class MenuService {
     }
 
     // 检查家庭组成员权限
-    await this.checkFamilyMembership(menuItem.menu.familyGroupId, user.id);
+    if (menuItem.menu.familyGroupId) {
+      await this.checkFamilyMembership(menuItem.menu.familyGroupId, user.id);
+    } else if (menuItem.menu.createdBy !== user.id) {
+      // 如果是个人菜单，只有创建者可以删除菜单项
+      throw new HTTPException(403, { message: 'Not authorized to delete menu item' });
+    }
 
     // 删除菜单项
     await this.db.delete(menuItems)
@@ -300,7 +342,12 @@ export class MenuService {
     }
 
     // 检查家庭组成员权限
-    await this.checkFamilyMembership(menu.familyGroupId, user.id);
+    if (menu.familyGroupId) {
+      await this.checkFamilyMembership(menu.familyGroupId, user.id);
+    } else if (menu.createdBy !== user.id) {
+      // 如果是个人菜单，只有创建者可以分享
+      throw new HTTPException(403, { message: 'Not authorized to share this menu' });
+    }
 
     // 生成分享记录
     const [share] = await this.db.insert(menuShares).values({
@@ -369,7 +416,12 @@ export class MenuService {
     }
 
     // 检查家庭组成员权限
-    await this.checkFamilyMembership(menu.familyGroupId, user.id);
+    if (menu.familyGroupId) {
+      await this.checkFamilyMembership(menu.familyGroupId, user.id);
+    } else if (menu.createdBy !== user.id) {
+      // 如果是个人菜单，只有创建者可以查看分享列表
+      throw new HTTPException(403, { message: 'Not authorized to view share list' });
+    }
 
     // 获取分享列表
     const shares = await this.db.query.menuShares.findMany({
@@ -394,7 +446,12 @@ export class MenuService {
     }
 
     // 检查家庭组成员权限
-    await this.checkFamilyMembership(share.menu.familyGroupId, user.id);
+    if (share.menu.familyGroupId) {
+      await this.checkFamilyMembership(share.menu.familyGroupId, user.id);
+    } else if (share.menu.createdBy !== user.id) {
+      // 如果是个人菜单，只有创建者可以删除分享
+      throw new HTTPException(403, { message: 'Not authorized to delete share' });
+    }
 
     // 删除分享记录
     await this.db.delete(menuShares)
