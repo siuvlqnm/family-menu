@@ -1,12 +1,12 @@
 'use client'
 
 import { useEffect } from 'react'
-import { useRouter } from 'next/navigation'
+import { useRouter, useParams } from 'next/navigation'
 import { format } from 'date-fns'
 import { zhCN } from 'date-fns/locale'
 import { useAuthStore } from '@/stores/auth-store'
 import { useMenuStore } from '@/stores/menus-store'
-import { MenuType, MenuStatus, MealTime } from '@/types/menus'
+import { MenuType, MenuStatus, MealTime, MenuItem, MenuWithItems } from '@/types/menus'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { Separator } from '@/components/ui/separator'
@@ -44,24 +44,27 @@ function MenuTypeBadge({ type }: { type: keyof typeof MenuType }) {
   }
 }
 
-export default function MenuDetailPage({ params }: { params: { id: string } }) {
+export default function MenuDetailPage() {
+  const params = useParams() as { id: string }
+  const { id } = params
   const router = useRouter()
   const { checkAuth } = useAuthStore()
-  const { menu, loading, error, fetchMenu, updateMenuItems, deleteMenuItem } = useMenuStore()
+  const { menu, loading, error, fetchMenu, reorderMenuItems, deleteMenuItem } = useMenuStore()
 
   useEffect(() => {
     const isAuthed = checkAuth()
     if (!isAuthed) {
-      router.replace('/login?from=/menus/' + params.id)
+      router.replace('/login?from=/menus/' + id)
       return
     }
-    fetchMenu(params.id)
-  }, [checkAuth, fetchMenu, params.id, router])
+    fetchMenu(id)
+  }, [checkAuth, fetchMenu, id, router])
 
-  const handleReorderItems = async (items: typeof menu.items) => {
+  const handleReorderItems = async (items: MenuItem[]) => {
     try {
-      await updateMenuItems(params.id, items)
-      fetchMenu(params.id)
+      const itemIds = items.map(item => item.id)
+      await reorderMenuItems(id, itemIds)
+      fetchMenu(id)
     } catch (error) {
       console.error('Failed to reorder menu items:', error)
     }
@@ -69,8 +72,8 @@ export default function MenuDetailPage({ params }: { params: { id: string } }) {
 
   const handleDeleteMenuItem = async (itemId: string) => {
     try {
-      await deleteMenuItem(params.id, itemId)
-      fetchMenu(params.id)
+      await deleteMenuItem(id, itemId)
+      fetchMenu(id)
     } catch (error) {
       console.error('Failed to delete menu item:', error)
     }
@@ -109,10 +112,10 @@ export default function MenuDetailPage({ params }: { params: { id: string } }) {
     const date = item.date
     if (!acc[date]) {
       acc[date] = {
-        breakfast: [],
-        lunch: [],
-        dinner: [],
-        snack: [],
+        BREAKFAST: [],
+        LUNCH: [],
+        DINNER: [],
+        SNACK: [],
       }
     }
     acc[date][item.mealTime].push(item)

@@ -1,10 +1,10 @@
 import { create } from 'zustand'
-import { Menu, MenuItem, MenuShare, MenuFilters } from '@/types/menus'
+import { Menu, MenuItem, MenuShare, MenuFilters, MenuWithItems } from '@/types/menus'
 import { menusApi } from '@/services/menus'
 
 interface MenusState {
   menus: Menu[]
-  menu: Menu | null
+  menu: MenuWithItems | null
   menuItems: MenuItem[]
   menuShares: MenuShare[]
   loading: boolean
