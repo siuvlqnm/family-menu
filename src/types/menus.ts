@@ -1,24 +1,24 @@
 import { Recipe } from './recipes'
 
 export const MenuType = {
-  DAILY: 'daily',
-  WEEKLY: 'weekly',
-  HOLIDAY: 'holiday',
-  SPECIAL: 'special',
-  SHARE_RECORD: 'shareRecord', // 新增分享记录类型
+  DAILY: '日常',
+  WEEKLY: '每周',
+  HOLIDAY: '节日',
+  SPECIAL: '特别',
+  SHARE_RECORD: '分享记录', // 新增分享记录类型
 } as const
 
 export const MenuStatus = {
-  DRAFT: 'draft',
-  PUBLISHED: 'published',
-  ARCHIVED: 'archived',
+  DRAFT: '草稿',
+  PUBLISHED: '已发布',
+  ARCHIVED: '已归档',
 } as const
 
 export const MealTime = {
-  BREAKFAST: 'breakfast',
-  LUNCH: 'lunch',
-  DINNER: 'dinner',
-  SNACK: 'snack',
+  BREAKFAST: '早餐',
+  LUNCH: '午餐',
+  DINNER: '晚餐',
+  SNACK: '点心',
 } as const
 
 export interface Menu {

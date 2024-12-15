@@ -1,12 +1,11 @@
+'use client'
+
 import { Menu } from '@/types/menus'
-import { Button } from '@/components/ui/button'
-import { Card, CardContent, CardFooter, CardHeader } from '@/components/ui/card'
-import { Badge } from '@/components/ui/badge'
 import { format } from 'date-fns'
 import { zhCN } from 'date-fns/locale'
 import { MenuType, MenuStatus } from '@/types/menus'
-import { cn } from '@/lib/utils'
-import { Users, Calendar, Tag, Edit, Eye, Trash2 } from 'lucide-react'
+import { Users, Calendar, Tag, Eye, Edit, Trash2 } from 'lucide-react'
+import { ContentCard } from '@/components/ui/content-card'
 
 interface MenuCardProps {
   menu: Menu
@@ -25,96 +24,82 @@ export function MenuCard({
   onDelete,
   className,
 }: MenuCardProps) {
+  const getStatusVariant = (status: keyof typeof MenuStatus) => {
+    switch (status) {
+      case 'PUBLISHED':
+        return 'default'
+      case 'DRAFT':
+        return 'secondary'
+      default:
+        return 'outline'
+    }
+  }
+
   return (
-    <Card className={cn('overflow-hidden', className)}>
-      {menu.coverImage && (
-        <div className="relative aspect-video">
-          <img
-            src={menu.coverImage}
-            alt={menu.name}
-            className="h-full w-full object-cover"
-          />
-          {showFamilyGroup && menu.familyGroupId && (
-            <div className="absolute right-2 top-2">
-              <Badge variant="secondary" className="flex items-center gap-1">
-                <Users className="h-3 w-3" />
-                {menu.familyGroupName || '家庭组菜单'}
-              </Badge>
-            </div>
-          )}
-        </div>
-      )}
-
-      <CardHeader className="space-y-2">
-        <div className="flex items-start justify-between">
-          <div className="space-y-1">
-            <h3 className="text-lg font-semibold">{menu.name}</h3>
-            {menu.description && (
-              <p className="text-sm text-muted-foreground">{menu.description}</p>
-            )}
-          </div>
-          <Badge
-            variant={
-              menu.status === 'PUBLISHED'
-                ? 'default'
-                : menu.status === 'DRAFT'
-                ? 'secondary'
-                : 'outline'
+    <ContentCard
+      coverImage={menu.coverImage}
+      title={menu.name}
+      description={menu.description}
+      status={{
+        label: MenuStatus[menu.status],
+        variant: getStatusVariant(menu.status),
+      }}
+      topRightBadge={
+        showFamilyGroup && menu.familyGroupId
+          ? {
+              label: menu.familyGroupName || '家庭组菜单',
+              icon: <Users className="h-3 w-3" />,
+              variant: 'secondary',
             }
-          >
-            {MenuStatus[menu.status]}
-          </Badge>
-        </div>
-
-        <div className="flex flex-wrap gap-2">
-          <Badge variant="outline" className="flex items-center gap-1">
-            {MenuType[menu.type]}
-          </Badge>
-          <Badge variant="outline" className="flex items-center gap-1">
-            <Calendar className="h-3 w-3" />
-            {format(new Date(menu.startDate), 'MM/dd', { locale: zhCN })} -{' '}
-            {format(new Date(menu.endDate), 'MM/dd', { locale: zhCN })}
-          </Badge>
-        </div>
-
-        {menu.tags.length > 0 && (
-          <div className="flex flex-wrap gap-1">
-            {menu.tags.map((tag) => (
-              <Badge key={tag} variant="secondary" className="flex items-center gap-1">
-                <Tag className="h-3 w-3" />
-                {tag}
-              </Badge>
-            ))}
-          </div>
-        )}
-      </CardHeader>
-
-      <CardContent>
-        <div className="text-sm text-muted-foreground">
-          创建于 {format(new Date(menu.createdAt), 'PPP', { locale: zhCN })}
-        </div>
-      </CardContent>
-
-      <CardFooter className="flex justify-end gap-2">
-        {onView && (
-          <Button variant="ghost" size="sm" onClick={onView}>
-            <Eye className="h-4 w-4" />
-            <span className="sr-only">查看</span>
-          </Button>
-        )}
-        {onEdit && (
-          <Button variant="ghost" size="sm" onClick={onEdit}>
-            <Edit className="h-4 w-4" />
-            <span className="sr-only">编辑</span>
-          </Button>
-        )}
-        {onDelete && (
-          <Button variant="ghost" size="sm" onClick={onDelete}>
-            <Trash2 className="h-4 w-4" />
-            <span className="sr-only">删除</span>
-          </Button>
-        )}
-      </CardFooter>
-    </Card>
+          : undefined
+      }
+      badges={[
+        {
+          label: MenuType[menu.type],
+          variant: 'outline',
+        },
+        {
+          label: `${format(new Date(menu.startDate), 'MM/dd', { locale: zhCN })} - ${format(
+            new Date(menu.endDate),
+            'MM/dd',
+            { locale: zhCN }
+          )}`,
+          icon: <Calendar className="h-3 w-3" />,
+          variant: 'outline',
+        },
+        ...menu.tags.map((tag) => ({
+          label: tag,
+          icon: <Tag className="h-3 w-3" />,
+          variant: 'secondary' as const,
+        })),
+      ]}
+      createdAt={format(new Date(menu.createdAt), 'PPP', { locale: zhCN })}
+      onView={onView && (() => onView())}
+      onEdit={onEdit && (() => onEdit())}
+      onDelete={onDelete && (() => onDelete())}
+      actions={
+        <>
+          {onView && (
+            <button type="button" onClick={onView}>
+              <Eye className="h-4 w-4" />
+              <span className="sr-only">查看</span>
+            </button>
+          )}
+          {onEdit && (
+            <button type="button" onClick={onEdit}>
+              <Edit className="h-4 w-4" />
+              <span className="sr-only">编辑</span>
+            </button>
+          )}
+          {onDelete && (
+            <button type="button" onClick={onDelete}>
+              <Trash2 className="h-4 w-4" />
+              <span className="sr-only">删除</span>
+            </button>
+          )}
+        </>
+      }
+      className={className}
+    />
   )
 }
