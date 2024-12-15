@@ -1,6 +1,6 @@
 'use client'
 
-import { Menu, MenuType } from '@/types/menus'
+import { Menu, MenuType, MenuStatus } from '@/types/menus'
 import { format } from 'date-fns'
 import * as z from 'zod'
 import { useForm } from 'react-hook-form'
@@ -28,21 +28,32 @@ import { DatePicker } from '@/components/ui/date-picker'
 import { TagInput } from '@/components/ui/tag-input'
 import { ImageUpload } from '@/components/ui/image-upload'
 
-const tagSchema = z.object({
-  id: z.string(),
-  name: z.string(),
-})
-
 const menuFormSchema = z.object({
   name: z.string().min(1, '请输入菜单名称'),
   description: z.string().optional(),
   type: z.enum(['DAILY', 'WEEKLY', 'HOLIDAY', 'SPECIAL']),
-  startDate: z.string(),
-  endDate: z.string(),
+  startDate: z.string().min(1, '请选择开始日期'),
+  endDate: z.string().min(1, '请选择结束日期'),
   coverImage: z.string().optional(),
-  tags: z.array(tagSchema),
+  tags: z.array(z.string()).default([]),
   menuType: z.enum(['personal', 'family']),
-  familyGroupId: z.string().optional(),
+  familyGroupId: z.string().nullable(),
+  status: z.enum(['DRAFT', 'PUBLISHED', 'ARCHIVED']),
+}).refine((data) => {
+  if (data.menuType === 'family') {
+    return data.familyGroupId != null && data.familyGroupId.length > 0;
+  }
+  return true;
+}, {
+  message: '请选择家庭组',
+  path: ['familyGroupId'],
+}).refine((data) => {
+  const start = new Date(data.startDate)
+  const end = new Date(data.endDate)
+  return start <= end
+}, {
+  message: '结束日期必须晚于或等于开始日期',
+  path: ['endDate'],
 })
 
 type MenuFormValues = z.infer<typeof menuFormSchema>
@@ -60,27 +71,31 @@ export function MenuForm({
   onCancel,
   isSubmitting,
 }: MenuFormProps) {
-  const defaultValues = initialData
+  const defaultValues: MenuFormValues = initialData
     ? {
         ...initialData,
         startDate: format(new Date(initialData.startDate), 'yyyy-MM-dd'),
         endDate: format(new Date(initialData.endDate), 'yyyy-MM-dd'),
         menuType: initialData.familyGroupId ? 'family' : 'personal',
         tags: initialData.tags || [],
+        status: initialData.status || 'DRAFT',
       }
     : {
         name: '',
         description: '',
-        type: 'DAILY' as const,
+        type: 'DAILY',
         startDate: format(new Date(), 'yyyy-MM-dd'),
         endDate: format(new Date(), 'yyyy-MM-dd'),
         tags: [],
-        menuType: 'personal' as const,
+        menuType: 'personal',
+        coverImage: '',
+        status: 'DRAFT',
       }
 
   const form = useForm<MenuFormValues>({
     resolver: zodResolver(menuFormSchema),
     defaultValues,
+    mode: 'all',
   })
 
   const handleSubmit = async (values: MenuFormValues) => {
@@ -90,6 +105,13 @@ export function MenuForm({
       console.error('Form submission failed:', error)
     }
   }
+
+  console.log('Form State:', {
+    isValid: form.formState.isValid,
+    isDirty: form.formState.isDirty,
+    errors: form.formState.errors,
+    values: form.getValues(),
+  })
 
   return (
     <Form {...form}>
@@ -119,6 +141,7 @@ export function MenuForm({
                   <Textarea
                     placeholder="描述这个菜单的特点和亮点"
                     {...field}
+                    value={field.value || ''}
                   />
                 </FormControl>
                 <FormMessage />
@@ -138,7 +161,7 @@ export function MenuForm({
                 >
                   <FormControl>
                     <SelectTrigger>
-                      <SelectValue />
+                      <SelectValue placeholder="选择菜单类型" />
                     </SelectTrigger>
                   </FormControl>
                   <SelectContent>
@@ -165,7 +188,7 @@ export function MenuForm({
                     date={field.value ? new Date(field.value) : undefined}
                     onSelect={(date) =>
                       field.onChange(
-                        date ? date.toISOString().split('T')[0] : ''
+                        date ? format(date, 'yyyy-MM-dd') : ''
                       )
                     }
                   />
@@ -186,11 +209,32 @@ export function MenuForm({
                     date={field.value ? new Date(field.value) : undefined}
                     onSelect={(date) =>
                       field.onChange(
-                        date ? date.toISOString().split('T')[0] : ''
+                        date ? format(date, 'yyyy-MM-dd') : ''
                       )
                     }
                   />
                 </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+
+          <FormField
+            control={form.control}
+            name="tags"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>标签</FormLabel>
+                <FormControl>
+                  <TagInput
+                    placeholder="输入标签，按回车添加"
+                    tags={field.value}
+                    onTagsChange={field.onChange}
+                  />
+                </FormControl>
+                <FormDescription>
+                  添加标签以便于分类和搜索，例如：家常菜、减脂餐、节日餐等
+                </FormDescription>
                 <FormMessage />
               </FormItem>
             )}
@@ -206,34 +250,12 @@ export function MenuForm({
                   <ImageUpload
                     value={field.value}
                     onChange={field.onChange}
+                    onRemove={() => field.onChange('')}
                   />
                 </FormControl>
-                <FormDescription>上传一张美食图片作为菜单封面</FormDescription>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-
-          <FormField
-            control={form.control}
-            name="tags"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>标签</FormLabel>
-                <FormControl>
-                  <TagInput
-                    selectedTags={field.value || []}
-                    onSelect={(tag) => {
-                      field.onChange([...(field.value || []), tag])
-                    }}
-                    onRemove={(tag) => {
-                      field.onChange(
-                        (field.value || []).filter((t) => t.id !== tag.id)
-                      )
-                    }}
-                  />
-                </FormControl>
-                <FormDescription>输入标签后按回车添加，按退格键删除最后一个标签</FormDescription>
+                <FormDescription>
+                  上传一张能代表这个菜单的图片
+                </FormDescription>
                 <FormMessage />
               </FormItem>
             )}
@@ -251,7 +273,7 @@ export function MenuForm({
                 >
                   <FormControl>
                     <SelectTrigger>
-                      <SelectValue />
+                      <SelectValue placeholder="选择菜单归属" />
                     </SelectTrigger>
                   </FormControl>
                   <SelectContent>
@@ -263,16 +285,49 @@ export function MenuForm({
               </FormItem>
             )}
           />
+
+          <FormField
+            control={form.control}
+            name="status"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>状态</FormLabel>
+                <Select
+                  onValueChange={field.onChange}
+                  defaultValue={field.value}
+                >
+                  <FormControl>
+                    <SelectTrigger>
+                      <SelectValue placeholder="选择菜单状态" />
+                    </SelectTrigger>
+                  </FormControl>
+                  <SelectContent>
+                    {Object.entries(MenuStatus).map(([key, value]) => (
+                      <SelectItem key={key} value={key}>
+                        {value}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
         </div>
 
-        <div className="flex justify-end gap-4">
+        <div className="flex justify-end space-x-4">
           {onCancel && (
-            <Button type="button" variant="outline" onClick={onCancel}>
+            <Button
+              type="button"
+              variant="outline"
+              onClick={onCancel}
+              disabled={isSubmitting}
+            >
               取消
             </Button>
           )}
           <Button type="submit" disabled={isSubmitting}>
-            {isSubmitting ? '保存中...' : initialData ? '保存修改' : '创建菜单'}
+            {isSubmitting ? '保存中...' : '保存'}
           </Button>
         </div>
       </form>

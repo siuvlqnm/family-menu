@@ -6,23 +6,18 @@ import { Badge } from '@/components/ui/badge'
 import { Input } from '@/components/ui/input'
 import { cn } from '@/lib/utils'
 
-export interface Tag {
-  id: string
-  name: string
-}
-
 interface TagInputProps {
-  selectedTags?: Tag[]
-  onSelect?: (tag: Tag) => void
-  onRemove?: (tag: Tag) => void
+  tags?: string[]
+  onTagsChange?: (tags: string[]) => void
+  placeholder?: string
   disabled?: boolean
   className?: string
 }
 
 export function TagInput({
-  selectedTags = [],
-  onSelect,
-  onRemove,
+  tags = [],
+  onTagsChange,
+  placeholder = "输入标签后按回车添加...",
   disabled,
   className,
 }: TagInputProps) {
@@ -32,22 +27,19 @@ export function TagInput({
   const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
     if (e.key === 'Enter' && inputValue.trim()) {
       e.preventDefault()
-      // 创建新标签
-      const newTag: Tag = {
-        id: Date.now().toString(), // 使用时间戳作为临时ID
-        name: inputValue.trim(),
+      const newTag = inputValue.trim()
+      if (!tags.includes(newTag)) {
+        onTagsChange?.([...tags, newTag])
       }
-      onSelect?.(newTag)
       setInputValue('')
-    } else if (e.key === 'Backspace' && !inputValue && selectedTags.length > 0) {
+    } else if (e.key === 'Backspace' && !inputValue && tags.length > 0) {
       // 当输入框为空时，按退格键删除最后一个标签
-      onRemove?.(selectedTags[selectedTags.length - 1])
+      onTagsChange?.(tags.slice(0, -1))
     }
   }
 
-  const handleRemove = (e: React.MouseEvent, tag: Tag) => {
-    e.preventDefault()
-    onRemove?.(tag)
+  const handleRemove = (tagToRemove: string) => {
+    onTagsChange?.(tags.filter((tag) => tag !== tagToRemove))
   }
 
   return (
@@ -59,24 +51,24 @@ export function TagInput({
       )}
       onClick={() => inputRef.current?.focus()}
     >
-      {selectedTags.map((tag) => (
+      {tags.map((tag) => (
         <Badge
-          key={tag.id}
+          key={tag}
           variant="secondary"
           className={cn(
             'gap-1 pr-0.5',
             disabled && 'cursor-not-allowed opacity-50'
           )}
         >
-          <span>{tag.name}</span>
-          {!disabled && onRemove && (
+          <span>{tag}</span>
+          {!disabled && onTagsChange && (
             <button
               type="button"
               className="ml-1 rounded-full p-0.5 hover:bg-secondary-foreground/20"
-              onClick={(e) => handleRemove(e, tag)}
+              onClick={() => handleRemove(tag)}
             >
               <X className="h-3 w-3" />
-              <span className="sr-only">移除 {tag.name}</span>
+              <span className="sr-only">移除 {tag}</span>
             </button>
           )}
         </Badge>
@@ -89,7 +81,7 @@ export function TagInput({
           onChange={(e) => setInputValue(e.target.value)}
           onKeyDown={handleKeyDown}
           className="flex-1 !m-0 !p-0 !h-8 min-w-[120px] border-0 bg-transparent focus-visible:ring-0 focus-visible:ring-offset-0"
-          placeholder={selectedTags.length === 0 ? "输入标签后按回车添加..." : ""}
+          placeholder={tags.length === 0 ? placeholder : ""}
         />
       )}
     </div>

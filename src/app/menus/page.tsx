@@ -12,7 +12,7 @@ import { Plus, UtensilsCrossed } from 'lucide-react'
 import { MenuFilters as MenuFiltersType } from '@/types/menus'
 
 export default function MenusPage() {
-  const { isAuthenticated, checkAuth, user } = useAuthStore()
+  const { checkAuth } = useAuthStore()
   const router = useRouter()
   const { menus, loading, error, filters, setFilters, resetFilters, fetchMenus } = useMenuStore()
 

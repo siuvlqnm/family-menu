@@ -108,7 +108,7 @@ export default function MenuDetailPage() {
   }
 
   // 按日期和用餐时间组织菜品
-  const menuItemsByDate = menu.items.reduce((acc, item) => {
+  const menuItemsByDate = (menu.items || []).reduce((acc, item) => {
     const date = item.date
     if (!acc[date]) {
       acc[date] = {
@@ -120,7 +120,7 @@ export default function MenuDetailPage() {
     }
     acc[date][item.mealTime].push(item)
     return acc
-  }, {} as Record<string, Record<keyof typeof MealTime, typeof menu.items>>)
+  }, {} as Record<string, Record<keyof typeof MealTime, MenuItem[]>>)
 
   // 排序日期
   const sortedDates = Object.keys(menuItemsByDate).sort()
