@@ -10,6 +10,7 @@ import {
   CommandGroup,
   CommandInput,
   CommandItem,
+  CommandList,
 } from '@/components/ui/command'
 import {
   Popover,
@@ -45,34 +46,36 @@ export function RecipeCombobox({ recipes, value, onChange }: RecipeComboboxProps
       <PopoverContent className="w-full p-0">
         <Command>
           <CommandInput placeholder="搜索菜品..." />
-          <CommandEmpty>未找到相关菜品</CommandEmpty>
-          <CommandGroup className="max-h-60 overflow-auto">
-            {recipes.map((recipe) => (
-              <CommandItem
-                key={recipe.id}
-                value={recipe.name}
-                onSelect={() => {
-                  onChange(recipe.id)
-                  setOpen(false)
-                }}
-              >
-                <Check
-                  className={cn(
-                    'mr-2 h-4 w-4',
-                    value === recipe.id ? 'opacity-100' : 'opacity-0'
-                  )}
-                />
-                <div className="flex flex-col">
-                  <span>{recipe.name}</span>
-                  {recipe.description && (
-                    <span className="text-sm text-muted-foreground">
-                      {recipe.description}
-                    </span>
-                  )}
-                </div>
-              </CommandItem>
-            ))}
-          </CommandGroup>
+          <CommandList>
+            <CommandEmpty>未找到相关菜品</CommandEmpty>
+            <CommandGroup className="max-h-60 overflow-auto">
+              {recipes.map((recipe) => (
+                <CommandItem
+                  key={recipe.id}
+                  value={recipe.name}
+                  onSelect={() => {
+                    onChange(recipe.id)
+                    setOpen(false)
+                  }}
+                >
+                  <Check
+                    className={cn(
+                      'mr-2 h-4 w-4',
+                      value === recipe.id ? 'opacity-100' : 'opacity-0'
+                    )}
+                  />
+                  <div className="flex flex-col">
+                    <span>{recipe.name}</span>
+                    {recipe.description && (
+                      <span className="text-sm text-muted-foreground">
+                        {recipe.description}
+                      </span>
+                    )}
+                  </div>
+                </CommandItem>
+              ))}
+            </CommandGroup>
+          </CommandList>
         </Command>
       </PopoverContent>
     </Popover>

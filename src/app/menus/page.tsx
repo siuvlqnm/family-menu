@@ -107,7 +107,12 @@ export default function MenusPage() {
           />
         }
         renderItem={(menu) => (
-          <MenuCard key={menu.id} menu={menu} />
+          <MenuCard
+            key={menu.id}
+            menu={menu}
+            onView={() => router.push(`/menus/${menu.id}`)}
+            onEdit={() => router.push(`/menus/${menu.id}/edit`)}
+          />
         )}
         emptyIcon={UtensilsCrossed}
         emptyTitle="暂无菜单"
