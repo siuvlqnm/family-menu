@@ -1,7 +1,7 @@
 'use client'
 
 import { useEffect, useState } from 'react'
-import { useRouter, useSearchParams } from 'next/navigation'
+import { useRouter, useSearchParams, useParams } from 'next/navigation'
 import { format } from 'date-fns'
 import { zhCN } from 'date-fns/locale'
 import { useMenuStore } from '@/stores/menus-store'
@@ -45,7 +45,10 @@ function MealTimeLabel({ mealTime }: { mealTime: keyof typeof MealTime }) {
   }
 }
 
-export default function SharedMenuPage({ params }: { params: { id: string } }) {
+export default function SharedMenuPage() {
+  const params = useParams() as { id: string }
+  const { id } = params
+
   const router = useRouter()
   const searchParams = useSearchParams()
   const { menu, loading, error, fetchSharedMenu, updateMenuItem } = useMenuStore()
@@ -57,8 +60,8 @@ export default function SharedMenuPage({ params }: { params: { id: string } }) {
   const token = searchParams.get('token')
 
   useEffect(() => {
-    fetchSharedMenu(params.id, token || undefined)
-  }, [fetchSharedMenu, params.id, token])
+    fetchSharedMenu(id, token || undefined)
+  }, [fetchSharedMenu, id, token])
 
   const handleEditStart = (itemId: string, servings?: number, note?: string) => {
     setEditingItem(itemId)
@@ -113,10 +116,10 @@ export default function SharedMenuPage({ params }: { params: { id: string } }) {
     const date = item.date
     if (!acc[date]) {
       acc[date] = {
-        breakfast: [],
-        lunch: [],
-        dinner: [],
-        snack: [],
+        BREAKFAST: [],
+        LUNCH: [],
+        DINNER: [],
+        SNACK: [],
       }
     }
     acc[date][item.mealTime].push(item)

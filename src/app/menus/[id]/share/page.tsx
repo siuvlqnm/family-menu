@@ -36,7 +36,7 @@ import { MenuSharesList } from '@/components/menus/menu-shares-list'
 import { Copy, Link2 } from 'lucide-react'
 
 const shareFormSchema = z.object({
-  shareType: z.enum(['link', 'token']),
+  shareType: z.enum(['LINK', 'TOKEN']),
   expiresAt: z.string().optional(),
   allowEdit: z.boolean(),
 })
@@ -61,7 +61,7 @@ export default function ShareMenuPage({ params }: { params: { id: string } }) {
   const form = useForm<ShareFormValues>({
     resolver: zodResolver(shareFormSchema),
     defaultValues: {
-      shareType: 'link',
+      shareType: 'LINK',
       expiresAt: format(addDays(new Date(), 7), 'yyyy-MM-dd'),
       allowEdit: true,
     },
@@ -199,8 +199,8 @@ export default function ShareMenuPage({ params }: { params: { id: string } }) {
                             </SelectTrigger>
                           </FormControl>
                           <SelectContent>
-                            <SelectItem value="link">公开链接</SelectItem>
-                            <SelectItem value="token">访问令牌</SelectItem>
+                            <SelectItem value="LINK">公开链接</SelectItem>
+                            <SelectItem value="TOKEN">访问令牌</SelectItem>
                           </SelectContent>
                         </Select>
                         <FormMessage />

@@ -132,7 +132,7 @@ menu.delete(
 
 // 创建菜单分享
 menu.post(
-  '/:id/share',
+  '/:id/shares',
   zValidator('json', createMenuShareSchema),
   async (c) => {
     const menuId = c.req.param('id');
@@ -149,7 +149,7 @@ menu.post(
 
 // 获取菜单分享列表
 menu.get(
-  '/:id/share',
+  '/:id/shares',
   async (c) => {
     const menuId = c.req.param('id');
     const user = await getCurrentUser(c);
