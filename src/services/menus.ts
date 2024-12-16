@@ -7,7 +7,8 @@ import {
   AddMenuItemInput,
   UpdateMenuItemInput,
   CreateMenuShareInput,
-  MenuFilters
+  MenuFilters,
+  MealTime
 } from '@/types/menus';
 import { apiClient } from '@/lib/api-client';
 
@@ -119,20 +120,15 @@ export const menusApi = {
       note?: string
     }
   }): Promise<MenuItem> {
-    const response = await fetch(`${apiClient.defaults.baseURL}/api/menus/${menuId}/items`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        ...(token ? { 'X-Share-Token': token } : {}),
-      },
-      body: JSON.stringify(data),
-    })
-
-    if (!response.ok) {
-      throw new Error('Failed to create menu item')
+    const headers: Record<string, string> = {}
+    if (token) {
+      headers['X-Share-Token'] = token
     }
-
-    return response.json()
+    return await apiClient.post<MenuItem>(
+      `/menus/${menuId}/items`, 
+      data,
+      { headers }
+    )
   },
 };
 

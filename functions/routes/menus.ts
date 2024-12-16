@@ -121,7 +121,7 @@ menu.get(
     const db = createDb(c.env.DB);
     const menuService = new MenuService(db);
     
-    let user: AuthUser;
+    let user;
     if (token) {
       // 验证分享token
       const share = await menuService.validateShareToken(menuId, token);

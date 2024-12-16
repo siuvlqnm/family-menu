@@ -6,7 +6,7 @@ import {
   updateFamilyGroupSchema,
   updateMemberRoleSchema,
 } from '../types/family';
-import { FamilyService } from '../services/family';
+import { FamilyService } from '../services/family.ts.dev';
 import { createDb } from '../db';
 import { getCurrentUser } from '../middleware/auth';
 import { Bindings } from '../config';

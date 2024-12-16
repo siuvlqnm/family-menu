@@ -32,7 +32,7 @@
     ".next/types/**/*.ts",
     "**/*.ts",
     "**/*.tsx"
-  ],
+, "functions/services/family.ts.dev"  ],
   "exclude": [
     "node_modules"
   ]
