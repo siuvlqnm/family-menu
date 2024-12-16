@@ -93,15 +93,65 @@ export const menusApi = {
     return await apiClient.post<MenuShare>(`/menus/${menuId}/shares`, data);
   },
 
-  // /api/menus/sPB1tPShRLTLXODD/shared
-
   // 获取分享的菜单
   async getSharedMenu(shareId: string, token: string): Promise<Menu> {
-    return await apiClient.get<Menu>(`/menus/share/${shareId}?token=${token}`);
+    return await apiClient.get<Menu>(`/menus/${shareId}/shared?token=${token}`);
   },
 
   // 删除分享记录
   async deleteMenuShare(menuId: string, shareId: string): Promise<void> {
     return await apiClient.delete(`/menus/${menuId}/shares/${shareId}`);
   },
+
+  // 访客添加菜品
+  async createMenuItem({
+    menuId,
+    token,
+    data,
+  }: {
+    menuId: string
+    token?: string
+    data: {
+      recipeId: string
+      date: string
+      mealTime: keyof typeof MealTime
+      servings?: number
+      note?: string
+    }
+  }): Promise<MenuItem> {
+    const response = await fetch(`${apiClient.defaults.baseURL}/api/menus/${menuId}/items`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        ...(token ? { 'X-Share-Token': token } : {}),
+      },
+      body: JSON.stringify(data),
+    })
+
+    if (!response.ok) {
+      throw new Error('Failed to create menu item')
+    }
+
+    return response.json()
+  },
 };
+
+// 导出所有函数
+export const {
+  getMenus,
+  getMenu,
+  createMenu,
+  updateMenu,
+  deleteMenu,
+  getMenuItems,
+  getMenuItem,
+  addMenuItem,
+  updateMenuItem,
+  deleteMenuItem,
+  reorderMenuItems,
+  getMenuShares,
+  createMenuShare,
+  getSharedMenu,
+  deleteMenuShare,
+  createMenuItem,
+} = menusApi;

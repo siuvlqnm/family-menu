@@ -86,9 +86,22 @@ menu.post(
   async (c) => {
     const menuId = c.req.param('id');
     const input = c.req.valid('json');
-    const user = await getCurrentUser(c);
+    const token = c.req.header('X-Share-Token');
     const db = createDb(c.env.DB);
     const menuService = new MenuService(db);
+    
+    let user;
+    if (token) {
+      // 验证分享token
+      const share = await menuService.validateShareToken(menuId, token);
+      if (!share || !share.allowEdit) {
+        return c.json({ error: '无效的分享链接或无编辑权限' }, 403);
+      }
+      user = { id: share.userId };
+    } else {
+      // 验证用户登录
+      user = await getCurrentUser(c);
+    }
     
     const menuItem = await menuService.addMenuItem(menuId, input, user);
     
@@ -179,7 +192,7 @@ menu.delete(
 
 // 获取分享的菜单（公开访问）
 menu.get(
-  '/share/:shareId',
+  '/:shareId/shared',
   async (c) => {
     const shareId = c.req.param('shareId');
     const token = c.req.query('token');  // 可选的访问令牌

@@ -14,6 +14,15 @@ import { LoadingSpinner } from '@/components/ui/loading'
 import { Input } from '@/components/ui/input'
 import { Plus, Edit2, Save, X } from 'lucide-react'
 import Image from 'next/image'
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog"
+import { AddMenuItems } from '@/components/menus/add-menu-items'
 
 function MenuTypeBadge({ type }: { type: keyof typeof MenuType }) {
   switch (type) {
@@ -51,12 +60,13 @@ export default function SharedMenuPage() {
 
   const router = useRouter()
   const searchParams = useSearchParams()
-  const { menu, loading, error, fetchSharedMenu, updateMenuItem } = useMenuStore()
+  const { menu, loading, error, fetchSharedMenu, updateMenuItem, createMenuItem } = useMenuStore()
   const [editingItem, setEditingItem] = useState<string | null>(null)
   const [editingValues, setEditingValues] = useState<{
     servings?: number
     note?: string
   }>({})
+  const [showAddItems, setShowAddItems] = useState(false)
   const token = searchParams.get('token')
 
   useEffect(() => {
@@ -136,7 +146,33 @@ export default function SharedMenuPage() {
       <PageHeader
         title={menu.name}
         description={menu.description}
+        actions={[
+          {
+            label: '添加菜品',
+            icon: Plus,
+            onClick: () => setShowAddItems(true),
+          },
+        ]}
       />
+
+      <Dialog open={showAddItems} onOpenChange={setShowAddItems}>
+        <DialogContent className="max-w-5xl">
+          <DialogHeader>
+            <DialogTitle>添加菜品</DialogTitle>
+            <DialogDescription>
+              选择要添加到菜单的菜品
+            </DialogDescription>
+          </DialogHeader>
+          <AddMenuItems
+            menuId={menu.id}
+            token={token || ''}
+            onSuccess={() => {
+              setShowAddItems(false)
+              fetchSharedMenu(id, token || '')
+            }}
+          />
+        </DialogContent>
+      </Dialog>
 
       <div className="grid gap-6 md:grid-cols-[2fr,3fr]">
         {/* 左侧：菜单信息 */}

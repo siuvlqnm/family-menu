@@ -55,7 +55,7 @@ export function MenuSharesList({ shares, onDelete }: MenuSharesListProps) {
 
   const getShareUrl = (share: MenuShare) => {
     const baseUrl = window.location.origin
-    return share.shareType === 'link'
+    return share.shareType === 'LINK'
       ? `${baseUrl}/shared/menus/${share.id}`
       : `${baseUrl}/shared/menus/${share.id}?token=${share.token}`
   }
@@ -83,12 +83,12 @@ export function MenuSharesList({ shares, onDelete }: MenuSharesListProps) {
             <TableRow key={share.id}>
               <TableCell>
                 <div className="flex items-center">
-                  {share.shareType === 'link' ? (
+                  {share.shareType === 'LINK' ? (
                     <Link2 className="mr-2 h-4 w-4" />
                   ) : (
                     <Key className="mr-2 h-4 w-4" />
                   )}
-                  {share.shareType === 'link' ? '公开链接' : '访问令牌'}
+                  {share.shareType === 'LINK' ? '公开链接' : '访问令牌'}
                 </div>
               </TableCell>
               <TableCell>
