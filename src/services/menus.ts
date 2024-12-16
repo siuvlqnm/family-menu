@@ -93,6 +93,13 @@ export const menusApi = {
     return await apiClient.post<MenuShare>(`/menus/${menuId}/shares`, data);
   },
 
+  // /api/menus/sPB1tPShRLTLXODD/shared
+
+  // 获取分享的菜单
+  async getSharedMenu(shareId: string, token: string): Promise<Menu> {
+    return await apiClient.get<Menu>(`/menus/share/${shareId}?token=${token}`);
+  },
+
   // 删除分享记录
   async deleteMenuShare(menuId: string, shareId: string): Promise<void> {
     return await apiClient.delete(`/menus/${menuId}/shares/${shareId}`);

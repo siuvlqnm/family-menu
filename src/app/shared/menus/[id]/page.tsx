@@ -60,8 +60,10 @@ export default function SharedMenuPage() {
   const token = searchParams.get('token')
 
   useEffect(() => {
-    fetchSharedMenu(id, token || undefined)
-  }, [fetchSharedMenu, id, token])
+    if (id && token) {
+      fetchSharedMenu(id, token)
+    }
+  }, [id, token, fetchSharedMenu])
 
   const handleEditStart = (itemId: string, servings?: number, note?: string) => {
     setEditingItem(itemId)
