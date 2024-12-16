@@ -61,7 +61,7 @@ export interface MenuShare {
   id: string
   menuId: string
   userId: string // 新增用户ID字段
-  shareType: 'link' | 'token'
+  shareType: 'LINK' | 'TOKEN'
   token?: string
   expiresAt?: string
   allowEdit: boolean // 新增允许编辑字段

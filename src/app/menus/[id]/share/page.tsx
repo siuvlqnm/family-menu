@@ -1,7 +1,7 @@
 'use client'
 
 import { useEffect, useState } from 'react'
-import { useRouter } from 'next/navigation'
+import { useRouter, useParams } from 'next/navigation'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
@@ -43,7 +43,10 @@ const shareFormSchema = z.object({
 
 type ShareFormValues = z.infer<typeof shareFormSchema>
 
-export default function ShareMenuPage({ params }: { params: { id: string } }) {
+export default function ShareMenuPage() {
+  const params = useParams() as { id: string }
+  const { id } = params
+
   const router = useRouter()
   const { checkAuth } = useAuthStore()
   const {
@@ -70,18 +73,18 @@ export default function ShareMenuPage({ params }: { params: { id: string } }) {
   useEffect(() => {
     const isAuthed = checkAuth()
     if (!isAuthed) {
-      router.replace('/login?from=/menus/' + params.id + '/share')
+      router.replace('/login?from=/menus/' + id + '/share')
       return
     }
-    fetchMenu(params.id)
-    fetchMenuShares(params.id)
-  }, [checkAuth, fetchMenu, fetchMenuShares, params.id, router])
+    fetchMenu(id)
+    fetchMenuShares(id)
+  }, [checkAuth, fetchMenu, fetchMenuShares, id, router])
 
   const onSubmit = async (values: ShareFormValues) => {
     try {
-      const share = await createMenuShare(params.id, values)
+      const share = await createMenuShare(id, values)
       const baseUrl = window.location.origin
-      const shareUrl = share.shareType === 'link'
+      const shareUrl = share.shareType === 'LINK'
         ? `${baseUrl}/shared/menus/${share.id}`
         : `${baseUrl}/shared/menus/${share.id}?token=${share.token}`
       setShareUrl(shareUrl)
@@ -90,7 +93,7 @@ export default function ShareMenuPage({ params }: { params: { id: string } }) {
         description: '您可以复制链接分享给他人',
       })
       // 刷新分享列表
-      fetchMenuShares(params.id)
+      fetchMenuShares(id)
     } catch (error) {
       console.error('Failed to create share:', error)
       toast({
@@ -103,13 +106,13 @@ export default function ShareMenuPage({ params }: { params: { id: string } }) {
 
   const handleDeleteShare = async (shareId: string) => {
     try {
-      await deleteMenuShare(params.id, shareId)
+      await deleteMenuShare(id, shareId)
       toast({
         title: '删除成功',
         description: '分享已删除',
       })
       // 刷新分享列表
-      fetchMenuShares(params.id)
+      fetchMenuShares(id)
     } catch (error) {
       console.error('Failed to delete share:', error)
       toast({
