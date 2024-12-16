@@ -120,15 +120,15 @@ export interface MenuItem {
   recipeId: string;
   date: Date;
   mealTime: keyof typeof MealTime;
-  servings?: number;
+  servings: number | null;
   orderIndex: number;
-  note?: string;
+  note: string | null;
   createdAt: Date;
   updatedAt: Date;
   recipe: {
     id: string;
     name: string;
-    description: string;
+    description: string | null;
     category: string;
     difficulty: string;
   };
@@ -143,8 +143,8 @@ export interface MenuShare {
   id: string;
   menuId: string;
   shareType: keyof typeof MenuShareType;
-  token?: string;  // 一次性访问令牌
-  expiresAt?: Date;
+  token: string | null;  // 一次性访问令牌
+  expiresAt: Date | null;
   createdAt: Date;
   createdBy: string;
 }

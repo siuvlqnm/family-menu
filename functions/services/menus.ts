@@ -6,6 +6,7 @@ import {
   CreateMenuInput,
   CreateMenuShareInput,
   Menu,
+  MenuItem,
   MenuQueryInput,
   MenuShare,
   MenuStatus,
@@ -108,7 +109,7 @@ export class MenuService {
     const [updatedMenu] = await this.db.update(menus)
       .set({
         ...input,
-        updatedAt: new Date(),
+        // updatedAt: new Date()
       })
       .where(eq(menus.id, id))
       .returning();
@@ -239,6 +240,7 @@ export class MenuService {
       recipeId: input.recipeId,
       date: input.date,
       mealTime: input.mealTime,
+      servings: input.servings,
       note: input.note,
     }).returning();
 
@@ -298,7 +300,7 @@ export class MenuService {
       ...updatedMenuItem,
       recipe: {
         id: menuItem.recipe.id,
-        title: menuItem.recipe.title,
+        name: menuItem.recipe.name,
         description: menuItem.recipe.description,
         category: menuItem.recipe.category,
         difficulty: menuItem.recipe.difficulty,
@@ -391,7 +393,7 @@ export class MenuService {
       id: nanoid(),
       menuId,
       shareType: input.shareType,
-      token: input.shareType === 'token' ? nanoid(32) : null,
+      token: input.shareType === 'TOKEN' ? nanoid(32) : null,
       expiresAt: input.expiresAt,
       createdBy: user.id,
     }).returning();
@@ -437,7 +439,7 @@ export class MenuService {
     }
 
     // 如果是token类型，验证token
-    if (share.shareType === 'token') {
+    if (share.shareType === 'TOKEN') {
       if (!token || token !== share.token) {
         throw new HTTPException(403, { message: 'Invalid token' });
       }

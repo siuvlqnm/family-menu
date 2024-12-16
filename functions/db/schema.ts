@@ -154,7 +154,7 @@ export const menuItems = sqliteTable('menu_items', {
   mealTime: text('meal_time', {
     enum: ['BREAKFAST', 'LUNCH', 'DINNER', 'SNACK'],
   }).notNull(),
-  servings: integer('servings'),
+  servings: integer('servings').default(1),
   orderIndex: integer('order_index').notNull().default(0),
   note: text('note'),
   createdAt: integer('created_at', { mode: 'timestamp' })
