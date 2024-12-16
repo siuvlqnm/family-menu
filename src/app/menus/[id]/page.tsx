@@ -135,7 +135,19 @@ export default function MenuDetailPage() {
           {
             label: '添加菜品',
             icon: Plus,
-            onClick: () => router.push(`/menus/${menu.id}/items/new`),
+            onClick: () => {
+              // 获取当前日期最后一个菜品的用餐时间
+              const lastDate = sortedDates[sortedDates.length - 1]
+              let lastMealTime = 'DINNER'
+              if (lastDate) {
+                const meals = menuItemsByDate[lastDate]
+                if (meals.DINNER.length > 0) lastMealTime = 'DINNER'
+                else if (meals.LUNCH.length > 0) lastMealTime = 'LUNCH'
+                else if (meals.BREAKFAST.length > 0) lastMealTime = 'BREAKFAST'
+                else if (meals.SNACK.length > 0) lastMealTime = 'SNACK'
+              }
+              router.push(`/menus/${menu.id}/items/new?mealTime=${lastMealTime}`)
+            },
           },
           {
             label: '分享',

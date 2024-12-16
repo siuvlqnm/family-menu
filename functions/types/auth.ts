@@ -19,6 +19,7 @@ export type LoginInput = z.infer<typeof loginSchema>;
 
 export interface AuthUser {
   id: string;
-  userName: string;
-  name: string;
+  userName?: string;
+  name?: string;
+  isGuest?: boolean;
 }

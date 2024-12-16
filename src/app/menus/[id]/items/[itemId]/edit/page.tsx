@@ -1,7 +1,7 @@
 'use client'
 
 import { useEffect } from 'react'
-import { useRouter } from 'next/navigation'
+import { useRouter, useParams } from 'next/navigation'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
@@ -55,11 +55,10 @@ const menuItemFormSchema = z.object({
 
 type MenuItemFormValues = z.infer<typeof menuItemFormSchema>
 
-export default function EditMenuItemPage({
-  params,
-}: {
-  params: { id: string; itemId: string }
-}) {
+export default function EditMenuItemPage() {
+  const params = useParams() as { id: string, itemId: string }
+  const { id, itemId } = params
+
   const router = useRouter()
   const { checkAuth } = useAuthStore()
   const { menu, menuItem, loading, error, fetchMenu, fetchMenuItem, updateMenuItem, deleteMenuItem } =
@@ -77,14 +76,14 @@ export default function EditMenuItemPage({
     const isAuthed = checkAuth()
     if (!isAuthed) {
       router.replace(
-        '/login?from=/menus/' + params.id + '/items/' + params.itemId + '/edit'
+        '/login?from=/menus/' + id + '/items/' + itemId + '/edit'
       )
       return
     }
-    fetchMenu(params.id)
-    fetchMenuItem(params.id, params.itemId)
+    fetchMenu(id)
+    fetchMenuItem(id, itemId)
     fetchRecipes()
-  }, [checkAuth, fetchMenu, fetchMenuItem, fetchRecipes, params.id, params.itemId, router])
+  }, [checkAuth, fetchMenu, fetchMenuItem, fetchRecipes, id, itemId, router])
 
   useEffect(() => {
     if (menuItem) {
@@ -100,8 +99,8 @@ export default function EditMenuItemPage({
 
   const onSubmit = async (values: MenuItemFormValues) => {
     try {
-      await updateMenuItem(params.id, params.itemId, values)
-      router.push(`/menus/${params.id}`)
+      await updateMenuItem(id, itemId, values)
+      router.push(`/menus/${id}`)
     } catch (error) {
       console.error('Failed to update menu item:', error)
     }
@@ -109,8 +108,8 @@ export default function EditMenuItemPage({
 
   const handleDelete = async () => {
     try {
-      await deleteMenuItem(params.id, params.itemId)
-      router.push(`/menus/${params.id}`)
+      await deleteMenuItem(id, itemId)
+      router.push(`/menus/${id}`)
     } catch (error) {
       console.error('Failed to delete menu item:', error)
     }

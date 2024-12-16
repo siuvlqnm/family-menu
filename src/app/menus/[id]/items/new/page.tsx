@@ -10,7 +10,9 @@ import { AddMenuItems } from '@/components/menus/add-menu-items'
 
 export default function NewMenuItemPage() {
   const params = useParams() as { id: string }
+  const searchParams = useSearchParams()
   const { id } = params
+  const mealTime = searchParams.get('mealTime')
   const router = useRouter()
   const { checkAuth } = useAuthStore()
   const { menu, loading, error, fetchMenu } = useMenuStore()
@@ -61,6 +63,7 @@ export default function NewMenuItemPage() {
 
       <AddMenuItems
         menuId={menu.id}
+        initialMealTime={mealTime as any}
         onSuccess={() => router.push(`/menus/${menu.id}`)}
       />
     </div>

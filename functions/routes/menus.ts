@@ -97,7 +97,10 @@ menu.post(
       if (!share || !share.allowEdit) {
         return c.json({ error: '无效的分享链接或无编辑权限' }, 403);
       }
-      user = { id: share.userId };
+      user = { 
+        id: share.createdBy,
+        isGuest: true,
+      };
     } else {
       // 验证用户登录
       user = await getCurrentUser(c);
@@ -106,6 +109,36 @@ menu.post(
     const menuItem = await menuService.addMenuItem(menuId, input, user);
     
     return c.json(menuItem, 201);
+  }
+);
+
+// 获取菜单项列表
+menu.get(
+  '/:id/items',
+  async (c) => {
+    const menuId = c.req.param('id');
+    const token = c.req.header('X-Share-Token');
+    const db = createDb(c.env.DB);
+    const menuService = new MenuService(db);
+    
+    let user: AuthUser;
+    if (token) {
+      // 验证分享token
+      const share = await menuService.validateShareToken(menuId, token);
+      if (!share) {
+        return c.json({ error: '无效的分享链接' }, 403);
+      }
+      user = { 
+        id: share.createdBy,
+        isGuest: true,
+      };
+    } else {
+      // 验证用户登录
+      user = await getCurrentUser(c);
+    }
+    
+    const items = await menuService.getMenuItems(menuId, user);
+    return c.json(items);
   }
 );
 

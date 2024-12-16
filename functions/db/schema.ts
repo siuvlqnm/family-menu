@@ -173,6 +173,7 @@ export const menuShares = sqliteTable('menu_shares', {
     .references(() => menus.id, { onDelete: 'cascade' }),
   shareType: text('share_type', { enum: ['LINK', 'TOKEN'] }).notNull(),
   token: text('token').unique(),
+  allowEdit: integer('allow_edit', { mode: 'boolean' }).notNull().default(false),
   expiresAt: integer('expires_at', { mode: 'timestamp' }),
   createdAt: integer('created_at', { mode: 'timestamp' })
     .notNull()
