@@ -14,7 +14,7 @@ const app = new Hono();
 
 // 全局中间件
 app.use('*', cors({
-  origin: ['http://localhost:3000'],
+  origin: ['http://localhost:3000', 'https://family-menu.pages.dev'],
   credentials: true,
   allowMethods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
   allowHeaders: ['Content-Type', 'Authorization'],
