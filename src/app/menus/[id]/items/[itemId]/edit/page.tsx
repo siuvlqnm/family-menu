@@ -45,6 +45,8 @@ import {
 } from '@/components/ui/alert-dialog'
 import { Trash } from 'lucide-react'
 
+export const runtime = 'edge';
+
 const menuItemFormSchema = z.object({
   recipeId: z.string().min(1, '请选择菜品'),
   date: z.string(),

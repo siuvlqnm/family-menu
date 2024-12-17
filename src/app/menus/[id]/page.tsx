@@ -16,6 +16,8 @@ import { MenuItemsList } from '@/components/menus/menu-items-list'
 import { Share2, Edit, Plus } from 'lucide-react'
 import Image from 'next/image'
 
+export const runtime = 'edge';
+
 function MenuStatusBadge({ status }: { status: keyof typeof MenuStatus }) {
   switch (status) {
     case "DRAFT":
