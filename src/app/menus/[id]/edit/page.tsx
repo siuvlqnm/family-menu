@@ -9,6 +9,8 @@ import { PageHeader } from '@/components/ui/page-header'
 import { toast } from '@/components/ui/use-toast'
 import { LoadingSpinner } from '@/components/ui/loading'
 
+export const runtime = 'edge';
+
 export default function EditMenuPage() {
   const params = useParams() as { id: string }
   const { id } = params

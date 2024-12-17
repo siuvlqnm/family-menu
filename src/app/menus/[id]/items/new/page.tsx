@@ -8,6 +8,8 @@ import { PageHeader } from '@/components/ui/page-header'
 import { LoadingSpinner } from '@/components/ui/loading'
 import { AddMenuItems } from '@/components/menus/add-menu-items'
 
+export const runtime = 'edge';
+
 export default function NewMenuItemPage() {
   const params = useParams() as { id: string }
   const searchParams = useSearchParams()

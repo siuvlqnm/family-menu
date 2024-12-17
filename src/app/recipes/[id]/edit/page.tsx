@@ -7,6 +7,8 @@ import { useRouter } from "next/navigation"
 import { useEffect } from "react"
 import { useRecipeStore } from "@/stores/recipes-store"
 
+export const runtime = 'edge';
+
 const EditRecipePage = () => {
   const params = useParams() as { id: string }
   const { id } = params

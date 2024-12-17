@@ -14,6 +14,8 @@ import { RecipeSteps } from "@/components/recipes/recipe-steps"
 import { RecipeTags } from "@/components/recipes/recipe-tags"
 import { RecipeDetailCard } from "@/components/recipes/recipe-detail-card"
 
+export const runtime = 'edge';
+
 const RecipeDetailPage = () => {
   const params = useParams() as { id: string }
   const { id } = params

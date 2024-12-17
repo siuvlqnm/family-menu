@@ -24,6 +24,8 @@ import {
 } from "@/components/ui/dialog"
 import { AddMenuItems } from '@/components/menus/add-menu-items'
 
+export const runtime = 'edge';
+
 function MenuTypeBadge({ type }: { type: keyof typeof MenuType }) {
   switch (type) {
     case "DAILY":

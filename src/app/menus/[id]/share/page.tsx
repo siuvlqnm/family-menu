@@ -35,6 +35,8 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { MenuSharesList } from '@/components/menus/menu-shares-list'
 import { Copy, Link2 } from 'lucide-react'
 
+export const runtime = 'edge';
+
 const shareFormSchema = z.object({
   shareType: z.enum(['LINK', 'TOKEN']),
   expiresAt: z.string().optional(),
