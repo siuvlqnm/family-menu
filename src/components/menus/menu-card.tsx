@@ -4,7 +4,7 @@ import { Menu } from '@/types/menus'
 import { format } from 'date-fns'
 import { zhCN } from 'date-fns/locale'
 import { MenuType, MenuStatus } from '@/types/menus'
-import { Users, Calendar, Tag, Eye, Edit, Trash2 } from 'lucide-react'
+import { Users, Calendar, Tag } from 'lucide-react'
 import { ContentCard } from '@/components/ui/content-card'
 
 interface MenuCardProps {

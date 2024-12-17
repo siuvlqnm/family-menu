@@ -3,7 +3,6 @@
 import { MenuFilters as MenuFiltersType } from '@/types/menus'
 import { MenuType, MenuStatus, MealTime } from '@/types/menus'
 import { FilterPanel, FilterOption } from '@/components/ui/filter-panel'
-import { cn } from '@/lib/utils'
 
 interface MenuFiltersProps {
   filters: MenuFiltersType

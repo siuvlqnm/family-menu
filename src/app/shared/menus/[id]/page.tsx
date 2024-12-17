@@ -5,7 +5,7 @@ import { useRouter, useSearchParams, useParams } from 'next/navigation'
 import { format } from 'date-fns'
 import { zhCN } from 'date-fns/locale'
 import { useMenuStore } from '@/stores/menus-store'
-import { MenuType, MenuStatus, MealTime } from '@/types/menus'
+import { MenuType, MealTime } from '@/types/menus'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { Separator } from '@/components/ui/separator'
@@ -20,7 +20,6 @@ import {
   DialogDescription,
   DialogHeader,
   DialogTitle,
-  DialogTrigger,
 } from "@/components/ui/dialog"
 import { AddMenuItems } from '@/components/menus/add-menu-items'
 

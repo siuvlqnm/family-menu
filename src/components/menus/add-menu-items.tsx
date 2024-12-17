@@ -18,7 +18,6 @@ import {
   FormMessage,
 } from '@/components/ui/form'
 import { Input } from '@/components/ui/input'
-import { Textarea } from '@/components/ui/textarea'
 import {
   Select,
   SelectContent,
@@ -33,7 +32,6 @@ import { Checkbox } from '@/components/ui/checkbox'
 import { ScrollArea, ScrollBar } from '@/components/ui/scroll-area'
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog'
 import { RecipeDetailCard } from '@/components/recipes/recipe-detail-card'
-import Image from 'next/image'
 import { Clock, Users, Utensils, ChefHat, ListOrdered } from 'lucide-react'
 import { createMenuItem, getMenuItems, deleteMenuItem } from '@/services/menus'
 import { toast } from '@/components/ui/use-toast'

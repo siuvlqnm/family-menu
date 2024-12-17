@@ -24,7 +24,6 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from '@/components/ui/alert-dialog'
-import { Input } from '@/components/ui/input'
 import { toast } from '@/components/ui/use-toast'
 import { Copy, Link2, Key, Trash2 } from 'lucide-react'
 
