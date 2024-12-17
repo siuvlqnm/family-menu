@@ -1,6 +1,7 @@
 import { Hono } from 'hono';
 import { cors } from 'hono/cors';
 import { HTTPException } from 'hono/http-exception';
+import { handle } from 'hono/cloudflare-pages'
 import { authRouter } from './routes/auth';
 // import { familyRouter } from './routes/family';
 import { menuRouter } from './routes/menus';
@@ -23,21 +24,22 @@ app.use('*', cors({
 app.use('*', errorHandler());
 
 // 健康检查
-app.get('/api/', (c) => c.text('OK'));
+app.get('/', (c) => c.text('OK'));
 
 // 认证路由
-app.route('/api/auth', authRouter);
+app.route('/auth', authRouter);
 
 // 需要认证的路由
 const protectedRoutes = app.use('*', authMiddleware);
-// protectedRoutes.route('/api/family', familyRouter);
-protectedRoutes.route('/api/menus', menuRouter);
-protectedRoutes.route('/api/recipes', recipeRouter);
-// protectedRoutes.route('/api/recipe-share', recipeShareRouter);
+// protectedRoutes.route('/family', familyRouter);
+protectedRoutes.route('/menus', menuRouter);
+protectedRoutes.route('/recipes', recipeRouter);
+// protectedRoutes.route('/recipe-share', recipeShareRouter);
 
 // 404 处理
 app.notFound((c) => {
   throw new HTTPException(404, { message: 'Not Found' });
 });
 
-export default app;
+// 导出 Cloudflare Pages Functions 处理函数
+export const onRequest = handle(app)
