@@ -1,6 +1,23 @@
 name = "family-menu"
-compatibility_date = "2024-10-30"
+compatibility_date = "2023-12-01"
 pages_build_output_dir = ".next"
+
+[build]
+command = "npm run build"
+output_directory = ".next/standalone"
+
+[build.upload]
+format = "service-worker"
+
+[site]
+bucket = ".next/static"
+entry-point = "app"
+
+[env.production]
+name = "family-menu-prod"
+
+[env.staging]
+name = "family-menu-staging"
 
 [placement]
 mode = "smart"
