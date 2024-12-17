@@ -36,6 +36,11 @@ export function DataList<T, F>({
   filterData,
   sortData,
 }: DataListProps<T, F>) {
+  if (!Array.isArray(data)) {
+    console.error('DataList: data prop must be an array', data);
+    return null;
+  }
+
   if (loading) {
     return <DataTableLoading columnCount={3} rowCount={3} />
   }

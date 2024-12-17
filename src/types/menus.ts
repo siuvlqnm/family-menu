@@ -31,7 +31,7 @@ export interface Menu {
   startDate: string
   endDate: string
   status: keyof typeof MenuStatus
-  familyGroupId?: string
+  familyGroupId: string
   familyGroupName?: string
   createdBy: string
   createdAt: string
@@ -93,7 +93,7 @@ export interface CreateMenuInput {
   startDate: string
   endDate: string
   familyGroupId?: string
-  userId: string // 新增用户ID字段
+  // userId: string // 新增用户ID字段
 }
 
 // 更新菜单的输入
@@ -128,7 +128,7 @@ export interface UpdateMenuItemInput {
 
 // 创建菜单分享的输入
 export interface CreateMenuShareInput {
-  shareType: 'link' | 'token'
+  shareType: 'LINK' | 'TOKEN'
   expiresAt?: string
   allowEdit: boolean // 新增允许编辑字段
 }

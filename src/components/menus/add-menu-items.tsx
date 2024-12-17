@@ -288,7 +288,7 @@ export function AddMenuItems({
                   selectedRecipes.includes(recipe.id) ? 'ring-2 ring-primary' : ''
                 }`}
               >
-                {recipe.coverImage && (
+                {/* {recipe.coverImage && (
                   <div 
                     className="relative aspect-video overflow-hidden rounded-t-lg"
                     onClick={() => setViewingRecipe(recipe)}
@@ -300,7 +300,7 @@ export function AddMenuItems({
                       className="object-cover"
                     />
                   </div>
-                )}
+                )} */}
                 <CardHeader className="space-y-2">
                   <div className="flex items-start justify-between">
                     <CardTitle 
@@ -501,7 +501,7 @@ export function AddMenuItems({
                 <DialogTitle>{viewingRecipe.name}</DialogTitle>
               </DialogHeader>
               <div className="grid gap-6">
-                {viewingRecipe.coverImage && (
+                {/* {viewingRecipe.coverImage && (
                   <div className="relative aspect-video overflow-hidden rounded-lg">
                     <Image
                       src={viewingRecipe.coverImage}
@@ -510,7 +510,7 @@ export function AddMenuItems({
                       className="object-cover"
                     />
                   </div>
-                )}
+                )} */}
                 <div className="flex flex-wrap gap-4">
                   <RecipeDetailCard
                     icon={<Clock className="h-5 w-5" />}

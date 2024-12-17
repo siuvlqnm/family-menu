@@ -2,10 +2,10 @@ import { NextResponse } from 'next/server'
 import type { NextRequest } from 'next/server'
 
 // 需要保护的路由
-const protectedRoutes = [];
+const protectedRoutes: string[] = [];
 // const protectedRoutes = ['/dashboard', '/recipes', '/menu', '/shopping'];
 // 认证路由（已登录时不能访问）
-const authRoutes = ['/login', '/register'];
+const authRoutes: string[] = ['/login', '/register'];
 
 export function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl

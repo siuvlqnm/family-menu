@@ -1,10 +1,11 @@
 import { create } from 'zustand'
-import { Menu, MenuItem, MenuShare, MenuFilters, MenuWithItems } from '@/types/menus'
+import { Menu, MenuItem, MenuShare, MenuFilters, MenuWithItems, CreateMenuInput, AddMenuItemInput, CreateMenuShareInput } from '@/types/menus'
 import { menusApi } from '@/services/menus'
 
 interface MenusState {
   menus: Menu[]
   menu: MenuWithItems | null
+  menuItem: MenuItem | null
   menuItems: MenuItem[]
   menuShares: MenuShare[]
   loading: boolean
@@ -17,23 +18,25 @@ interface MenusState {
   fetchMenuItem: (menuId: string, itemId: string) => Promise<MenuItem>
   fetchMenuItems: (menuId: string) => Promise<void>
   fetchMenuShares: (menuId: string) => Promise<void>
-  createMenu: (data: Partial<Menu>) => Promise<Menu>
+  createMenu: (data: CreateMenuInput) => Promise<Menu>
   updateMenu: (id: string, data: Partial<Menu>) => Promise<Menu>
   deleteMenu: (id: string) => Promise<void>
-  createMenuItem: (menuId: string, data: Partial<MenuItem>) => Promise<MenuItem>
+  createMenuItem: (menuId: string, data: AddMenuItemInput) => Promise<MenuItem>
   updateMenuItem: (menuId: string, itemId: string, data: Partial<MenuItem>) => Promise<MenuItem>
   deleteMenuItem: (menuId: string, itemId: string) => Promise<void>
-  createMenuShare: (menuId: string, data: Partial<MenuShare>) => Promise<MenuShare>
+  createMenuShare: (menuId: string, data: CreateMenuShareInput) => Promise<MenuShare>
   deleteMenuShare: (menuId: string, shareId: string) => Promise<void>
   reorderMenuItems: (menuId: string, itemIds: string[]) => Promise<void>
   setFilters: (filters: MenuFilters) => void
   resetFilters: () => void
   clearMenu: () => void
+  setMenuItem: (menuItem: MenuItem | null) => void
 }
 
 export const useMenuStore = create<MenusState>((set, get) => ({
   menus: [],
   menu: null,
+  menuItem: null,
   menuItems: [],
   menuShares: [],
   loading: false,
@@ -43,12 +46,13 @@ export const useMenuStore = create<MenusState>((set, get) => ({
   fetchMenus: async () => {
     set({ loading: true, error: null })
     try {
-      const response = await menusApi.getMenus(get().filters)
-      set({ menus: response.menus, loading: false })
+      const menus = await menusApi.getMenus(get().filters)
+      set({ menus: Array.isArray(menus) ? menus : [], loading: false })
     } catch (error) {
       set({
         error: error instanceof Error ? error.message : '获取菜单列表失败',
         loading: false,
+        menus: []
       })
     }
   },
@@ -57,7 +61,7 @@ export const useMenuStore = create<MenusState>((set, get) => ({
     set({ loading: true, error: null })
     try {
       const menu = await menusApi.getMenu(id)
-      set({ menu, loading: false })
+      set({ menu: { ...menu, items: [] }, loading: false })
     } catch (error) {
       set({
         error: error instanceof Error ? error.message : '获取菜单详情失败',
@@ -70,7 +74,7 @@ export const useMenuStore = create<MenusState>((set, get) => ({
     set({ loading: true, error: null })
     try {
       const menu = await menusApi.getSharedMenu(id, token)
-      set({ menu, loading: false })
+      set({ menu: { ...menu, items: [] }, loading: false })
     } catch (error) {
       set({
         error: error instanceof Error ? error.message : '获取分享菜单失败',
@@ -113,7 +117,7 @@ export const useMenuStore = create<MenusState>((set, get) => ({
     }
   },
 
-  createMenu: async (data: Partial<Menu>) => {
+  createMenu: async (data: CreateMenuInput) => {
     try {
       const menu = await menusApi.createMenu(data)
       set((state) => ({ menus: [...state.menus, menu] }))
@@ -128,7 +132,7 @@ export const useMenuStore = create<MenusState>((set, get) => ({
       const menu = await menusApi.updateMenu(id, data)
       set((state) => ({
         menus: state.menus.map((m) => (m.id === id ? menu : m)),
-        menu: state.menu?.id === id ? menu : state.menu,
+        menu: state.menu?.id === id ? { ...menu, items: state.menu.items } : state.menu,
       }))
       return menu
     } catch (error) {
@@ -148,7 +152,7 @@ export const useMenuStore = create<MenusState>((set, get) => ({
     }
   },
 
-  createMenuItem: async (menuId: string, data: Partial<MenuItem>) => {
+  createMenuItem: async (menuId: string, data: AddMenuItemInput) => {
     try {
       const menuItem = await menusApi.addMenuItem(menuId, data)
       set((state) => ({ menuItems: [...state.menuItems, menuItem] }))
@@ -183,7 +187,7 @@ export const useMenuStore = create<MenusState>((set, get) => ({
     }
   },
 
-  createMenuShare: async (menuId: string, data: Partial<MenuShare>) => {
+  createMenuShare: async (menuId: string, data: CreateMenuShareInput) => {
     try {
       const menuShare = await menusApi.createMenuShare(menuId, data)
       set((state) => ({ menuShares: [...state.menuShares, menuShare] }))
@@ -226,5 +230,9 @@ export const useMenuStore = create<MenusState>((set, get) => ({
 
   clearMenu: () => {
     set({ menu: null, menuItems: [], menuShares: [] })
+  },
+
+  setMenuItem: (menuItem: MenuItem | null) => {
+    set({ menuItem })
   },
 }))

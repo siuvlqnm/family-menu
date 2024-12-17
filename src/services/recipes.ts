@@ -26,4 +26,8 @@ export const recipesApi = {
   async deleteRecipe(id: string): Promise<void> {
     return await apiClient.delete(`/recipes/${id}`);
   },
+
+  toggleFavorite: async (id: string): Promise<Recipe> => {
+    return apiClient.post<Recipe>(`/recipes/${id}/favorite`)
+  },
 };

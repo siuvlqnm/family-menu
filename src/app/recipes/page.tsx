@@ -11,7 +11,7 @@ import { EmptyState } from '@/components/ui/empty-state'
 import { DataTableLoading } from '@/components/ui/data-table/loading'
 import { DataTableError } from '@/components/ui/data-table/error'
 import { Plus, UtensilsCrossed } from 'lucide-react'
-import { RecipeFilters as RecipeFiltersType } from '@/types/recipes'
+import { RecipeFilters as RecipeFiltersType, Recipe } from '@/types/recipes'
 import { Button } from "@/components/ui/button"
 import Link from "next/link"
 import { DataList } from '@/components/ui/data-list'
@@ -32,7 +32,7 @@ export default function RecipesPage() {
     fetchRecipes()
   }, [checkAuth, router, fetchRecipes])
 
-  const filterData = (recipe: Recipe, filters: RecipeFiltersType) => {
+  const filterData = (recipe: Recipe, filters: RecipeFiltersType): boolean => {
     if (filters.category && recipe.category !== filters.category) {
       return false
     }
@@ -43,7 +43,7 @@ export default function RecipesPage() {
       const searchLower = filters.search.toLowerCase()
       return (
         recipe.name.toLowerCase().includes(searchLower) ||
-        recipe.description.toLowerCase().includes(searchLower)
+        (recipe.description?.toLowerCase()?.includes(searchLower) ?? false)
       )
     }
     return true
@@ -81,7 +81,7 @@ export default function RecipesPage() {
       <DataList
         data={recipes}
         loading={loading}
-        error={error}
+        error={error ? new Error(error) : null}
         filters={filters}
         onFiltersChange={setFilters}
         onFiltersReset={() => setFilters({})}
@@ -95,7 +95,7 @@ export default function RecipesPage() {
         renderItem={(recipe) => (
           <RecipeCard key={recipe.id} recipe={recipe} />
         )}
-        emptyIcon={UtensilsCrossed}
+        emptyIcon={<UtensilsCrossed />}
         emptyTitle="暂无食谱"
         emptyDescription="开始创建您的第一个食谱吧！"
         filterData={filterData}

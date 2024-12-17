@@ -120,7 +120,7 @@ export interface MenuItem {
   recipeId: string;
   date: Date;
   mealTime: keyof typeof MealTime;
-  servings: number | null;
+  servings: number;
   orderIndex: number;
   note: string | null;
   createdAt: Date;

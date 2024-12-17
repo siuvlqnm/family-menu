@@ -37,7 +37,7 @@ const menuFormSchema = z.object({
   coverImage: z.string().optional(),
   tags: z.array(z.string()).default([]),
   menuType: z.enum(['personal', 'family']),
-  familyGroupId: z.string().nullable(),
+  familyGroupId: z.string(),
   status: z.enum(['DRAFT', 'PUBLISHED', 'ARCHIVED']),
 }).refine((data) => {
   if (data.menuType === 'family') {
@@ -90,6 +90,7 @@ export function MenuForm({
         menuType: 'personal',
         coverImage: '',
         status: 'DRAFT',
+        familyGroupId: '',
       }
 
   const form = useForm<MenuFormValues>({

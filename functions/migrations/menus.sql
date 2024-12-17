@@ -20,7 +20,7 @@ CREATE TABLE menu_items (
   recipe_id TEXT NOT NULL REFERENCES recipes(id),
   date INTEGER NOT NULL,
   meal_time TEXT NOT NULL CHECK (meal_time IN ('BREAKFAST', 'LUNCH', 'DINNER', 'SNACK')),
-  servings INTEGER,
+  servings INTEGER NOT NULL DEFAULT 1,
   order_index INTEGER NOT NULL DEFAULT 0,
   note TEXT,
   created_at INTEGER NOT NULL DEFAULT CURRENT_TIMESTAMP,

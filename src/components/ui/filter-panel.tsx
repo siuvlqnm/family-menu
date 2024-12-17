@@ -78,20 +78,19 @@ export function FilterPanel({
             )}
             {option.type === 'date' && (
               <DatePicker
-                value={filters[option.field]}
-                onChange={(date) =>
+                date={filters[option.field] ? new Date(filters[option.field]) : undefined}
+                onSelect={(date) =>
                   handleFilterChange(
                     option.field,
                     date ? date.toISOString() : undefined
                   )
                 }
-                placeholder={option.placeholder}
               />
             )}
             {option.type === 'tags' && (
               <TagInput
-                value={filters[option.field] || []}
-                onChange={(tags) => handleFilterChange(option.field, tags)}
+                tags={filters[option.field] || []}
+                onTagsChange={(tags) => handleFilterChange(option.field, tags)}
                 placeholder={option.placeholder}
               />
             )}

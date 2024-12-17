@@ -48,7 +48,7 @@ import { Trash } from 'lucide-react'
 const menuItemFormSchema = z.object({
   recipeId: z.string().min(1, '请选择菜品'),
   date: z.string(),
-  mealTime: z.enum(['breakfast', 'lunch', 'dinner', 'snack']),
+  mealTime: z.enum(['BREAKFAST', 'LUNCH', 'DINNER', 'SNACK']),
   servings: z.number().min(1).optional(),
   note: z.string().optional(),
 })
@@ -153,7 +153,7 @@ export default function EditMenuItemPage() {
           {
             label: '删除',
             icon: Trash,
-            variant: 'destructive',
+            variant: 'secondary',
             render: (props) => (
               <AlertDialog>
                 <AlertDialogTrigger asChild>

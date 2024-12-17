@@ -46,16 +46,16 @@ export interface Recipe {
   description?: string;
   category: keyof typeof RecipeCategory;
   difficulty: keyof typeof DifficultyLevel;
-  prepTime?: number;
-  cookTime?: number;
-  servings?: number;
+  prepTime: number;
+  cookTime: number;
+  servings: number;
   createdBy: string;
-  familyGroupId?: string;
+  familyGroupId: string;
   ingredients: Ingredient[];
   steps: Step[];
   favorites: number;
   rating: number;
-  tags?: string[];
+  tags: string[];
   createdAt: string;
   updatedAt: string;
 }

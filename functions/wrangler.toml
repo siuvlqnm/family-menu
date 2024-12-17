@@ -1,5 +1,4 @@
 name = "family-menu"
-pages_build_output_dir = "out"
 compatibility_date = "2024-10-30"
 
 [placement]

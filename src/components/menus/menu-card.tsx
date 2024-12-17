@@ -77,28 +77,6 @@ export function MenuCard({
       onView={onView && (() => onView())}
       onEdit={onEdit && (() => onEdit())}
       onDelete={onDelete && (() => onDelete())}
-      actions={
-        <>
-          {onView && (
-            <button type="button" onClick={onView}>
-              <Eye className="h-4 w-4" />
-              <span className="sr-only">查看</span>
-            </button>
-          )}
-          {onEdit && (
-            <button type="button" onClick={onEdit}>
-              <Edit className="h-4 w-4" />
-              <span className="sr-only">编辑</span>
-            </button>
-          )}
-          {onDelete && (
-            <button type="button" onClick={onDelete}>
-              <Trash2 className="h-4 w-4" />
-              <span className="sr-only">删除</span>
-            </button>
-          )}
-        </>
-      }
       className={className}
     />
   )

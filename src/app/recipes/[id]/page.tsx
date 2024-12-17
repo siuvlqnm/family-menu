@@ -69,7 +69,7 @@ const RecipeDetailPage = () => {
     }
   }
 
-  const getCategoryText = (category: RecipeCategory) => {
+  const getCategoryText = (category: keyof typeof RecipeCategory) => {
     switch (category) {
       case "MEAT":
         return "荤菜"
@@ -153,7 +153,7 @@ const RecipeDetailPage = () => {
             </div>
           </CardHeader>
           <CardContent>
-            <RecipeTags tags={recipe.tags} className="mt-2" />
+            <RecipeTags tags={recipe.tags || []} className="mt-2" />
           </CardContent>
         </Card>
 

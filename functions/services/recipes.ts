@@ -1,4 +1,4 @@
-import { eq, and, desc, asc, like, or } from 'drizzle-orm';
+import { eq, and, desc, asc, like, or, inArray } from 'drizzle-orm';
 import { nanoid } from 'nanoid';
 import { Database, recipes, familyMembers } from '../db';
 import type {
@@ -105,7 +105,7 @@ export class RecipeService {
         eq(recipes.id, id),
         or(
           eq(recipes.createdBy, userID),
-          eq(recipes.familyGroupId, familyGroupIds)
+          inArray(recipes.familyGroupId, familyGroupIds)
         )
       ),
     });
@@ -124,7 +124,7 @@ export class RecipeService {
     conditions.push(
       or(
         eq(recipes.createdBy, userID),
-        eq(recipes.familyGroupId, familyGroupIds)
+        inArray(recipes.familyGroupId, familyGroupIds)
       )
     );
 

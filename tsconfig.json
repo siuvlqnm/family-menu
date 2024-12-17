@@ -1,14 +1,10 @@
 {
   "compilerOptions": {
     "target": "ES2017",
-    "lib": [
-      "dom",
-      "dom.iterable",
-      "esnext"
-    ],
-    "allowJs": true,
+    "lib": ["dom", "dom.iterable", "esnext"],
+    "allowJs": false, // 如果项目纯用TS，设为false
     "skipLibCheck": true,
-    "strict": false,
+    "strict": true,
     "noEmit": true,
     "incremental": true,
     "module": "esnext",
@@ -24,15 +20,17 @@
     ],
     "baseUrl": ".",
     "paths": {
-      "@/*": ["src/*"]
-    }
+      "@/*": ["./src/*"]
+    },
+    "types": ["@cloudflare/workers-types"] // 确保包含Cloudflare Workers类型
   },
   "include": [
     "next-env.d.ts",
     ".next/types/**/*.ts",
     "**/*.ts",
-    "**/*.tsx"
-, "functions/services/family.ts.dev"  ],
+    "**/*.tsx",
+    "functions/services/family.ts.dev"
+, "src/stores/shopping-store.ts.dev"  ],
   "exclude": [
     "node_modules"
   ]

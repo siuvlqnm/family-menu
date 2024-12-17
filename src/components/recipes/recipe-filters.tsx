@@ -1,4 +1,4 @@
-import { RecipeFilters } from "@/types/recipes"
+import type { RecipeFilters } from "@/types/recipes"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
@@ -27,13 +27,16 @@ export function RecipeFilters({
   }
 
   const handleCategoryChange = (value: string) => {
-    onFiltersChange({ ...filters, category: value === 'all' ? '' : value })
+    onFiltersChange({
+      ...filters,
+      category: value === 'all' ? undefined : (value as RecipeFilters["category"])
+    })
   }
 
   const handleDifficultyChange = (value: string) => {
     onFiltersChange({
       ...filters,
-      difficulty: value === 'all' ? '' : (value as RecipeFilters["difficulty"]),
+      difficulty: value === 'all' ? undefined : (value as RecipeFilters["difficulty"])
     })
   }
 

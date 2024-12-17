@@ -18,6 +18,10 @@ import { AuthUser } from '../types/auth';
 import { nanoid } from '../utils/id';
 import { string } from 'zod';
 
+// 数据库记录类型
+export type DbMenuItem = typeof menuItems.$inferSelect;
+export type NewDbMenuItem = typeof menuItems.$inferInsert;
+
 export class MenuService {
   constructor(private db: Database) {}
 
@@ -233,17 +237,19 @@ export class MenuService {
       throw new HTTPException(404, { message: 'Recipe not found in family group' });
     }
 
-    // 添加菜单项
-    const [menuItem] = await this.db.insert(menuItems).values({
+    const insertData: NewDbMenuItem = {
       id: nanoid(),
       menuId,
       recipeId: input.recipeId,
       date: input.date,
       mealTime: input.mealTime,
-      servings: input.servings,
-      note: input.note,
-    }).returning();
+      servings: input.servings || 1,
+      orderIndex: input.orderIndex ?? 0,
+      note: input.note || null,
+    };
 
+    // 添加菜单项
+    const [menuItem] = await this.db.insert(menuItems).values(insertData).returning();
     return {
       ...menuItem,
       recipe: {

@@ -115,13 +115,13 @@ export function RecipeForm({
       ingredients: initialData?.ingredients ?? [],
       steps: initialData?.steps ?? [],
       tags: initialData?.tags ?? [],
-      nutrition: initialData?.nutrition ?? {
-        calories: 0,
-        protein: 0,
-        carbs: 0,
-        fat: 0,
-        servingSize: "100g",
-      },
+      // nutrition: initialData?.nutrition ?? {
+      //   calories: 0,
+      //   protein: 0,
+      //   carbs: 0,
+      //   fat: 0,
+      //   servingSize: "100g",
+      // },
     },
   })
 

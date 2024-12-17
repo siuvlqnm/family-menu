@@ -9,7 +9,7 @@ import { MenuCard } from '@/components/menus/menu-card'
 import { MenuFilters } from '@/components/menus/menu-filters'
 import { DataList } from '@/components/ui/data-list'
 import { Plus, UtensilsCrossed } from 'lucide-react'
-import { MenuFilters as MenuFiltersType } from '@/types/menus'
+import { MenuFilters as MenuFiltersType, Menu } from '@/types/menus'
 
 export default function MenusPage() {
   const { checkAuth } = useAuthStore()
@@ -27,7 +27,10 @@ export default function MenusPage() {
     fetchMenus()
   }, [checkAuth, router, fetchMenus])
 
-  const filterData = (menu: any, filters: MenuFiltersType) => {
+  // 添加数据检查
+  console.log('menus:', menus) // 调试用
+
+  const filterData = (menu: Menu, filters: MenuFiltersType) => {
     // 首先根据菜单类型过滤
     if (filters.menuType === 'personal' && menu.familyGroupId) {
       return false
@@ -68,7 +71,7 @@ export default function MenusPage() {
     return true
   }
 
-  const sortData = (a: any, b: any, filters: MenuFiltersType) => {
+  const sortData = (a: Menu, b: Menu, filters: MenuFiltersType) => {
     switch (filters.sort) {
       case 'latest':
         return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
@@ -93,9 +96,9 @@ export default function MenusPage() {
         ]}
       />
       <DataList
-        data={menus}
+        data={menus || []}
         loading={loading}
-        error={error}
+        error={error ? new Error(error) : null}
         filters={filters}
         onFiltersChange={setFilters}
         onFiltersReset={resetFilters}
@@ -114,7 +117,7 @@ export default function MenusPage() {
             onEdit={() => router.push(`/menus/${menu.id}/edit`)}
           />
         )}
-        emptyIcon={UtensilsCrossed}
+        emptyIcon={<UtensilsCrossed />}
         emptyTitle="暂无菜单"
         emptyDescription="开始创建您的第一个菜单吧！"
         filterData={filterData}

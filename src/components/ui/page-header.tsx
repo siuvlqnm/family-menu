@@ -8,8 +8,9 @@ interface PageHeaderProps extends React.HTMLAttributes<HTMLDivElement> {
   actions?: {
     label: string
     icon?: LucideIcon
-    onClick: () => void
+    onClick?: () => void
     variant?: "default" | "secondary" | "outline" | "ghost"
+    render?: (props: any) => React.ReactNode
   }[]
 }
 
@@ -37,6 +38,14 @@ export function PageHeader({
       {actions && actions.length > 0 && (
         <div className="flex items-center gap-2">
           {actions.map((action, index) => {
+            if (action.render) {
+              return action.render({
+                key: index,
+                variant: action.variant,
+                onClick: action.onClick,
+              })
+            }
+
             const Icon = action.icon
             return (
               <Button
