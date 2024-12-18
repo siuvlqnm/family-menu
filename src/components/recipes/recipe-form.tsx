@@ -78,13 +78,13 @@ const recipeFormSchema = z.object({
     })
   ),
   tags: z.array(z.string()),
-  nutrition: z.object({
-    calories: z.coerce.number().min(0),
-    protein: z.coerce.number().min(0),
-    carbs: z.coerce.number().min(0),
-    fat: z.coerce.number().min(0),
-    servingSize: z.string(),
-  }),
+  // nutrition: z.object({
+  //   calories: z.coerce.number().min(0),
+  //   protein: z.coerce.number().min(0),
+  //   carbs: z.coerce.number().min(0),
+  //   fat: z.coerce.number().min(0),
+  //   servingSize: z.string(),
+  // }),
 })
 
 type RecipeFormValues = z.infer<typeof recipeFormSchema>
@@ -450,7 +450,7 @@ export function RecipeForm({
           )}
         />
 
-        <div className="space-y-4">
+        {/* <div className="space-y-4">
           <h3 className="text-lg font-medium">营养信息</h3>
           <div className="grid gap-4 sm:grid-cols-2 md:grid-cols-4">
             <FormField
@@ -545,7 +545,7 @@ export function RecipeForm({
               )}
             />
           </div>
-        </div>
+        </div> */}
 
         <div className="flex justify-end gap-4">
           <Button type="button" variant="outline" onClick={onCancel}>
