@@ -1,14 +1,19 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   output: 'standalone',
-  // 禁用不需要的特性
   images: {
     unoptimized: true,
   },
-  // 优化打包大小
+  async rewrites() {
+    return [
+      {
+        source: '/api/:path*',
+        destination: process.env.NEXT_PUBLIC_API_URL || 'https://api.family-menu.pages.dev/:path*',
+      },
+    ]
+  },
   webpack: (config, { isServer }) => {
     if (!isServer) {
-      // 优化客户端构建
       config.optimization = {
         ...config.optimization,
         minimize: true,
@@ -56,6 +61,6 @@ const nextConfig = {
     }
     return config;
   },
-}
+};
 
-module.exports = nextConfig
+module.exports = nextConfig;
