@@ -10,8 +10,8 @@ interface AuthState {
   error: string | null;
   isAuthenticated: boolean;
 
-  login: (userName: string, password: string) => Promise<void>;
-  register: (data: { userName: string; password: string }) => Promise<void>;
+  login: (userName: string, password: string) => Promise<boolean>;
+  register: (data: { userName: string; name: string; password: string }) => Promise<void>;
   logout: () => void;
   checkAuth: () => boolean;
   fetchUser: () => Promise<void>;
@@ -26,7 +26,7 @@ export const useAuthStore = create<AuthState>()(
       error: null,
       isAuthenticated: false,
 
-      login: async (userName: string, password: string) => {
+      login: async (userName: string, password: string): Promise<boolean> => {
         set({ loading: true, error: null });
         try {
           const { token } = await authService.login({ userName, password });
@@ -37,6 +37,7 @@ export const useAuthStore = create<AuthState>()(
           
           // 获取用户信息
           await get().fetchUser();
+          return true;
         } catch (error) {
           set({ 
             error: error instanceof Error ? error.message : '登录失败', 
@@ -45,7 +46,7 @@ export const useAuthStore = create<AuthState>()(
             token: null,
             user: null
           });
-          throw error;
+          return false;
         }
       },
 

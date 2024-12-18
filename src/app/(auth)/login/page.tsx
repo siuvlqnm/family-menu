@@ -45,13 +45,11 @@ export default function LoginPage() {
   });
 
   async function onSubmit(values: z.infer<typeof formSchema>) {
-    try {
-      await login(values.userName, values.password);
+    const success = await login(values.userName, values.password);
+    if (success) {
       router.push('/dashboard');
-    } catch (error) {
-      // 错误已经在store中处理
-      console.error('Login failed:', error);
     }
+    // 登录失败时不做任何处理，错误信息会通过 store 的 error 状态显示
   }
 
   return (

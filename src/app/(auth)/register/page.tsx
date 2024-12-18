@@ -55,7 +55,7 @@ export default function RegisterPage() {
     try {
       await register({
         userName: values.userName,
-        // name: values.name,
+        name: values.name,
         password: values.password,
       });
       router.push('/dashboard');
