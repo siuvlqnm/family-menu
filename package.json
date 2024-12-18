@@ -50,7 +50,7 @@
     "wrangler": "^3.22.1"
   },
   "engines": {
-    "node": "18.18.0"
+    "node": "22.9.0"
   },
   "scripts": {
     "dev": "next dev",
