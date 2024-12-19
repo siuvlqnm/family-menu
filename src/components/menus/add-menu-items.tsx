@@ -75,7 +75,7 @@ export function AddMenuItems({
   const [searchQuery, setSearchQuery] = useState('')
   // 当前选择的分类
   const [selectedCategory, setSelectedCategory] = useState<string>('all')
-  // 已有的菜品
+  // 已���的菜品
   const [existingItems, setExistingItems] = useState<any[]>([])
   // 加载状态
   const [loading, setLoading] = useState(false)
@@ -102,7 +102,6 @@ export function AddMenuItems({
     try {
       setLoading(true)
       const items = await getMenuItems(menuId)
-      console.log('Fetched items:', items)
       setExistingItems(items)
 
       if (items.length > 0) {
@@ -251,6 +250,66 @@ export function AddMenuItems({
 
   const content = (
     <div className={isDialog ? "max-h-[80vh] overflow-y-auto" : ""}>
+      {/* 日期和用餐时间选择 */}
+      <Card className="mb-6">
+        <CardContent className="pt-6">
+          <Form {...form}>
+            <form className="grid gap-4 sm:grid-cols-2">
+              <FormField
+                control={form.control}
+                name="recipes.0.date"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>日期</FormLabel>
+                    <DatePicker
+                      date={selectedDate ? new Date(selectedDate) : new Date()}
+                      onSelect={(date) => {
+                        const formattedDate = date ? format(date, 'yyyy-MM-dd') : ''
+                        setSelectedDate(formattedDate)
+                        field.onChange(formattedDate)
+                      }}
+                    />
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="recipes.0.mealTime"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>用餐时间</FormLabel>
+                    <Select
+                      value={selectedMealTime}
+                      onValueChange={(value: keyof typeof MealTime) => {
+                        setSelectedMealTime(value)
+                        field.onChange(value)
+                      }}
+                    >
+                      <FormControl>
+                        <SelectTrigger>
+                          <SelectValue>
+                            {MealTime[selectedMealTime]}
+                          </SelectValue>
+                        </SelectTrigger>
+                      </FormControl>
+                      <SelectContent>
+                        {Object.entries(MealTime).map(([key, value]) => (
+                          <SelectItem key={key} value={key}>
+                            {value}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            </form>
+          </Form>
+        </CardContent>
+      </Card>
+
       <div className="grid gap-6 md:grid-cols-[1fr,300px]">
         {/* 左侧：菜品列表 */}
         <div className="space-y-6">
@@ -410,81 +469,14 @@ export function AddMenuItems({
               </ScrollArea>
             </CardContent>
             <CardFooter>
-              <Form {...form}>
-                <form onSubmit={form.handleSubmit(onSubmit)} className="w-full space-y-4">
-                  <div className="grid gap-4">
-                    <FormField
-                      control={form.control}
-                      name="recipes.0.date"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>日期</FormLabel>
-                          <DatePicker
-                            date={selectedDate ? new Date(selectedDate) : new Date()}
-                            onSelect={(date) => {
-                              const formattedDate = date ? format(date, 'yyyy-MM-dd') : ''
-                              setSelectedDate(formattedDate)
-                              field.onChange(formattedDate)
-                            }}
-                          />
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-                    <FormField
-                      control={form.control}
-                      name="recipes.0.mealTime"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>用餐时间</FormLabel>
-                          <Select
-                            value={selectedMealTime}
-                            onValueChange={(value: keyof typeof MealTime) => {
-                              console.log('Selected meal time:', value); // 添加日志
-                              setSelectedMealTime(value)
-                              field.onChange(value)
-                            }}
-                          >
-                            <FormControl>
-                              <SelectTrigger>
-                                <SelectValue>
-                                  {MealTime[selectedMealTime]}
-                                </SelectValue>
-                              </SelectTrigger>
-                            </FormControl>
-                            <SelectContent>
-                              {Object.entries(MealTime).map(([key, value]) => (
-                                <SelectItem key={key} value={key}>
-                                  {value}
-                                </SelectItem>
-                              ))}
-                            </SelectContent>
-                          </Select>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-                  </div>
-                  <div className="flex gap-4">
-                    <Button
-                      type="submit"
-                      className="flex-1"
-                      disabled={selectedRecipes.length === 0 || loading}
-                    >
-                      添加到菜单
-                    </Button>
-                    {isDialog && (
-                      <Button
-                        type="button"
-                        variant="outline"
-                        onClick={onCancel}
-                      >
-                        取消
-                      </Button>
-                    )}
-                  </div>
-                </form>
-              </Form>
+              <Button
+                type="submit"
+                className="w-full"
+                disabled={selectedRecipes.length === 0 || loading}
+                onClick={form.handleSubmit(onSubmit)}
+              >
+                添加到菜单
+              </Button>
             </CardFooter>
           </Card>
         </div>
