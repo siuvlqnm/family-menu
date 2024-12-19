@@ -36,7 +36,7 @@ export default function NewMenuPage() {
                   name: values.name,
                   description: values.description,
                   type: values.type,
-                  coverImage: values.coverImage,
+                  // coverImage: values.coverImage,
                   tags: values.tags,
                   startDate: values.startDate,
                   endDate: values.endDate,

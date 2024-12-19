@@ -79,7 +79,7 @@ export default function EditMenuPage() {
                   description: values.description,
                   type: values.type,
                   status: values.status,
-                  coverImage: values.coverImage,
+                  // coverImage: values.coverImage,
                   tags: values.tags,
                   startDate: values.startDate,
                   endDate: values.endDate,
