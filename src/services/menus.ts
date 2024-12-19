@@ -102,8 +102,8 @@ export const menusApi = {
   },
 
   // 获取分享的菜单
-  async getSharedMenu(shareId: string, token: string): Promise<Menu> {
-    return await apiClient.get<Menu>(`/menus/${shareId}/shared?token=${token}`);
+  async getSharedMenu(shareId: string): Promise<MenuWithItems> {
+    return await apiClient.get<MenuWithItems>(`/shared/${shareId}`);
   },
 
   // 删除分享记录

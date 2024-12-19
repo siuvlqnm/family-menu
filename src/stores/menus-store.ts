@@ -14,7 +14,7 @@ interface MenusState {
 
   fetchMenus: () => Promise<void>
   fetchMenu: (id: string) => Promise<void>
-  fetchSharedMenu: (id: string, token: string) => Promise<void>
+  fetchSharedMenu: (shareId: string) => Promise<void>
   fetchMenuItem: (menuId: string, itemId: string) => Promise<MenuItem>
   fetchMenuItems: (menuId: string) => Promise<void>
   fetchMenuShares: (menuId: string) => Promise<void>
@@ -61,11 +61,7 @@ export const useMenuStore = create<MenusState>((set, get) => ({
     set({ loading: true, error: null })
     try {
       const menuData = await menusApi.getMenu(id)
-      const menu: MenuWithItems = {
-        ...menuData,
-        items: menuData.items || []
-      }
-      set({ menu, loading: false })
+      set({ menu: menuData, loading: false })
     } catch (error) {
       set({
         error: error instanceof Error ? error.message : '获取菜单详情失败',
@@ -74,15 +70,16 @@ export const useMenuStore = create<MenusState>((set, get) => ({
     }
   },
 
-  fetchSharedMenu: async (id: string, token: string) => {
+  fetchSharedMenu: async (shareId: string) => {
     set({ loading: true, error: null })
     try {
-      const menu = await menusApi.getSharedMenu(id, token)
-      set({ menu: { ...menu, items: [] }, loading: false })
+      const menuData = await menusApi.getSharedMenu(shareId)
+      set({ menu: menuData, loading: false })
     } catch (error) {
       set({
         error: error instanceof Error ? error.message : '获取分享菜单失败',
         loading: false,
+        menu: null
       })
     }
   },

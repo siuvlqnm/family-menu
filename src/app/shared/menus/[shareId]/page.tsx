@@ -1,27 +1,20 @@
 'use client'
 
 import { useEffect, useState } from 'react'
-import { useRouter, useSearchParams, useParams } from 'next/navigation'
+import { useParams, useRouter } from 'next/navigation'
 import { format } from 'date-fns'
 import { zhCN } from 'date-fns/locale'
 import { useMenuStore } from '@/stores/menus-store'
-import { MenuType, MealTime } from '@/types/menus'
-import { Button } from '@/components/ui/button'
+import { MenuType, MealTime, MenuItem, MenuWithItems } from '@/types/menus'
 import { Badge } from '@/components/ui/badge'
 import { Separator } from '@/components/ui/separator'
 import { PageHeader } from '@/components/ui/page-header'
 import { LoadingSpinner } from '@/components/ui/loading'
-import { Input } from '@/components/ui/input'
-import { Plus, Edit2, Save, X } from 'lucide-react'
 import Image from 'next/image'
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog"
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog'
 import { AddMenuItems } from '@/components/menus/add-menu-items'
+import { Button } from '@/components/ui/button'
+import { Edit2, Plus } from 'lucide-react'
 
 export const runtime = 'edge';
 
@@ -56,11 +49,10 @@ function MealTimeLabel({ mealTime }: { mealTime: keyof typeof MealTime }) {
 }
 
 export default function SharedMenuPage() {
-  const params = useParams() as { id: string }
-  const { id } = params
+  const params = useParams() as { shareId: string }
+  const { shareId } = params
 
   const router = useRouter()
-  const searchParams = useSearchParams()
   const { menu, loading, error, fetchSharedMenu, updateMenuItem, createMenuItem } = useMenuStore()
   const [editingItem, setEditingItem] = useState<string | null>(null)
   const [editingValues, setEditingValues] = useState<{
@@ -68,22 +60,17 @@ export default function SharedMenuPage() {
     note?: string
   }>({})
   const [showAddItems, setShowAddItems] = useState(false)
-  const token = searchParams.get('token')
 
   useEffect(() => {
-    if (id && token) {
-      fetchSharedMenu(id, token)
+    if (shareId) {
+      console.log('Fetching shared menu:', shareId)
+      fetchSharedMenu(shareId)
     }
-  }, [id, token, fetchSharedMenu])
+  }, [shareId, fetchSharedMenu])
 
   const handleEditStart = (itemId: string, servings?: number, note?: string) => {
     setEditingItem(itemId)
     setEditingValues({ servings, note })
-  }
-
-  const handleEditCancel = () => {
-    setEditingItem(null)
-    setEditingValues({})
   }
 
   const handleEditSave = async (itemId: string) => {
@@ -124,56 +111,66 @@ export default function SharedMenuPage() {
     )
   }
 
-  // 按日期和用餐时间组织菜品
-  const menuItemsByDate = menu.items.reduce((acc, item) => {
-    const date = item.date
+   // 修改菜品数据的组织逻辑
+   const menuItemsByDate = (menu.items || []).reduce((acc, item) => {
+    // 确保日期格式统一，使用 YYYY-MM-DD 格式
+    const date = new Date(item.date).toISOString().split('T')[0];
     if (!acc[date]) {
       acc[date] = {
         BREAKFAST: [],
         LUNCH: [],
         DINNER: [],
         SNACK: [],
-      }
+      };
     }
-    acc[date][item.mealTime].push(item)
-    return acc
-  }, {} as Record<string, Record<keyof typeof MealTime, typeof menu.items>>)
+    // 确保 item.mealTime 是有效的用餐时间
+    const mealTime = item.mealTime as keyof typeof MealTime;
+    if (acc[date][mealTime]) {
+      acc[date][mealTime].push(item);
+    }
+    return acc;
+  }, {} as Record<string, Record<keyof typeof MealTime, MenuItem[]>>);
 
   // 排序日期
   const sortedDates = Object.keys(menuItemsByDate).sort()
 
+  // 检查是否允许编辑
+  // const canEdit = menu?.allowEdit ?? false
+  const canEdit = true
   return (
     <div className="container space-y-6 py-6">
       <PageHeader
         title={menu.name}
         description={menu.description}
-        actions={[
+        actions={canEdit ? [
           {
             label: '添加菜品',
             icon: Plus,
             onClick: () => setShowAddItems(true),
           },
-        ]}
+        ] : undefined}
       />
 
-      <Dialog open={showAddItems} onOpenChange={setShowAddItems}>
-        <DialogContent className="max-w-5xl">
-          <DialogHeader>
-            <DialogTitle>添加菜品</DialogTitle>
-            <DialogDescription>
-              选择要添加到菜单的菜品
-            </DialogDescription>
-          </DialogHeader>
-          <AddMenuItems
-            menuId={menu.id}
-            token={token || ''}
-            onSuccess={() => {
-              setShowAddItems(false)
-              fetchSharedMenu(id, token || '')
-            }}
-          />
-        </DialogContent>
-      </Dialog>
+      {/* 添加菜品对话框 */}
+      {canEdit && (
+        <Dialog open={showAddItems} onOpenChange={setShowAddItems}>
+          <DialogContent className="max-w-5xl">
+            <DialogHeader>
+              <DialogTitle>添加菜品</DialogTitle>
+              <DialogDescription>
+                选择要添加到菜单的菜品
+              </DialogDescription>
+            </DialogHeader>
+            <AddMenuItems
+              menuId={menu.id}
+              onSuccess={() => {
+                setShowAddItems(false)
+                fetchSharedMenu(shareId)
+              }}
+            />
+          </DialogContent>
+        </Dialog>
+      )}
 
       <div className="grid gap-6 md:grid-cols-[2fr,3fr]">
         {/* 左侧：菜单信息 */}
@@ -234,48 +231,29 @@ export default function SharedMenuPage() {
                           >
                             {editingItem === item.id ? (
                               <div className="flex w-full items-center space-x-4">
-                                <div className="flex-1 space-y-2">
+                                <div className="space-y-1">
                                   <div className="font-medium">{item.recipe.name}</div>
-                                  <div className="flex items-center space-x-2">
-                                    <Input
-                                      type="number"
-                                      placeholder="份数"
-                                      className="w-24"
-                                      value={editingValues.servings}
-                                      onChange={(e) =>
-                                        setEditingValues({
-                                          ...editingValues,
-                                          servings: Number(e.target.value),
-                                        })
-                                      }
-                                    />
-                                    <Input
-                                      placeholder="备注"
-                                      value={editingValues.note}
-                                      onChange={(e) =>
-                                        setEditingValues({
-                                          ...editingValues,
-                                          note: e.target.value,
-                                        })
-                                      }
-                                    />
-                                  </div>
+                                  {item.note && (
+                                    <div className="text-sm text-muted-foreground">
+                                      {item.note}
+                                    </div>
+                                  )}
                                 </div>
-                                <div className="flex space-x-2">
-                                  <Button
-                                    variant="ghost"
-                                    size="sm"
-                                    onClick={() => handleEditSave(item.id)}
-                                  >
-                                    <Save className="h-4 w-4" />
-                                  </Button>
-                                  <Button
-                                    variant="ghost"
-                                    size="sm"
-                                    onClick={handleEditCancel}
-                                  >
-                                    <X className="h-4 w-4" />
-                                  </Button>
+                                <div className="flex items-center space-x-4">
+                                  <div className="text-sm text-muted-foreground">
+                                    {item.servings && `${item.servings} 份`}
+                                  </div>
+                                  {canEdit && (
+                                    <Button
+                                      variant="ghost"
+                                      size="sm"
+                                      onClick={() =>
+                                        handleEditStart(item.id, item.servings, item.note)
+                                      }
+                                    >
+                                      <Edit2 className="h-4 w-4" />
+                                    </Button>
+                                  )}
                                 </div>
                               </div>
                             ) : (
@@ -292,15 +270,17 @@ export default function SharedMenuPage() {
                                   <div className="text-sm text-muted-foreground">
                                     {item.servings && `${item.servings} 份`}
                                   </div>
-                                  <Button
-                                    variant="ghost"
-                                    size="sm"
-                                    onClick={() =>
-                                      handleEditStart(item.id, item.servings, item.note)
-                                    }
-                                  >
-                                    <Edit2 className="h-4 w-4" />
-                                  </Button>
+                                  {canEdit && (
+                                    <Button
+                                      variant="ghost"
+                                      size="sm"
+                                      onClick={() =>
+                                        handleEditSave(item.id)
+                                      }
+                                    >
+                                      <Edit2 className="h-4 w-4" />
+                                    </Button>
+                                  )}
                                 </div>
                               </>
                             )}

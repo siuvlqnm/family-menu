@@ -75,7 +75,7 @@ export function AddMenuItems({
   const [searchQuery, setSearchQuery] = useState('')
   // 当前选择的分类
   const [selectedCategory, setSelectedCategory] = useState<string>('all')
-  // 已���的菜品
+  // 已有的菜品
   const [existingItems, setExistingItems] = useState<any[]>([])
   // 加载状态
   const [loading, setLoading] = useState(false)
