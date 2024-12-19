@@ -12,6 +12,11 @@ import {
 } from '@/types/menus';
 import { apiClient } from '@/lib/api-client';
 
+interface MenusResponse {
+  menus: Menu[];
+  total: number;
+}
+
 export const menusApi = {
   // 获取菜单列表
   async getMenus(filters?: MenuFilters): Promise<Menu[]> {
@@ -21,7 +26,8 @@ export const menusApi = {
         if (value) params.append(key, value.toString());
       });
     }
-    return await apiClient.get<Menu[]>(`/menus?${params.toString()}`);
+    const response = await apiClient.get<MenusResponse>(`/menus?${params.toString()}`);
+    return response.menus;
   },
 
   // 获取单个菜单

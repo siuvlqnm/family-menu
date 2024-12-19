@@ -27,9 +27,6 @@ export default function MenusPage() {
     fetchMenus()
   }, [checkAuth, router, fetchMenus])
 
-  // 添加数据检查
-  console.log('menus:', menus) // 调试用
-
   const filterData = (menu: Menu, filters: MenuFiltersType) => {
     // 首先根据菜单类型过滤
     if (filters.menuType === 'personal' && menu.familyGroupId) {

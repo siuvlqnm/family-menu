@@ -19,6 +19,11 @@ import {
 } from '@/components/ui/dropdown-menu';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Icons } from '@/components/ui/icons';
+import {
+  Sheet,
+  SheetContent,
+  SheetTrigger,
+} from "@/components/ui/sheet"
 
 export function Navbar() {
   const router = useRouter();
@@ -32,14 +37,44 @@ export function Navbar() {
   return (
     <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
       <div className="container flex h-14 items-center">
-        <div className="mr-4 hidden md:flex">
+        <Sheet>
+          <SheetTrigger asChild>
+            <Button variant="ghost" size="icon" className="md:hidden">
+              <Icons.menu className="h-5 w-5" />
+              <span className="sr-only">Toggle menu</span>
+            </Button>
+          </SheetTrigger>
+          <SheetContent side="left" className="w-[240px] sm:w-[280px]">
+            <div className="flex flex-col space-y-4">
+              <Link href="/" className="flex items-center space-x-2">
+                <Icons.logo className="h-6 w-6" />
+                <span className="font-bold">家庭菜单</span>
+              </Link>
+              <nav className="flex flex-col space-y-2">
+                <Link href="/dashboard" className="flex items-center px-2 py-1 hover:bg-accent rounded-md">
+                  仪表盘
+                </Link>
+                <Link href="/recipes" className="flex items-center px-2 py-1 hover:bg-accent rounded-md">
+                  菜谱
+                </Link>
+                <Link href="/menus" className="flex items-center px-2 py-1 hover:bg-accent rounded-md">
+                  菜单
+                </Link>
+                <Link href="/shopping-lists" className="flex items-center px-2 py-1 hover:bg-accent rounded-md">
+                  购物清单
+                </Link>
+              </nav>
+            </div>
+          </SheetContent>
+        </Sheet>
+        <div className="mr-4 flex">
           <Link href="/" className="mr-6 flex items-center space-x-2">
             <Icons.logo className="h-6 w-6" />
             <span className="hidden font-bold sm:inline-block">
               家庭菜单
             </span>
           </Link>
-          <NavigationMenu>
+          <NavigationMenu className="hidden md:flex">
             <NavigationMenuList>
               <NavigationMenuItem>
                 <Link href="/dashboard" legacyBehavior passHref>

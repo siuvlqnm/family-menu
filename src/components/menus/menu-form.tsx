@@ -34,7 +34,7 @@ const menuFormSchema = z.object({
   type: z.enum(['DAILY', 'WEEKLY', 'HOLIDAY', 'SPECIAL']),
   startDate: z.string().min(1, '请选择开始日期'),
   endDate: z.string().min(1, '请选择结束日期'),
-  coverImage: z.string().optional(),
+  // coverImage: z.string().optional(),
   tags: z.array(z.string()).default([]),
   menuType: z.enum(['personal', 'family']),
   familyGroupId: z.string(),
@@ -88,7 +88,7 @@ export function MenuForm({
         endDate: format(new Date(), 'yyyy-MM-dd'),
         tags: [],
         menuType: 'personal',
-        coverImage: '',
+        // coverImage: '',
         status: 'DRAFT',
         familyGroupId: '',
       }
@@ -241,7 +241,7 @@ export function MenuForm({
             )}
           />
 
-          <FormField
+          {/* <FormField
             control={form.control}
             name="coverImage"
             render={({ field }) => (
@@ -260,7 +260,7 @@ export function MenuForm({
                 <FormMessage />
               </FormItem>
             )}
-          />
+          /> */}
 
           <FormField
             control={form.control}
