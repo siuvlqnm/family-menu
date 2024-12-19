@@ -1,3 +1,5 @@
+'use client'
+
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useAuthStore } from '@/stores/auth-store';
@@ -24,10 +26,12 @@ import {
   SheetContent,
   SheetTrigger,
 } from "@/components/ui/sheet"
+import { useState } from 'react'
 
 export function Navbar() {
   const router = useRouter();
   const { user, logout } = useAuthStore();
+  const [open, setOpen] = useState(false);
 
   const handleLogout = () => {
     logout();
@@ -37,7 +41,7 @@ export function Navbar() {
   return (
     <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
       <div className="container flex h-14 items-center">
-        <Sheet>
+        <Sheet open={open} onOpenChange={setOpen}>
           <SheetTrigger asChild>
             <Button variant="ghost" size="icon" className="md:hidden">
               <Icons.menu className="h-5 w-5" />
@@ -46,21 +50,37 @@ export function Navbar() {
           </SheetTrigger>
           <SheetContent side="left" className="w-[240px] sm:w-[280px]">
             <div className="flex flex-col space-y-4">
-              <Link href="/" className="flex items-center space-x-2">
+              <Link href="/" className="flex items-center space-x-2" onClick={() => setOpen(false)}>
                 <Icons.logo className="h-6 w-6" />
                 <span className="font-bold">家庭菜单</span>
               </Link>
               <nav className="flex flex-col space-y-2">
-                <Link href="/dashboard" className="flex items-center px-2 py-1 hover:bg-accent rounded-md">
+                <Link 
+                  href="/dashboard" 
+                  className="flex items-center px-2 py-1 hover:bg-accent rounded-md"
+                  onClick={() => setOpen(false)}
+                >
                   仪表盘
                 </Link>
-                <Link href="/recipes" className="flex items-center px-2 py-1 hover:bg-accent rounded-md">
+                <Link 
+                  href="/recipes" 
+                  className="flex items-center px-2 py-1 hover:bg-accent rounded-md"
+                  onClick={() => setOpen(false)}
+                >
                   菜谱
                 </Link>
-                <Link href="/menus" className="flex items-center px-2 py-1 hover:bg-accent rounded-md">
+                <Link 
+                  href="/menus" 
+                  className="flex items-center px-2 py-1 hover:bg-accent rounded-md"
+                  onClick={() => setOpen(false)}
+                >
                   菜单
                 </Link>
-                <Link href="/shopping-lists" className="flex items-center px-2 py-1 hover:bg-accent rounded-md">
+                <Link 
+                  href="/shopping-lists" 
+                  className="flex items-center px-2 py-1 hover:bg-accent rounded-md"
+                  onClick={() => setOpen(false)}
+                >
                   购物清单
                 </Link>
               </nav>

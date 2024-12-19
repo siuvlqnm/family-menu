@@ -109,23 +109,30 @@ export default function MenuDetailPage() {
     )
   }
 
-  // 按日期和用餐时间组织菜品
+  // 修改菜品数据的组织逻辑
   const menuItemsByDate = (menu.items || []).reduce((acc, item) => {
-    const date = item.date
+    // 确保日期格式统一，使用 YYYY-MM-DD 格式
+    const date = new Date(item.date).toISOString().split('T')[0];
     if (!acc[date]) {
       acc[date] = {
         BREAKFAST: [],
         LUNCH: [],
         DINNER: [],
         SNACK: [],
-      }
+      };
     }
-    acc[date][item.mealTime].push(item)
-    return acc
-  }, {} as Record<string, Record<keyof typeof MealTime, MenuItem[]>>)
+    // 确保 item.mealTime 是有效的用餐时间
+    const mealTime = item.mealTime as keyof typeof MealTime;
+    if (acc[date][mealTime]) {
+      acc[date][mealTime].push(item);
+    }
+    return acc;
+  }, {} as Record<string, Record<keyof typeof MealTime, MenuItem[]>>);
 
-  // 排序日期
-  const sortedDates = Object.keys(menuItemsByDate).sort()
+  // 修改日期排序逻辑
+  const sortedDates = Object.keys(menuItemsByDate).sort((a, b) => 
+    new Date(a).getTime() - new Date(b).getTime()
+  );
 
   return (
     <div className="container space-y-6 py-6">

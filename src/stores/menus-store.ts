@@ -60,8 +60,12 @@ export const useMenuStore = create<MenusState>((set, get) => ({
   fetchMenu: async (id: string) => {
     set({ loading: true, error: null })
     try {
-      const menu = await menusApi.getMenu(id)
-      set({ menu: { ...menu, items: [] }, loading: false })
+      const menuData = await menusApi.getMenu(id)
+      const menu: MenuWithItems = {
+        ...menuData,
+        items: menuData.items || []
+      }
+      set({ menu, loading: false })
     } catch (error) {
       set({
         error: error instanceof Error ? error.message : '获取菜单详情失败',

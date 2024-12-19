@@ -8,7 +8,8 @@ import {
   UpdateMenuItemInput,
   CreateMenuShareInput,
   MenuFilters,
-  MealTime
+  MealTime,
+  MenuWithItems
 } from '@/types/menus';
 import { apiClient } from '@/lib/api-client';
 
@@ -31,8 +32,8 @@ export const menusApi = {
   },
 
   // 获取单个菜单
-  async getMenu(id: string): Promise<Menu> {
-    return await apiClient.get<Menu>(`/menus/${id}`);
+  async getMenu(id: string): Promise<MenuWithItems> {
+    return await apiClient.get<MenuWithItems>(`/menus/${id}`);
   },
 
   // 创建菜单
